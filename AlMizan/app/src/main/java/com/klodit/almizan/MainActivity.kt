@@ -5,6 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.klodit.almizan.ui.auth.LoginScreen
+import com.klodit.almizan.ui.auth.VerificationScreen
+import com.klodit.almizan.ui.auth.RegistrationStep1Screen
+
 import com.klodit.almizan.ui.theme.AlMizanTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +16,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AlMizanTheme {
-                LoginScreen()   // ← just show the login screen for now
+                RegistrationStep1Screen()
             }
         }
     }

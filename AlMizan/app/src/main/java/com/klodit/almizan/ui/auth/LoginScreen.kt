@@ -1,5 +1,6 @@
 package com.klodit.almizan.ui.auth
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -20,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.klodit.almizan.R
 
 // ─────────────────────────────────────────────
 //  COLORS
@@ -154,23 +157,17 @@ fun LoginScreen(
                 verticalAlignment     = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                // logo badge — swap Text for Icon once SVG is imported
-                Box(
-                    modifier = Modifier
-                        .size(52.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(GreenAccent),
-                    contentAlignment = Alignment.Center
-                ) {
-                    // TODO: replace with your SVG logo:
-                    // Icon(
-                    //     painter = painterResource(id = R.drawable.logo),
-                    //     contentDescription = "Logo",
-                    //     tint = Color.White,
-                    //     modifier = Modifier.size(30.dp)
-                    // )
-                    Text("⚖", fontSize = 24.sp)
-                }
+                // logo badge
+
+
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "Logo",
+                        modifier = Modifier.size(52.dp)
+                    )
+
+
+
 
                 Spacer(Modifier.width(12.dp))
 
@@ -198,7 +195,7 @@ fun LoginScreen(
         Card(
             modifier  = Modifier
                 .width(cardWidth)
-                .offset(y = -overlapAmount)   // ← pulls card up over the dark header
+                .offset(y = -overlapAmount)   //
                 .zIndex(1f),
             shape     = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp,
                 bottomStart = 16.dp, bottomEnd = 16.dp),
