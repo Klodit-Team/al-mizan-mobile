@@ -11,7 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -38,7 +37,7 @@ private val FieldBg     = Color(0xFFF8FAFB)
 private val PageBg      = Color(0xFFECEFF1)
 
 // ─────────────────────────────────────────────
-//  LANGUAGE
+//  LANGUAGE  (defined here, shared across app)
 // ─────────────────────────────────────────────
 enum class AppLanguage(val label: String) {
     FRENCH("FRANÇAIS"), ARABIC("العربية"), ENGLISH("ENGLISH")
@@ -108,13 +107,14 @@ fun LoginScreen(
     onLoginClick          : (email: String, password: String) -> Unit = { _, _ -> },
     onForgotPasswordClick : () -> Unit = {},
     onRegisterClick       : () -> Unit = {},
-    onBiometricsClick     : () -> Unit = {}
+    onBiometricsClick     : () -> Unit = {},
+    selectedLang          : AppLanguage = AppLanguage.FRENCH,
+    onLanguageChange      : (AppLanguage) -> Unit = {}
 ) {
     var email           by remember { mutableStateOf("") }
     var password        by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var rememberMe      by remember { mutableStateOf(false) }
-    var selectedLang    by remember { mutableStateOf(AppLanguage.FRENCH) }
 
     val strings = when (selectedLang) {
         AppLanguage.FRENCH  -> LoginStrings.french
@@ -122,10 +122,8 @@ fun LoginScreen(
         AppLanguage.ENGLISH -> LoginStrings.english
     }
 
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val cardWidth   = if (screenWidth < 500.dp) screenWidth * 0.90f else 420.dp
-
-    // how many dp the card lifts above the header/content boundary
+    val screenWidth   = LocalConfiguration.current.screenWidthDp.dp
+    val cardWidth     = if (screenWidth < 500.dp) screenWidth * 0.90f else 420.dp
     val overlapAmount = 32.dp
 
     Column(
@@ -136,18 +134,15 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        // ══════════════════════════════════════
-        //  DARK HEADER — extends extra at bottom
-        //  so the card visually overlaps it
-        // ══════════════════════════════════════
+        // ── dark header ──────────────────────
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                // extra bottom padding = overlapAmount so dark bg peeks behind card
                 .background(DarkHeader)
+                .statusBarsPadding()
                 .padding(
-                    top    = 48.dp,
-                    bottom = overlapAmount + 24.dp,  // ← key line
+                    top    = 24.dp,
+                    bottom = overlapAmount + 24.dp,
                     start  = 24.dp,
                     end    = 24.dp
                 ),
@@ -157,20 +152,12 @@ fun LoginScreen(
                 verticalAlignment     = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                // logo badge
-
-
-                    Image(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = "Logo",
-                        modifier = Modifier.size(52.dp)
-                    )
-
-
-
-
+                Image(
+                    painter            = painterResource(id = R.drawable.logo),
+                    contentDescription = "Logo",
+                    modifier           = Modifier.size(52.dp)
+                )
                 Spacer(Modifier.width(12.dp))
-
                 Column {
                     Text(
                         text          = "AL-MIZAN",
@@ -189,16 +176,16 @@ fun LoginScreen(
             }
         }
 
-        // ══════════════════════════════════════
-        //  WHITE CARD — pulled up by overlapAmount
-        // ══════════════════════════════════════
+        // ── white card (overlapping header) ──
         Card(
             modifier  = Modifier
                 .width(cardWidth)
-                .offset(y = -overlapAmount)   //
+                .offset(y = -overlapAmount)
                 .zIndex(1f),
-            shape     = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp,
-                bottomStart = 16.dp, bottomEnd = 16.dp),
+            shape     = RoundedCornerShape(
+                topStart    = 20.dp, topEnd      = 20.dp,
+                bottomStart = 16.dp, bottomEnd   = 16.dp
+            ),
             colors    = CardDefaults.cardColors(containerColor = White),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
@@ -208,56 +195,39 @@ fun LoginScreen(
                     .padding(24.dp)
             ) {
 
-                // heading
-                Text(
-                    text       = strings.signIn,
-                    fontSize   = 26.sp,
-                    fontWeight = FontWeight.Bold,
-                    color      = TextDark
-                )
+                Text(strings.signIn, fontSize = 26.sp, fontWeight = FontWeight.Bold, color = TextDark)
                 Spacer(Modifier.height(6.dp))
-                Text(
-                    text       = strings.welcome,
-                    fontSize   = 13.sp,
-                    color      = TextMid,
-                    lineHeight = 19.sp
-                )
+                Text(strings.welcome, fontSize = 13.sp, color = TextMid, lineHeight = 19.sp)
 
                 Spacer(Modifier.height(24.dp))
 
-                // ── email ────────────────────────────
+                // email
                 FieldLabel(strings.emailLabel)
                 Spacer(Modifier.height(6.dp))
                 OutlinedTextField(
                     value         = email,
                     onValueChange = { email = it },
-                    placeholder   = {
-                        Text("nom.prenom@domain.dz", color = TextLight, fontSize = 13.sp)
-                    },
-                    modifier   = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape      = RoundedCornerShape(8.dp),
-                    colors     = fieldColors()
+                    placeholder   = { Text("nom.prenom@domain.dz", color = TextLight, fontSize = 13.sp) },
+                    modifier      = Modifier.fillMaxWidth(),
+                    singleLine    = true,
+                    shape         = RoundedCornerShape(8.dp),
+                    colors        = fieldColors()
                 )
 
                 Spacer(Modifier.height(16.dp))
 
-                // ── password ─────────────────────────
+                // password
                 FieldLabel(strings.passwordLabel)
                 Spacer(Modifier.height(6.dp))
                 OutlinedTextField(
                     value                = password,
                     onValueChange        = { password = it },
-                    placeholder          = {
-                        Text("••••••••", color = TextLight, fontSize = 13.sp)
-                    },
+                    placeholder          = { Text("••••••••", color = TextLight, fontSize = 13.sp) },
                     modifier             = Modifier.fillMaxWidth(),
                     singleLine           = true,
                     shape                = RoundedCornerShape(8.dp),
-                    visualTransformation = if (passwordVisible)
-                        VisualTransformation.None
-                    else
-                        PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None
+                    else PasswordVisualTransformation(),
                     trailingIcon = {
                         TextButton(
                             onClick        = { passwordVisible = !passwordVisible },
@@ -276,7 +246,7 @@ fun LoginScreen(
 
                 Spacer(Modifier.height(10.dp))
 
-                // ── remember me + forgot password ────
+                // remember me + forgot password
                 Row(
                     modifier              = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -306,71 +276,46 @@ fun LoginScreen(
 
                 Spacer(Modifier.height(18.dp))
 
-                // ── sign in button ───────────────────
+                // sign in button
                 Button(
                     onClick  = { onLoginClick(email, password) },
                     enabled  = email.isNotBlank() && password.isNotBlank(),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    shape  = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    shape    = RoundedCornerShape(8.dp),
+                    colors   = ButtonDefaults.buttonColors(
                         containerColor         = GreenAccent,
                         disabledContainerColor = Color(0xFFB0CDB9)
                     )
                 ) {
-                    Text(
-                        text       = strings.signInButton,
-                        fontSize   = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color      = White
-                    )
+                    Text(strings.signInButton, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = White)
                 }
 
                 Spacer(Modifier.height(20.dp))
 
-                // ── OR divider ───────────────────────
-                Row(
-                    modifier          = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                // OR divider
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
-                    Text(
-                        text       = "  ${strings.orDivider}  ",
-                        fontSize   = 11.sp,
-                        color      = TextLight,
-                        fontWeight = FontWeight.Medium
-                    )
+                    Text("  ${strings.orDivider}  ", fontSize = 11.sp, color = TextLight)
                     HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
                 }
 
                 Spacer(Modifier.height(16.dp))
 
-                // ── biometrics button ────────────────
+                // biometrics
                 OutlinedButton(
                     onClick  = { onBiometricsClick() },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    shape  = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = TextDark)
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    shape    = RoundedCornerShape(8.dp),
+                    colors   = ButtonDefaults.outlinedButtonColors(contentColor = TextDark)
                 ) {
-                    Text(
-                        text       = strings.biometrics,
-                        fontSize   = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        color      = TextDark
-                    )
+                    Text(strings.biometrics, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextDark)
                 }
             }
         }
 
-        // offset(-overlapAmount) creates empty gap, compensate here
         Spacer(Modifier.height(4.dp))
 
-        // ══════════════════════════════════════
-        //  REGISTER LINK
-        // ══════════════════════════════════════
+        // register link
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment     = Alignment.CenterVertically
@@ -388,33 +333,25 @@ fun LoginScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        // ══════════════════════════════════════
-        //  LANGUAGE SELECTOR
-        // ══════════════════════════════════════
+        // language selector
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment     = Alignment.CenterVertically
         ) {
             AppLanguage.entries.forEachIndexed { index, lang ->
-                if (index > 0) {
-                    Text("  •  ", fontSize = 11.sp, color = TextLight)
-                }
+                if (index > 0) Text("  •  ", fontSize = 11.sp, color = TextLight)
                 Text(
                     text       = lang.label,
                     fontSize   = 11.sp,
                     color      = if (selectedLang == lang) GreenAccent else TextLight,
-                    fontWeight = if (selectedLang == lang) FontWeight.Bold
-                    else FontWeight.Normal,
-                    modifier   = Modifier.clickable { selectedLang = lang }
+                    fontWeight = if (selectedLang == lang) FontWeight.Bold else FontWeight.Normal,
+                    modifier   = Modifier.clickable { onLanguageChange(lang) }
                 )
             }
         }
 
         Spacer(Modifier.height(16.dp))
 
-        // ══════════════════════════════════════
-        //  FOOTER
-        // ══════════════════════════════════════
         Text(
             text          = "MINISTÈRE DES FINANCES",
             fontSize      = 9.sp,
@@ -432,12 +369,7 @@ fun LoginScreen(
 // ─────────────────────────────────────────────
 @Composable
 private fun FieldLabel(text: String) {
-    Text(
-        text       = text,
-        fontSize   = 12.sp,
-        fontWeight = FontWeight.SemiBold,
-        color      = TextDark
-    )
+    Text(text = text, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = TextDark)
 }
 
 @Composable

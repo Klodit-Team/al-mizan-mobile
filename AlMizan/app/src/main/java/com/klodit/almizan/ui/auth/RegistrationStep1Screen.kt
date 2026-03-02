@@ -157,9 +157,7 @@ fun RegistrationStep1Screen(
             .background(PageBg2)
     ) {
 
-        // ══════════════════════════════════════
-        //  SCROLLABLE BODY
-        // ══════════════════════════════════════
+        // ── scrollable body ──────────────────
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -167,7 +165,7 @@ fun RegistrationStep1Screen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // ── dark header ──────────────────────
+            // dark header
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -207,7 +205,7 @@ fun RegistrationStep1Screen(
                 }
             }
 
-            // ── step progress card (overlapping) ─
+            // step progress card (overlapping)
             Card(
                 modifier  = Modifier
                     .width(cardWidth)
@@ -230,12 +228,7 @@ fun RegistrationStep1Screen(
                             color         = GreenAccent2,
                             letterSpacing = 1.sp
                         )
-                        Text(
-                            text       = "33%",
-                            fontSize   = 11.sp,
-                            color      = TextLight2,
-                            fontWeight = FontWeight.Medium
-                        )
+                        Text("33%", fontSize = 11.sp, color = TextLight2, fontWeight = FontWeight.Medium)
                     }
                     Spacer(Modifier.height(8.dp))
                     Box(
@@ -256,76 +249,43 @@ fun RegistrationStep1Screen(
                 }
             }
 
-            // compensate offset gap
             Spacer(Modifier.height((-overlapAmount.value + 8).dp))
 
-            // ── main content ─────────────────────
+            // main content
             Column(modifier = Modifier.width(cardWidth)) {
 
-                Text(
-                    text       = strings.sectionTitle,
-                    fontSize   = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color      = TextDark2
-                )
+                Text(strings.sectionTitle, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = TextDark2)
                 Spacer(Modifier.height(4.dp))
-                Text(
-                    text     = strings.sectionSub,
-                    fontSize = 13.sp,
-                    color    = GreenAccent2
-                )
+                Text(strings.sectionSub, fontSize = 13.sp, color = GreenAccent2)
 
                 Spacer(Modifier.height(24.dp))
 
-                // org name
                 RegFieldLabel(strings.fieldOrgName)
                 Spacer(Modifier.height(6.dp))
-                RegTextField(
-                    value         = orgName,
-                    onValueChange = { orgName = it },
-                    placeholder   = strings.placeholderOrg
-                )
+                RegTextField(orgName, { orgName = it }, strings.placeholderOrg)
 
                 Spacer(Modifier.height(16.dp))
 
-                // nif
                 RegFieldLabel(strings.fieldNif)
                 Spacer(Modifier.height(6.dp))
-                RegTextField(
-                    value         = nif,
-                    onValueChange = { nif = it },
-                    placeholder   = strings.placeholderNif
-                )
+                RegTextField(nif, { nif = it }, strings.placeholderNif)
 
                 Spacer(Modifier.height(16.dp))
 
-                // nis
                 RegFieldLabel(strings.fieldNis)
                 Spacer(Modifier.height(6.dp))
-                RegTextField(
-                    value         = nis,
-                    onValueChange = { nis = it },
-                    placeholder   = strings.placeholderNis
-                )
+                RegTextField(nis, { nis = it }, strings.placeholderNis)
 
                 Spacer(Modifier.height(16.dp))
 
-                // rc — file icon
                 RegFieldLabel(strings.fieldRc)
                 Spacer(Modifier.height(6.dp))
                 OutlinedTextField(
                     value         = rc,
                     onValueChange = { rc = it },
-                    placeholder   = {
-                        Text(strings.placeholderRc, color = TextLight2, fontSize = 13.sp)
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector        = Icons.Outlined.Edit,
-                            contentDescription = null,
-                            tint               = TextLight2,
-                            modifier           = Modifier.size(18.dp)
-                        )
+                    placeholder   = { Text(strings.placeholderRc, color = TextLight2, fontSize = 13.sp) },
+                    leadingIcon   = {
+                        Icon(Icons.Outlined.Edit, contentDescription = null, tint = TextLight2, modifier = Modifier.size(18.dp))
                     },
                     modifier   = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -335,7 +295,7 @@ fun RegistrationStep1Screen(
 
                 Spacer(Modifier.height(24.dp))
 
-                // secure notice — lock icon
+                // secure notice
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -344,48 +304,30 @@ fun RegistrationStep1Screen(
                         .padding(14.dp),
                     verticalAlignment = Alignment.Top
                 ) {
-                    Icon(
-                        imageVector        = Icons.Outlined.Lock,
-                        contentDescription = null,
-                        tint               = GreenAccent2,
-                        modifier           = Modifier.size(20.dp)
-                    )
+                    Icon(Icons.Outlined.Lock, contentDescription = null, tint = GreenAccent2, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(10.dp))
                     Column {
-                        Text(
-                            text       = strings.secureTitle,
-                            fontSize   = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                            color      = TextDark2
-                        )
+                        Text(strings.secureTitle, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextDark2)
                         Spacer(Modifier.height(3.dp))
-                        Text(
-                            text       = strings.secureBody,
-                            fontSize   = 12.sp,
-                            color      = TextMid2,
-                            lineHeight = 17.sp
-                        )
+                        Text(strings.secureBody, fontSize = 12.sp, color = TextMid2, lineHeight = 17.sp)
                     }
                 }
 
                 Spacer(Modifier.height(24.dp))
 
-                // ── language selector ────────────
+                // language selector
                 Row(
                     modifier              = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment     = Alignment.CenterVertically
                 ) {
                     AppLanguage.entries.forEachIndexed { index, lang ->
-                        if (index > 0) {
-                            Text("  •  ", fontSize = 11.sp, color = TextLight2)
-                        }
+                        if (index > 0) Text("  •  ", fontSize = 11.sp, color = TextLight2)
                         Text(
                             text       = lang.label,
                             fontSize   = 11.sp,
                             color      = if (selectedLang == lang) GreenAccent2 else TextLight2,
-                            fontWeight = if (selectedLang == lang) FontWeight.Bold
-                            else FontWeight.Normal,
+                            fontWeight = if (selectedLang == lang) FontWeight.Bold else FontWeight.Normal,
                             modifier   = Modifier.clickable { onLanguageChange(lang) }
                         )
                     }
@@ -395,9 +337,7 @@ fun RegistrationStep1Screen(
             }
         }
 
-        // ══════════════════════════════════════
-        //  FIXED BOTTOM
-        // ══════════════════════════════════════
+        // ── fixed bottom ─────────────────────
         Column(
             modifier            = Modifier
                 .fillMaxWidth()
@@ -405,24 +345,10 @@ fun RegistrationStep1Screen(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                verticalAlignment     = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    imageVector        = Icons.Outlined.Lock,
-                    contentDescription = null,
-                    tint               = TextLight2,
-                    modifier           = Modifier.size(12.dp)
-                )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                Icon(Icons.Outlined.Lock, contentDescription = null, tint = TextLight2, modifier = Modifier.size(12.dp))
                 Spacer(Modifier.width(5.dp))
-                Text(
-                    text          = strings.encryption,
-                    fontSize      = 9.sp,
-                    color         = TextLight2,
-                    letterSpacing = 1.sp,
-                    fontWeight    = FontWeight.Medium
-                )
+                Text(strings.encryption, fontSize = 9.sp, color = TextLight2, letterSpacing = 1.sp, fontWeight = FontWeight.Medium)
             }
 
             Spacer(Modifier.height(10.dp))
@@ -430,41 +356,23 @@ fun RegistrationStep1Screen(
             Button(
                 onClick  = { onContinueClick(orgName, nif, nis, rc) },
                 enabled  = canContinue,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape  = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape    = RoundedCornerShape(10.dp),
+                colors   = ButtonDefaults.buttonColors(
                     containerColor         = GreenAccent2,
                     disabledContainerColor = Color(0xFFB0CDB9)
                 )
             ) {
-                Text(
-                    text       = strings.continueBtn,
-                    fontSize   = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    color      = White2
-                )
+                Text(strings.continueBtn, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = White2)
             }
 
             Spacer(Modifier.height(10.dp))
 
-            Text(
-                text     = strings.backLabel,
-                fontSize = 13.sp,
-                color    = TextMid2,
-                modifier = Modifier.clickable { onBackClick() }
-            )
+            Text(strings.backLabel, fontSize = 13.sp, color = TextMid2, modifier = Modifier.clickable { onBackClick() })
 
             Spacer(Modifier.height(8.dp))
 
-            Text(
-                text          = strings.footer,
-                fontSize      = 9.sp,
-                color         = TextLight2,
-                letterSpacing = 0.5.sp,
-                textAlign     = TextAlign.Center
-            )
+            Text(strings.footer, fontSize = 9.sp, color = TextLight2, letterSpacing = 0.5.sp, textAlign = TextAlign.Center)
         }
     }
 }
@@ -474,21 +382,11 @@ fun RegistrationStep1Screen(
 // ─────────────────────────────────────────────
 @Composable
 private fun RegFieldLabel(text: String) {
-    Text(
-        text          = text,
-        fontSize      = 11.sp,
-        fontWeight    = FontWeight.Bold,
-        color         = LabelGrey,
-        letterSpacing = 0.8.sp
-    )
+    Text(text = text, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = LabelGrey, letterSpacing = 0.8.sp)
 }
 
 @Composable
-private fun RegTextField(
-    value        : String,
-    onValueChange: (String) -> Unit,
-    placeholder  : String
-) {
+private fun RegTextField(value: String, onValueChange: (String) -> Unit, placeholder: String) {
     OutlinedTextField(
         value         = value,
         onValueChange = onValueChange,

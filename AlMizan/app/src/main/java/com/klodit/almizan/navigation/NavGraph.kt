@@ -1,21 +1,21 @@
 package com.klodit.almizan.navigation
 
 import androidx.compose.runtime.*
-import .navigation.NavHostController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.klodit.almizan.ui.auth.*
 
 // ─────────────────────────────────────────────
-//  ROUTES  (all screen names in one place)
+//  ROUTES
 // ─────────────────────────────────────────────
 object Routes {
-    const val LOGIN               = "login"
-    const val VERIFICATION        = "verification"
-    const val REGISTRATION_STEP1  = "registration_step1"
-    const val REGISTRATION_STEP2  = "registration_step2"
-    const val REGISTRATION_STEP3  = "registration_step3"
+    const val LOGIN              = "login"
+    const val VERIFICATION       = "verification"
+    const val REGISTRATION_STEP1 = "registration_step1"
+    const val REGISTRATION_STEP2 = "registration_step2"
+    const val REGISTRATION_STEP3 = "registration_step3"
 }
 
 // ─────────────────────────────────────────────
@@ -25,8 +25,7 @@ object Routes {
 fun NavGraph(
     navController: NavHostController = rememberNavController()
 ) {
-    // shared language state — changing it on any screen
-    // affects all other screens automatically
+    // language lives here — shared across ALL screens
     var selectedLang by remember { mutableStateOf(AppLanguage.FRENCH) }
 
     NavHost(
@@ -34,48 +33,42 @@ fun NavGraph(
         startDestination = Routes.LOGIN
     ) {
 
-        // ── LOGIN ────────────────────────────
         composable(Routes.LOGIN) {
             LoginScreen(
-                selectedLang     = selectedLang,
-                onLanguageChange = { selectedLang = it },
-                onLoginClick     = { _, _ ->
+                selectedLang          = selectedLang,
+                onLanguageChange      = { selectedLang = it },
+                onLoginClick          = { _, _ ->
                     navController.navigate(Routes.VERIFICATION)
                 },
-                onForgotPasswordClick = {
-                    // TODO: navigate to forgot password screen
-                },
-                onRegisterClick = {
+                onForgotPasswordClick = { /* TODO */ },
+                onRegisterClick       = {
                     navController.navigate(Routes.REGISTRATION_STEP1)
                 },
-                onBiometricsClick = {
-                    // TODO: handle biometrics
-                }
+                onBiometricsClick     = { /* TODO */ }
             )
         }
 
-        // ── VERIFICATION ─────────────────────
         composable(Routes.VERIFICATION) {
             VerificationScreen(
-                onVerifyClick = { _ ->
-                    // TODO: navigate to home dashboard after verify
+                onVerifyClick    = { code ->
+                    if (code == "123456") {
+                        navController.navigate(Routes.LOGIN) {
+                            popUpTo(Routes.LOGIN) { inclusive = true }
+                        }
+                    }
                 },
-                onResendClick = {
-                    // TODO: call resend API
-                },
-                onLogoutClick = {
-                    // go back to login and clear backstack
+                onResendClick    = { },
+                onLogoutClick    = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 },
-                onNotifClick = {
-                    // TODO: handle notification tap
-                }
+                onNotifClick     = { },
+                selectedLang     = selectedLang,
+                onLanguageChange = { selectedLang = it }
             )
         }
 
-        // ── REGISTRATION STEP 1 ──────────────
         composable(Routes.REGISTRATION_STEP1) {
             RegistrationStep1Screen(
                 selectedLang     = selectedLang,
@@ -83,36 +76,31 @@ fun NavGraph(
                 onContinueClick  = { _, _, _, _ ->
                     navController.navigate(Routes.REGISTRATION_STEP2)
                 },
-                onBackClick = {
-                    navController.popBackStack()
-                }
+                onBackClick      = { navController.popBackStack() }
             )
         }
 
-        // ── REGISTRATION STEP 2 ──────────────
         composable(Routes.REGISTRATION_STEP2) {
             RegistrationStep2Screen(
-                onContinueClick = {
+                selectedLang     = selectedLang,
+                onLanguageChange = { selectedLang = it },
+                onContinueClick  = { _, _, _, _, _ ->
                     navController.navigate(Routes.REGISTRATION_STEP3)
                 },
-                onBackClick = {
-                    navController.popBackStack()
-                }
+                onBackClick = { navController.popBackStack() }
             )
         }
 
-        // ── REGISTRATION STEP 3 ──────────────
         composable(Routes.REGISTRATION_STEP3) {
             RegistrationStep3Screen(
-                onSubmitClick = {
-                    // TODO: navigate to success or login after submit
+                selectedLang     = selectedLang,
+                onLanguageChange = { selectedLang = it },
+                onSubmitClick    = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 },
-                onBackClick = {
-                    navController.popBackStack()
-                }
+                onBackClick = { navController.popBackStack() }
             )
         }
     }
