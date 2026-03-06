@@ -1,4 +1,4 @@
-package com.klodit.almizan.ui.auth
+package com.klodit.almizan.ui.Registration
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.klodit.almizan.ui.auth.AppLanguage
 
 // ─────────────────────────────────────────────
 //  COLORS

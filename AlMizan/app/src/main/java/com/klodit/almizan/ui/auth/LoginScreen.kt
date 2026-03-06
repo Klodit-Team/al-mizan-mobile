@@ -26,15 +26,15 @@ import com.klodit.almizan.R
 // ─────────────────────────────────────────────
 //  COLORS
 // ─────────────────────────────────────────────
-private val DarkHeader  = Color(0xFF364150)
+private val DarkHeader = Color(0xFF364150)
 private val GreenAccent = Color(0xFF4CAE4F)
-private val White       = Color.White
-private val BorderGrey  = Color(0xFFDDE3E8)
-private val TextDark    = Color(0xFF1A2B38)
-private val TextMid     = Color(0xFF4A6070)
-private val TextLight   = Color(0xFF8FA3B0)
-private val FieldBg     = Color(0xFFF8FAFB)
-private val PageBg      = Color(0xFFECEFF1)
+private val White = Color.White
+private val BorderGrey = Color(0xFFDDE3E8)
+private val TextDark = Color(0xFF1A2B38)
+private val TextMid = Color(0xFF4A6070)
+private val TextLight = Color(0xFF8FA3B0)
+private val FieldBg = Color(0xFFF8FAFB)
+private val PageBg = Color(0xFFECEFF1)
 
 // ─────────────────────────────────────────────
 //  LANGUAGE  (defined here, shared across app)
@@ -44,57 +44,57 @@ enum class AppLanguage(val label: String) {
 }
 
 data class LoginStrings(
-    val signIn        : String,
-    val welcome       : String,
-    val emailLabel    : String,
-    val passwordLabel : String,
-    val rememberMe    : String,
+    val signIn: String,
+    val welcome: String,
+    val emailLabel: String,
+    val passwordLabel: String,
+    val rememberMe: String,
     val forgotPassword: String,
-    val signInButton  : String,
-    val orDivider     : String,
-    val biometrics    : String,
-    val noAccount     : String,
-    val register      : String
+    val signInButton: String,
+    val orDivider: String,
+    val biometrics: String,
+    val noAccount: String,
+    val register: String
 ) {
     companion object {
         val french = LoginStrings(
-            signIn         = "Connexion",
-            welcome        = "Bienvenue ! Veuillez saisir vos identifiants pour accéder à votre tableau de bord.",
-            emailLabel     = "Adresse e-mail",
-            passwordLabel  = "Mot de passe",
-            rememberMe     = "Se souvenir de moi",
+            signIn = "Connexion",
+            welcome = "Bienvenue ! Veuillez saisir vos identifiants pour accéder à votre tableau de bord.",
+            emailLabel = "Adresse e-mail",
+            passwordLabel = "Mot de passe",
+            rememberMe = "Se souvenir de moi",
             forgotPassword = "Mot de passe oublié ?",
-            signInButton   = "Se connecter",
-            orDivider      = "OU",
-            biometrics     = "Se connecter avec la biométrie",
-            noAccount      = "Pas encore de compte ?",
-            register       = "S'inscrire ici"
+            signInButton = "Se connecter",
+            orDivider = "OU",
+            biometrics = "Se connecter avec la biométrie",
+            noAccount = "Pas encore de compte ?",
+            register = "S'inscrire ici"
         )
         val arabic = LoginStrings(
-            signIn         = "تسجيل الدخول",
-            welcome        = "مرحباً! يرجى إدخال بيانات الاعتماد للوصول إلى لوحة التحكم.",
-            emailLabel     = "البريد الإلكتروني",
-            passwordLabel  = "كلمة المرور",
-            rememberMe     = "تذكرني",
+            signIn = "تسجيل الدخول",
+            welcome = "مرحباً! يرجى إدخال بيانات الاعتماد للوصول إلى لوحة التحكم.",
+            emailLabel = "البريد الإلكتروني",
+            passwordLabel = "كلمة المرور",
+            rememberMe = "تذكرني",
             forgotPassword = "نسيت كلمة المرور؟",
-            signInButton   = "دخول",
-            orDivider      = "أو",
-            biometrics     = "الدخول بالبصمة",
-            noAccount      = "ليس لديك حساب؟",
-            register       = "سجّل هنا"
+            signInButton = "دخول",
+            orDivider = "أو",
+            biometrics = "الدخول بالبصمة",
+            noAccount = "ليس لديك حساب؟",
+            register = "سجّل هنا"
         )
         val english = LoginStrings(
-            signIn         = "Sign In",
-            welcome        = "Welcome back! Please enter your credentials to access your dashboard.",
-            emailLabel     = "Email Address",
-            passwordLabel  = "Password",
-            rememberMe     = "Remember me",
+            signIn = "Sign In",
+            welcome = "Welcome back! Please enter your credentials to access your dashboard.",
+            emailLabel = "Email Address",
+            passwordLabel = "Password",
+            rememberMe = "Remember me",
             forgotPassword = "Forgot password?",
-            signInButton   = "Sign In",
-            orDivider      = "OR",
-            biometrics     = "Sign in with Biometrics",
-            noAccount      = "Don't have an account yet?",
-            register       = "Register here"
+            signInButton = "Sign In",
+            orDivider = "OR",
+            biometrics = "Sign in with Biometrics",
+            noAccount = "Don't have an account yet?",
+            register = "Register here"
         )
     }
 }
@@ -104,26 +104,26 @@ data class LoginStrings(
 // ─────────────────────────────────────────────
 @Composable
 fun LoginScreen(
-    onLoginClick          : (email: String, password: String) -> Unit = { _, _ -> },
-    onForgotPasswordClick : () -> Unit = {},
-    onRegisterClick       : () -> Unit = {},
-    onBiometricsClick     : () -> Unit = {},
-    selectedLang          : AppLanguage = AppLanguage.FRENCH,
-    onLanguageChange      : (AppLanguage) -> Unit = {}
+    onLoginClick: (email: String, password: String) -> Unit = { _, _ -> },
+    onForgotPasswordClick: () -> Unit = {},
+    onRegisterClick: () -> Unit = {},
+    onBiometricsClick: () -> Unit = {},
+    selectedLang: AppLanguage = AppLanguage.FRENCH,
+    onLanguageChange: (AppLanguage) -> Unit = {}
 ) {
-    var email           by remember { mutableStateOf("") }
-    var password        by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var rememberMe      by remember { mutableStateOf(false) }
+    var rememberMe by remember { mutableStateOf(false) }
 
     val strings = when (selectedLang) {
-        AppLanguage.FRENCH  -> LoginStrings.french
-        AppLanguage.ARABIC  -> LoginStrings.arabic
+        AppLanguage.FRENCH -> LoginStrings.french
+        AppLanguage.ARABIC -> LoginStrings.arabic
         AppLanguage.ENGLISH -> LoginStrings.english
     }
 
-    val screenWidth   = LocalConfiguration.current.screenWidthDp.dp
-    val cardWidth     = if (screenWidth < 500.dp) screenWidth * 0.90f else 420.dp
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val cardWidth = if (screenWidth < 500.dp) screenWidth * 0.90f else 420.dp
     val overlapAmount = 32.dp
 
     Column(
@@ -141,35 +141,35 @@ fun LoginScreen(
                 .background(DarkHeader)
                 .statusBarsPadding()
                 .padding(
-                    top    = 24.dp,
+                    top = 24.dp,
                     bottom = overlapAmount + 24.dp,
-                    start  = 24.dp,
-                    end    = 24.dp
+                    start = 24.dp,
+                    end = 24.dp
                 ),
             contentAlignment = Alignment.Center
         ) {
             Row(
-                verticalAlignment     = Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
                 Image(
-                    painter            = painterResource(id = R.drawable.logo),
+                    painter = painterResource(id = R.drawable.logo),
                     contentDescription = "Logo",
-                    modifier           = Modifier.size(52.dp)
+                    modifier = Modifier.size(52.dp)
                 )
                 Spacer(Modifier.width(12.dp))
                 Column {
                     Text(
-                        text          = "AL-MIZAN",
-                        fontSize      = 22.sp,
-                        fontWeight    = FontWeight.ExtraBold,
-                        color         = White,
+                        text = "AL-MIZAN",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = White,
                         letterSpacing = 1.5.sp
                     )
                     Text(
-                        text          = "SOVEREIGN PROCUREMENT",
-                        fontSize      = 9.sp,
-                        color         = GreenAccent,
+                        text = "SOVEREIGN PROCUREMENT",
+                        fontSize = 9.sp,
+                        color = GreenAccent,
                         letterSpacing = 1.sp
                     )
                 }
@@ -178,15 +178,15 @@ fun LoginScreen(
 
         // ── white card (overlapping header) ──
         Card(
-            modifier  = Modifier
+            modifier = Modifier
                 .width(cardWidth)
                 .offset(y = -overlapAmount)
                 .zIndex(1f),
-            shape     = RoundedCornerShape(
-                topStart    = 20.dp, topEnd      = 20.dp,
-                bottomStart = 16.dp, bottomEnd   = 16.dp
+            shape = RoundedCornerShape(
+                topStart = 20.dp, topEnd = 20.dp,
+                bottomStart = 16.dp, bottomEnd = 16.dp
             ),
-            colors    = CardDefaults.cardColors(containerColor = White),
+            colors = CardDefaults.cardColors(containerColor = White),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
             Column(
@@ -195,7 +195,12 @@ fun LoginScreen(
                     .padding(24.dp)
             ) {
 
-                Text(strings.signIn, fontSize = 26.sp, fontWeight = FontWeight.Bold, color = TextDark)
+                Text(
+                    strings.signIn,
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextDark
+                )
                 Spacer(Modifier.height(6.dp))
                 Text(strings.welcome, fontSize = 13.sp, color = TextMid, lineHeight = 19.sp)
 
@@ -204,14 +209,22 @@ fun LoginScreen(
                 // email
                 FieldLabel(strings.emailLabel)
                 Spacer(Modifier.height(6.dp))
+                var emailTouched by remember { mutableStateOf(false) }
                 OutlinedTextField(
                     value         = email,
-                    onValueChange = { email = it },
-                    placeholder   = { Text("nom.prenom@domain.dz", color = TextLight, fontSize = 13.sp) },
-                    modifier      = Modifier.fillMaxWidth(),
-                    singleLine    = true,
-                    shape         = RoundedCornerShape(8.dp),
-                    colors        = fieldColors()
+                    onValueChange = { email = it; emailTouched = true },
+                    isError       = emailTouched && email.isNotEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches(),
+                    placeholder = {
+                        Text(
+                            "nom.prenom@domain.dz",
+                            color = TextLight,
+                            fontSize = 13.sp
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(8.dp),
+                    colors = fieldColors()
                 )
 
                 Spacer(Modifier.height(16.dp))
@@ -220,23 +233,23 @@ fun LoginScreen(
                 FieldLabel(strings.passwordLabel)
                 Spacer(Modifier.height(6.dp))
                 OutlinedTextField(
-                    value                = password,
-                    onValueChange        = { password = it },
-                    placeholder          = { Text("••••••••", color = TextLight, fontSize = 13.sp) },
-                    modifier             = Modifier.fillMaxWidth(),
-                    singleLine           = true,
-                    shape                = RoundedCornerShape(8.dp),
+                    value = password,
+                    onValueChange = { password = it },
+                    placeholder = { Text("••••••••", color = TextLight, fontSize = 13.sp) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(8.dp),
                     visualTransformation = if (passwordVisible) VisualTransformation.None
                     else PasswordVisualTransformation(),
                     trailingIcon = {
                         TextButton(
-                            onClick        = { passwordVisible = !passwordVisible },
+                            onClick = { passwordVisible = !passwordVisible },
                             contentPadding = PaddingValues(horizontal = 10.dp)
                         ) {
                             Text(
-                                text       = if (passwordVisible) "Masquer" else "Afficher",
-                                fontSize   = 11.sp,
-                                color      = GreenAccent,
+                                text = if (passwordVisible) "Masquer" else "Afficher",
+                                fontSize = 11.sp,
+                                color = GreenAccent,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
@@ -248,17 +261,17 @@ fun LoginScreen(
 
                 // remember me + forgot password
                 Row(
-                    modifier              = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment     = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(
-                            checked         = rememberMe,
+                            checked = rememberMe,
                             onCheckedChange = { rememberMe = it },
-                            modifier        = Modifier.size(20.dp),
-                            colors          = CheckboxDefaults.colors(
-                                checkedColor   = GreenAccent,
+                            modifier = Modifier.size(20.dp),
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = GreenAccent,
                                 uncheckedColor = BorderGrey
                             )
                         )
@@ -266,11 +279,11 @@ fun LoginScreen(
                         Text(strings.rememberMe, fontSize = 12.sp, color = TextMid)
                     }
                     Text(
-                        text       = strings.forgotPassword,
-                        fontSize   = 12.sp,
-                        color      = TextDark,
+                        text = strings.forgotPassword,
+                        fontSize = 12.sp,
+                        color = TextDark,
                         fontWeight = FontWeight.SemiBold,
-                        modifier   = Modifier.clickable { onForgotPasswordClick() }
+                        modifier = Modifier.clickable { onForgotPasswordClick() }
                     )
                 }
 
@@ -278,22 +291,37 @@ fun LoginScreen(
 
                 // sign in button
                 Button(
-                    onClick  = { onLoginClick(email, password) },
-                    enabled  = email.isNotBlank() && password.isNotBlank(),
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
-                    shape    = RoundedCornerShape(8.dp),
-                    colors   = ButtonDefaults.buttonColors(
-                        containerColor         = GreenAccent,
+                    onClick = {
+                        if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                            onLoginClick(email, password)
+                        }
+                    },
+                    enabled = email.isNotBlank() && password.isNotBlank()
+                            && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GreenAccent,
                         disabledContainerColor = Color(0xFFB0CDB9)
                     )
                 ) {
-                    Text(strings.signInButton, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = White)
+                    Text(
+                        strings.signInButton,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = White
+                    )
                 }
 
                 Spacer(Modifier.height(20.dp))
 
                 // OR divider
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
                     Text("  ${strings.orDivider}  ", fontSize = 11.sp, color = TextLight)
                     HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
@@ -303,12 +331,19 @@ fun LoginScreen(
 
                 // biometrics
                 OutlinedButton(
-                    onClick  = { onBiometricsClick() },
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
-                    shape    = RoundedCornerShape(8.dp),
-                    colors   = ButtonDefaults.outlinedButtonColors(contentColor = TextDark)
+                    onClick = { onBiometricsClick() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = TextDark)
                 ) {
-                    Text(strings.biometrics, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextDark)
+                    Text(
+                        strings.biometrics,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = TextDark
+                    )
                 }
             }
         }
@@ -318,16 +353,16 @@ fun LoginScreen(
         // register link
         Row(
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment     = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(strings.noAccount, fontSize = 13.sp, color = TextMid)
             Spacer(Modifier.width(4.dp))
             Text(
-                text       = strings.register,
-                fontSize   = 13.sp,
+                text = strings.register,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color      = TextDark,
-                modifier   = Modifier.clickable { onRegisterClick() }
+                color = TextDark,
+                modifier = Modifier.clickable { onRegisterClick() }
             )
         }
 
@@ -336,16 +371,16 @@ fun LoginScreen(
         // language selector
         Row(
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment     = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
         ) {
             AppLanguage.entries.forEachIndexed { index, lang ->
                 if (index > 0) Text("  •  ", fontSize = 11.sp, color = TextLight)
                 Text(
-                    text       = lang.label,
-                    fontSize   = 11.sp,
-                    color      = if (selectedLang == lang) GreenAccent else TextLight,
+                    text = lang.label,
+                    fontSize = 11.sp,
+                    color = if (selectedLang == lang) GreenAccent else TextLight,
                     fontWeight = if (selectedLang == lang) FontWeight.Bold else FontWeight.Normal,
-                    modifier   = Modifier.clickable { onLanguageChange(lang) }
+                    modifier = Modifier.clickable { onLanguageChange(lang) }
                 )
             }
         }
@@ -353,11 +388,11 @@ fun LoginScreen(
         Spacer(Modifier.height(16.dp))
 
         Text(
-            text          = "MINISTÈRE DES FINANCES",
-            fontSize      = 9.sp,
-            color         = TextLight,
+            text = "MINISTÈRE DES FINANCES",
+            fontSize = 9.sp,
+            color = TextLight,
             letterSpacing = 1.5.sp,
-            textAlign     = TextAlign.Center
+            textAlign = TextAlign.Center
         )
 
         Spacer(Modifier.height(24.dp))
@@ -374,11 +409,11 @@ private fun FieldLabel(text: String) {
 
 @Composable
 private fun fieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor      = GreenAccent,
-    unfocusedBorderColor    = BorderGrey,
-    focusedTextColor        = TextDark,
-    unfocusedTextColor      = TextDark,
-    cursorColor             = GreenAccent,
-    focusedContainerColor   = FieldBg,
+    focusedBorderColor = GreenAccent,
+    unfocusedBorderColor = BorderGrey,
+    focusedTextColor = TextDark,
+    unfocusedTextColor = TextDark,
+    cursorColor = GreenAccent,
+    focusedContainerColor = FieldBg,
     unfocusedContainerColor = FieldBg
 )
