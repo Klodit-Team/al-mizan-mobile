@@ -24,6 +24,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.klodit.almizan.ui.auth.AppLanguage
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.withStyle
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 
 // ─────────────────────────────────────────────
 //  COLORS
@@ -128,19 +134,23 @@ private data class RegStrings(
 // ─────────────────────────────────────────────
 @Composable
 fun RegistrationStep1Screen(
-    onContinueClick : (orgName: String, nif: String, nis: String, rc: String) -> Unit = { _, _, _, _ -> },
-    onBackClick     : () -> Unit = {},
-    onInfoClick     : () -> Unit = {},
-    selectedLang    : AppLanguage = AppLanguage.FRENCH,
-    onLanguageChange: (AppLanguage) -> Unit = {}
-) {
+    onContinueClick   : (orgName: String, nif: String, nis: String, rc: String) -> Unit = { _, _, _, _ -> },
+    onBackClick       : () -> Unit = {},
+    onInfoClick       : () -> Unit = {},
+    onTermsClick      : () -> Unit = {},
+    onPrivacyClick    : () -> Unit = {},
+    selectedLang      : AppLanguage = AppLanguage.FRENCH,
+    onLanguageChange  : (AppLanguage) -> Unit = {}
+){
     var orgName by remember { mutableStateOf("") }
     var nif     by remember { mutableStateOf("") }
     var nis     by remember { mutableStateOf("") }
     var rc      by remember { mutableStateOf("") }
+    var agreedToTerms by remember { mutableStateOf(false) }
 
-    val canContinue = orgName.isNotBlank() && nif.isNotBlank()
-            && nis.isNotBlank() && rc.isNotBlank()
+    val canContinue = orgName.isNotBlank() && nif.length == 15
+            && nis.length == 15 && rc.isNotBlank()
+            && agreedToTerms
 
     val strings = when (selectedLang) {
         AppLanguage.FRENCH  -> RegStrings.french
@@ -269,13 +279,39 @@ fun RegistrationStep1Screen(
 
                 RegFieldLabel(strings.fieldNif)
                 Spacer(Modifier.height(6.dp))
-                RegTextField(nif, { nif = it }, strings.placeholderNif)
+                OutlinedTextField(
+                    value         = nif,
+                    onValueChange = { if (it.length <= 15 && it.all { c -> c.isDigit() }) nif = it },
+                    placeholder   = { Text(strings.placeholderNif, color = TextLight2, fontSize = 13.sp) },
+                    modifier      = Modifier.fillMaxWidth(),
+                    singleLine    = true,
+                    shape         = RoundedCornerShape(8.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    supportingText  = {
+                        Text("${nif.length}/15", fontSize = 10.sp, color = if (nif.length == 15) GreenAccent2 else TextLight2,
+                            modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
+                    },
+                    colors        = regFieldColors()
+                )
 
                 Spacer(Modifier.height(16.dp))
 
                 RegFieldLabel(strings.fieldNis)
                 Spacer(Modifier.height(6.dp))
-                RegTextField(nis, { nis = it }, strings.placeholderNis)
+                OutlinedTextField(
+                    value         = nis,
+                    onValueChange = { if (it.length <= 15 && it.all { c -> c.isDigit() }) nis = it },
+                    placeholder   = { Text(strings.placeholderNis, color = TextLight2, fontSize = 13.sp) },
+                    modifier      = Modifier.fillMaxWidth(),
+                    singleLine    = true,
+                    shape         = RoundedCornerShape(8.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    supportingText  = {
+                        Text("${nis.length}/15", fontSize = 10.sp, color = if (nis.length == 15) GreenAccent2 else TextLight2,
+                            modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
+                    },
+                    colors        = regFieldColors()
+                )
 
                 Spacer(Modifier.height(16.dp))
 
@@ -334,6 +370,53 @@ fun RegistrationStep1Screen(
                     }
                 }
 
+                Spacer(Modifier.height(24.dp))
+
+                // ── terms checkbox ───────────────────
+                Row(
+                    modifier          = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked         = agreedToTerms,
+                        onCheckedChange = { agreedToTerms = it },
+                        modifier        = Modifier.size(20.dp),
+                        colors          = CheckboxDefaults.colors(
+                            checkedColor   = GreenAccent2,
+                            uncheckedColor = BorderGrey2
+                        )
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    val termsText = buildAnnotatedString {
+                        append("I agree to the ")
+                        pushStringAnnotation(tag = "TERMS", annotation = "terms")
+                        withStyle(SpanStyle(color = GreenAccent2, fontWeight = FontWeight.SemiBold)) {
+                            append("Terms of Service")
+                        }
+                        pop()
+                        append(" and ")
+                        pushStringAnnotation(tag = "PRIVACY", annotation = "privacy")
+                        withStyle(SpanStyle(color = GreenAccent2, fontWeight = FontWeight.SemiBold)) {
+                            append("Privacy Policy")
+                        }
+                        pop()
+                        append(".")
+                    }
+
+                    ClickableText(
+                        text  = termsText,
+                        style = androidx.compose.ui.text.TextStyle(fontSize = 12.sp, color = TextMid2),
+                        onClick = { offset ->
+                            termsText.getStringAnnotations("TERMS", offset, offset)
+                                .firstOrNull()?.let { onTermsClick() }
+                            termsText.getStringAnnotations("PRIVACY", offset, offset)
+                                .firstOrNull()?.let { onPrivacyClick() }
+                        }
+                    )
+
+                }
                 Spacer(Modifier.height(24.dp))
             }
         }

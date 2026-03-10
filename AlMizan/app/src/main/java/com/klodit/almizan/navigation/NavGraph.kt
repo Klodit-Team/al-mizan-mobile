@@ -22,6 +22,8 @@ object Routes {
     const val REGISTRATION_STEP1 = "registration_step1"
     const val REGISTRATION_STEP2 = "registration_step2"
     const val REGISTRATION_STEP3 = "registration_step3"
+    const val TERMS   = "terms"
+    const val PRIVACY = "privacy"
 }
 
 // ─────────────────────────────────────────────
@@ -147,8 +149,21 @@ fun NavGraph(
                 onContinueClick  = { _, _, _, _ ->
                     navController.navigate(Routes.REGISTRATION_STEP2)
                 },
-                onBackClick      = { navController.popBackStack() }
+                onBackClick      = { navController.popBackStack() },
+                onTermsClick     = {
+                    navController.navigate(Routes.TERMS)        // TODO: create this route
+                },
+                onPrivacyClick   = {
+                    navController.navigate(Routes.PRIVACY)      // TODO: create this route
+                }
             )
+        }
+        // ── FILES OF TERMS AND PRIVACY  ──────────────
+        composable(Routes.TERMS) {
+            // TODO: TermsScreen()
+        }
+        composable(Routes.PRIVACY) {
+            // TODO: PrivacyScreen()
         }
 
         // ── REGISTRATION STEP 2 ──────────────
@@ -156,7 +171,7 @@ fun NavGraph(
             RegistrationStep2Screen(
                 selectedLang     = selectedLang,
                 onLanguageChange = { selectedLang = it },
-                onContinueClick  = { _, _, _, _, _ ->
+                onContinueClick  = { _, _, _ ->
                     navController.navigate(Routes.REGISTRATION_STEP3)
                 },
                 onBackClick      = { navController.popBackStack() }

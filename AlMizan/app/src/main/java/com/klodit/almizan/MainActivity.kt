@@ -16,9 +16,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             AlMizanTheme {
                 val navController = rememberNavController()
-                //NavGraph(navController = navController)
+                NavGraph(navController = navController)
 
-                MainNavGraph(navController = navController)
+                //MainNavGraph(navController = navController)
             }
         }
     }
