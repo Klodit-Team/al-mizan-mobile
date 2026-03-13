@@ -1,3 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AlMizan</string>
+    <string name="app_name">Al-Mizan</string>
+    <string name="app_tagline">SOVEREIGN PROCUREMENT</string>
+    <string name="footer_ministry">MINISTÈRE DES FINANCES</string>
+
+    <!-- ── COMMON ── -->
+    <string name="lang_french">FRANÇAIS</string>
+    <string name="lang_arabic">العربية</string>
+    <string name="lang_english">ENGLISH</string>
+    <string name="password_weak">FAIBLE</string>
+    <string name="password_medium">MOYEN</string>
+    <string name="password_strong">FORT</string>
+    <string name="e2ee_secured">SÉCURISÉ E2EE</string>
+    <string name="bank_encryption">CHIFFREMENT BANCAIRE</string>
+    <string name="err_email_invalid">Format d\'email invalide</string>
+    <string name="err_phone_invalid">Numéro algérien invalide (ex: 0555 123 456)</string>
+    <string name="err_passwords_no_match">Les mots de passe ne correspondent pas</string>
+    <string name="passwords_match">Les mots de passe correspondent</string>
+
+    <!-- ── LOGIN SCREEN ── -->
+    <string name="login_title">Connexion</string>
+    <string name="login_welcome">Bienvenue ! Veuillez saisir vos identifiants pour accéder à votre tableau de bord.</string>
+    <string name="login_email_label">Adresse e-mail</string>
+    <string name="login_password_label">Mot de passe</string>
+    <string name="login_remember_me">Se souvenir de moi</string>
+    <string name="login_forgot_password">Mot de passe oublié ?</string>
+    <string name="login_sign_in_btn">Se connecter</string>
+    <string name="login_or_divider">OU</string>
+    <string name="login_biometrics">Se connecter avec la biométrie</string>
+    <string name="login_no_account">Pas encore de compte ?</string>
+    <string name="login_register">S\'inscrire ici</string>
+
+    <!-- ── VERIFICATION SCREEN ── -->
+    <string name="verif_title">Vérification en deux étapes</string>
+    <string name="verif_subtitle">Un code de vérification à 6 chiffres a été envoyé à votre adresse e-mail professionnelle enregistrée.</string>
+    <string name="verif_expires_label">CODE EXPIRE DANS</string>
+    <string name="verif_verify_btn">Vérifier et accéder</string>
+    <string name="verif_no_code">Vous n\'avez pas reçu le code ?</string>
+    <string name="verif_resend">Renvoyer le code</string>
+    <string name="verif_footer_1">PLATEFORME SOUVERAINE AL-MIZAN</string>
+    <string name="verif_footer_2">Accès sécurisé — Ministère des Finances</string>
+    <string name="verif_logout">Déconnexion</string>
+    <string name="verif_notifications">Notifications</string>
+    <string name="verif_no_notifs">Aucune notification</string>
+
+    <!-- ── FORGOT PASSWORD SCREEN ── -->
+    <string name="fp_title">Réinitialiser le mot de passe</string>
+    <string name="fp_subtitle">Entrez votre adresse e-mail enregistrée et nous vous enverrons les instructions pour réinitialiser votre mot de passe en toute sécurité.</string>
+    <string name="fp_email_label">Adresse e-mail</string>
+    <string name="fp_email_placeholder">nom.prenom@domain.dz</string>
+    <string name="fp_send_btn">Envoyer le code de réinitialisation</string>
+    <string name="fp_remembered">Vous vous souvenez de votre mot de passe ?</string>
+    <string name="fp_sign_in">Se connecter ici</string>
+
+    <!-- ── SET NEW PASSWORD SCREEN ── -->
+    <string name="snp_title">Nouveau mot de passe</string>
+    <string name="snp_subtitle">Entrez le code de récupération reçu par e-mail, puis définissez votre nouveau mot de passe.</string>
+    <string name="snp_recovery_label">CODE DE RÉCUPÉRATION</string>
+    <string name="snp_new_pass_label">NOUVEAU MOT DE PASSE</string>
+    <string name="snp_confirm_label">CONFIRMER LE MOT DE PASSE</string>
+    <string name="snp_new_pass_ph">Minimum 8 caractères</string>
+    <string name="snp_confirm_ph">Répéter le mot de passe</string>
+    <string name="snp_save_btn">Enregistrer le nouveau mot de passe</string>
+    <string name="snp_password_mismatch">Les mots de passe ne correspondent pas</string>
+
+    <!-- ── ACCOUNT LOCKED SCREEN ── -->
+    <string name="al_title">Compte Verrouillé</string>
+    <string name="al_subtitle">Pour votre sécurité, votre compte a été temporairement verrouillé en raison de plusieurs tentatives de connexion infructueuses.</string>
+    <string name="al_try_again">Veuillez réessayer dans</string>
+    <string name="al_reset_btn">Réinitialiser le mot de passe par e-mail</string>
+    <string name="al_contact_support">Contacter le support</string>
+
+    <!-- ── REGISTRATION STEP 1 ── -->
+    <string name="reg1_step_label">ÉTAPE 1 SUR 3</string>
+    <string name="reg1_section_title">Détails de l\'organisation</string>
+    <string name="reg1_section_sub">Informations générales &amp; identifiants fiscaux</string>
+    <string name="reg1_field_org_name">DÉNOMINATION SOCIALE</string>
+    <string name="reg1_field_nif">CODE NIF</string>
+    <string name="reg1_field_nis">NUMÉRO NIS</string>
+    <string name="reg1_field_rc">NUMÉRO DU REGISTRE COMMERCIAL (RC)</string>
+    <string name="reg1_ph_org">ex. Al-Mizan Solutions Sarl</string>
+    <string name="reg1_ph_nif">NIF à 15 chiffres</string>
+    <string name="reg1_ph_nis">NIS</string>
+    <string name="reg1_ph_rc">Entrer le numéro RC</string>
+    <string name="reg1_secure_title">Données Souveraines Sécurisées</string>
+    <string name="reg1_secure_body">Les données d\'identité de votre organisation sont chiffrées et gérées selon des protocoles souverains.</string>
+    <string name="reg1_continue_btn">Continuer vers l\'étape 2  →</string>
+    <string name="reg1_back_label">← Retour à l\'accueil</string>
+    <string name="reg1_terms_text">J\'accepte les </string>
+    <string name="reg1_terms_link">Conditions d\'utilisation</string>
+    <string name="reg1_and"> et la </string>
+    <string name="reg1_privacy_link">Politique de confidentialité</string>
+
+    <!-- ── REGISTRATION STEP 2 ── -->
+    <string name="reg2_step_label">ÉTAPE 2 SUR 3</string>
+    <string name="reg2_section_title">Identifiants de l\'entreprise</string>
+    <string name="reg2_section_sub">Créez vos identifiants de connexion sécurisés</string>
+    <string name="reg2_phone_label">NUMÉRO DE TÉLÉPHONE DE L\'ENTREPRISE</string>
+    <string name="reg2_email_label">EMAIL PROFESSIONNEL (IDENTIFIANT)</string>
+    <string name="reg2_password_label">MOT DE PASSE</string>
+    <string name="reg2_confirm_label">CONFIRMER LE MOT DE PASSE</string>
+    <string name="reg2_ph_phone">+213 555 123 456</string>
+    <string name="reg2_ph_email">nom@entreprise.com</string>
+    <string name="reg2_admin_title">Administrateur Principal</string>
+    <string name="reg2_admin_body">Ce compte aura un accès administratif complet pour gérer le profil de l\'organisation.</string>
+    <string name="reg2_identity">VÉRIFICATION D\'IDENTITÉ REQUISE</string>
+    <string name="reg2_continue_btn">Continuer vers l\'étape 3  →</string>
+    <string name="reg2_back_label">← Retour aux détails de l\'organisation</string>
+
+    <!-- ── REGISTRATION STEP 3 ── -->
+    <string name="reg3_step_label">ÉTAPE 3 SUR 3</string>
+    <string name="reg3_section_title">Vérification des Documents</string>
+    <string name="reg3_section_sub">Téléchargez votre document légal. Notre IA l\'analysera automatiquement.</string>
+    <string name="reg3_upload_title">Télécharger un document</string>
+    <string name="reg3_upload_sub">PDF, JPG ou PNG · Max 10 Mo</string>
+    <string name="reg3_upload_btn">SÉLECTIONNER UN FICHIER</string>
+    <string name="reg3_analyzing">Analyse IA en cours…</string>
+    <string name="reg3_analyzing_msg">Notre IA extrait et vérifie les informations du document.</string>
+    <string name="reg3_analyzed">Analyse terminée</string>
+    <string name="reg3_analyzed_msg">Les informations ont été extraites avec succès.</string>
+    <string name="reg3_change_doc">Changer de document</string>
+    <string name="reg3_privacy_title">Garantie de Confidentialité</string>
+    <string name="reg3_privacy_body">Vos documents sont chiffrés et accessibles uniquement par le personnel de vérification autorisé.</string>
+    <string name="reg3_submit_btn">Soumettre l\'inscription</string>
+    <string name="reg3_back_label">← Retour aux identifiants</string>
+
+    <!-- ── COMMON FOOTER / BACK ── -->
+    <string name="back_to_welcome">← Retour à l\'accueil</string>
+    <string name="back_to_org_details">← Retour aux détails de l\'organisation</string>
+    <string name="back_to_credentials">← Retour aux identifiants</string>
+    <string name="sovereign_footer">© 2024 PLATEFORME SOUVERAINE AL-MIZAN</string>
 </resources>

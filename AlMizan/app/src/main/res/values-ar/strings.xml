@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">الميزان</string>
+    <string name="app_tagline">المشتريات السيادية</string>
+    <string name="footer_ministry">وزارة المالية</string>
+
+    <!-- ── COMMON ── -->
+    <string name="lang_french">FRANÇAIS</string>
+    <string name="lang_arabic">العربية</string>
+    <string name="lang_english">ENGLISH</string>
+    <string name="password_weak">ضعيف</string>
+    <string name="password_medium">متوسط</string>
+    <string name="password_strong">قوي</string>
+    <string name="e2ee_secured">مؤمّن E2EE</string>
+    <string name="bank_encryption">تشفير مصرفي</string>
+    <string name="err_email_invalid">صيغة البريد الإلكتروني غير صحيحة</string>
+    <string name="err_phone_invalid">رقم جزائري غير صحيح (مثال: 0555 123 456)</string>
+    <string name="err_passwords_no_match">كلمتا المرور غير متطابقتين</string>
+    <string name="passwords_match">كلمتا المرور متطابقتان</string>
+
+    <!-- ── LOGIN SCREEN ── -->
+    <string name="login_title">تسجيل الدخول</string>
+    <string name="login_welcome">مرحباً! يرجى إدخال بيانات الاعتماد للوصول إلى لوحة التحكم.</string>
+    <string name="login_email_label">البريد الإلكتروني</string>
+    <string name="login_password_label">كلمة المرور</string>
+    <string name="login_remember_me">تذكرني</string>
+    <string name="login_forgot_password">نسيت كلمة المرور؟</string>
+    <string name="login_sign_in_btn">دخول</string>
+    <string name="login_or_divider">أو</string>
+    <string name="login_biometrics">الدخول بالبصمة</string>
+    <string name="login_no_account">ليس لديك حساب؟</string>
+    <string name="login_register">سجّل هنا</string>
+
+    <!-- ── VERIFICATION SCREEN ── -->
+    <string name="verif_title">التحقق بخطوتين</string>
+    <string name="verif_subtitle">تم إرسال رمز تحقق مكوّن من 6 أرقام إلى بريدك الإلكتروني المهني المسجّل.</string>
+    <string name="verif_expires_label">الرمز ينتهي خلال</string>
+    <string name="verif_verify_btn">تحقق والدخول</string>
+    <string name="verif_no_code">لم تستلم الرمز؟</string>
+    <string name="verif_resend">إعادة إرسال الرمز</string>
+    <string name="verif_footer_1">منصة الميزان السيادية</string>
+    <string name="verif_footer_2">وصول آمن — وزارة المالية</string>
+    <string name="verif_logout">تسجيل الخروج</string>
+    <string name="verif_notifications">الإشعارات</string>
+    <string name="verif_no_notifs">لا توجد إشعارات</string>
+
+    <!-- ── FORGOT PASSWORD SCREEN ── -->
+    <string name="fp_title">إعادة تعيين كلمة المرور</string>
+    <string name="fp_subtitle">أدخل عنوان بريدك الإلكتروني المسجل وسنرسل لك تعليمات لإعادة التعيين بأمان.</string>
+    <string name="fp_email_label">البريد الإلكتروني</string>
+    <string name="fp_email_placeholder">nom.prenom@domain.dz</string>
+    <string name="fp_send_btn">إرسال رمز إعادة التعيين</string>
+    <string name="fp_remembered">هل تتذكر كلمة مرورك؟</string>
+    <string name="fp_sign_in">تسجيل الدخول هنا</string>
+
+    <!-- ── SET NEW PASSWORD SCREEN ── -->
+    <string name="snp_title">كلمة مرور جديدة</string>
+    <string name="snp_subtitle">أدخل رمز الاسترداد الذي تلقيته عبر البريد الإلكتروني ثم حدّد كلمة مرورك الجديدة.</string>
+    <string name="snp_recovery_label">رمز الاسترداد</string>
+    <string name="snp_new_pass_label">كلمة المرور الجديدة</string>
+    <string name="snp_confirm_label">تأكيد كلمة المرور</string>
+    <string name="snp_new_pass_ph">8 أحرف على الأقل</string>
+    <string name="snp_confirm_ph">أعد كتابة كلمة المرور</string>
+    <string name="snp_save_btn">حفظ كلمة المرور الجديدة</string>
+    <string name="snp_password_mismatch">كلمتا المرور غير متطابقتين</string>
+
+    <!-- ── ACCOUNT LOCKED SCREEN ── -->
+    <string name="al_title">الحساب مقفل</string>
+    <string name="al_subtitle">لأمانك، تم قفل حسابك مؤقتًا بسبب محاولات تسجيل دخول فاشلة متعددة.</string>
+    <string name="al_try_again">يرجى المحاولة مرة أخرى خلال</string>
+    <string name="al_reset_btn">إعادة تعيين كلمة المرور عبر البريد</string>
+    <string name="al_contact_support">التواصل مع الدعم</string>
+
+    <!-- ── REGISTRATION STEP 1 ── -->
+    <string name="reg1_step_label">الخطوة 1 من 3</string>
+    <string name="reg1_section_title">تفاصيل المنظمة</string>
+    <string name="reg1_section_sub">المعلومات العامة والمعرّفات الضريبية</string>
+    <string name="reg1_field_org_name">الاسم التجاري</string>
+    <string name="reg1_field_nif">رمز NIF</string>
+    <string name="reg1_field_nis">رقم NIS</string>
+    <string name="reg1_field_rc">رقم السجل التجاري (RC)</string>
+    <string name="reg1_ph_org">مثال: Al-Mizan Solutions Sarl</string>
+    <string name="reg1_ph_nif">NIF مكوّن من 15 رقمًا</string>
+    <string name="reg1_ph_nis">NIS</string>
+    <string name="reg1_ph_rc">أدخل رقم السجل التجاري</string>
+    <string name="reg1_secure_title">بيانات سيادية مؤمّنة</string>
+    <string name="reg1_secure_body">تُشفَّر بيانات هوية مؤسستك وتُدار وفق بروتوكولات سيادية.</string>
+    <string name="reg1_continue_btn">المتابعة إلى الخطوة 2 ←</string>
+    <string name="reg1_back_label">→ العودة إلى الرئيسية</string>
+    <string name="reg1_terms_text">أوافق على </string>
+    <string name="reg1_terms_link">شروط الاستخدام</string>
+    <string name="reg1_and"> و</string>
+    <string name="reg1_privacy_link">سياسة الخصوصية</string>
+
+    <!-- ── REGISTRATION STEP 2 ── -->
+    <string name="reg2_step_label">الخطوة 2 من 3</string>
+    <string name="reg2_section_title">بيانات اعتماد الشركة</string>
+    <string name="reg2_section_sub">أنشئ بيانات اعتماد دخول آمنة</string>
+    <string name="reg2_phone_label">رقم هاتف الشركة</string>
+    <string name="reg2_email_label">البريد المهني (معرّف الدخول)</string>
+    <string name="reg2_password_label">كلمة المرور</string>
+    <string name="reg2_confirm_label">تأكيد كلمة المرور</string>
+    <string name="reg2_ph_phone">+213 555 123 456</string>
+    <string name="reg2_ph_email">nom@entreprise.com</string>
+    <string name="reg2_admin_title">المسؤول الرئيسي</string>
+    <string name="reg2_admin_body">سيتمتع هذا الحساب بصلاحية إدارية كاملة لإدارة ملف المؤسسة.</string>
+    <string name="reg2_identity">التحقق من الهوية مطلوب</string>
+    <string name="reg2_continue_btn">المتابعة إلى الخطوة 3 ←</string>
+    <string name="reg2_back_label">→ العودة إلى تفاصيل المنظمة</string>
+
+    <!-- ── REGISTRATION STEP 3 ── -->
+    <string name="reg3_step_label">الخطوة 3 من 3</string>
+    <string name="reg3_section_title">التحقق من الوثائق</string>
+    <string name="reg3_section_sub">ارفع وثيقتك الرسمية وسيحللها نظام الذكاء الاصطناعي تلقائيًا.</string>
+    <string name="reg3_upload_title">رفع وثيقة</string>
+    <string name="reg3_upload_sub">PDF أو JPG أو PNG · الحد الأقصى 10 ميغابايت</string>
+    <string name="reg3_upload_btn">اختيار ملف</string>
+    <string name="reg3_analyzing">جارٍ التحليل بالذكاء الاصطناعي…</string>
+    <string name="reg3_analyzing_msg">يستخرج الذكاء الاصطناعي معلومات الوثيقة ويتحقق منها.</string>
+    <string name="reg3_analyzed">اكتمل التحليل</string>
+    <string name="reg3_analyzed_msg">تم استخراج المعلومات بنجاح.</string>
+    <string name="reg3_change_doc">تغيير الوثيقة</string>
+    <string name="reg3_privacy_title">ضمان الخصوصية</string>
+    <string name="reg3_privacy_body">وثائقك مشفّرة ولا يمكن الاطلاع عليها إلا من قِبَل موظفي التحقق المعتمدين.</string>
+    <string name="reg3_submit_btn">إرسال طلب التسجيل</string>
+    <string name="reg3_back_label">→ العودة إلى بيانات الاعتماد</string>
+
+    <!-- ── COMMON FOOTER / BACK ── -->
+    <string name="back_to_welcome">→ العودة إلى الرئيسية</string>
+    <string name="back_to_org_details">→ العودة إلى تفاصيل المنظمة</string>
+    <string name="back_to_credentials">→ العودة إلى بيانات الاعتماد</string>
+    <string name="sovereign_footer">© 2024 منصة الميزان السيادية</string>
+</resources>

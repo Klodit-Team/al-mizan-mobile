@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Al-Mizan</string>
+    <string name="app_tagline">SOVEREIGN PROCUREMENT</string>
+    <string name="footer_ministry">MINISTRY OF FINANCE</string>
+
+    <!-- ── COMMON ── -->
+    <string name="lang_french">FRANÇAIS</string>
+    <string name="lang_arabic">العربية</string>
+    <string name="lang_english">ENGLISH</string>
+    <string name="password_weak">WEAK</string>
+    <string name="password_medium">MEDIUM</string>
+    <string name="password_strong">STRONG</string>
+    <string name="e2ee_secured">E2EE SECURED</string>
+    <string name="bank_encryption">BANK ENCRYPTION</string>
+    <string name="err_email_invalid">Invalid email format</string>
+    <string name="err_phone_invalid">Invalid Algerian number (e.g. 0555 123 456)</string>
+    <string name="err_passwords_no_match">Passwords do not match</string>
+    <string name="passwords_match">Passwords match</string>
+
+    <!-- ── LOGIN SCREEN ── -->
+    <string name="login_title">Sign In</string>
+    <string name="login_welcome">Welcome back! Please enter your credentials to access your dashboard.</string>
+    <string name="login_email_label">Email Address</string>
+    <string name="login_password_label">Password</string>
+    <string name="login_remember_me">Remember me</string>
+    <string name="login_forgot_password">Forgot password?</string>
+    <string name="login_sign_in_btn">Sign In</string>
+    <string name="login_or_divider">OR</string>
+    <string name="login_biometrics">Sign in with Biometrics</string>
+    <string name="login_no_account">Don\'t have an account yet?</string>
+    <string name="login_register">Register here</string>
+
+    <!-- ── VERIFICATION SCREEN ── -->
+    <string name="verif_title">Two-Step Verification</string>
+    <string name="verif_subtitle">A 6-digit verification code has been sent to your registered professional email address.</string>
+    <string name="verif_expires_label">CODE EXPIRES IN</string>
+    <string name="verif_verify_btn">Verify and Access</string>
+    <string name="verif_no_code">Didn\'t receive the code?</string>
+    <string name="verif_resend">Resend code</string>
+    <string name="verif_footer_1">AL-MIZAN SOVEREIGN PLATFORM</string>
+    <string name="verif_footer_2">Secure Access — Ministry of Finance</string>
+    <string name="verif_logout">Log Out</string>
+    <string name="verif_notifications">Notifications</string>
+    <string name="verif_no_notifs">No notifications</string>
+
+    <!-- ── FORGOT PASSWORD SCREEN ── -->
+    <string name="fp_title">Reset Password</string>
+    <string name="fp_subtitle">Enter your registered email address and we will send you instructions to reset your password securely.</string>
+    <string name="fp_email_label">Email Address</string>
+    <string name="fp_email_placeholder">nom.prenom@domain.dz</string>
+    <string name="fp_send_btn">Send Reset Code</string>
+    <string name="fp_remembered">Remembered your password?</string>
+    <string name="fp_sign_in">Sign in here</string>
+
+    <!-- ── SET NEW PASSWORD SCREEN ── -->
+    <string name="snp_title">New Password</string>
+    <string name="snp_subtitle">Enter the recovery code received by email, then set your new password.</string>
+    <string name="snp_recovery_label">RECOVERY CODE</string>
+    <string name="snp_new_pass_label">NEW PASSWORD</string>
+    <string name="snp_confirm_label">CONFIRM PASSWORD</string>
+    <string name="snp_new_pass_ph">Minimum 8 characters</string>
+    <string name="snp_confirm_ph">Repeat password</string>
+    <string name="snp_save_btn">Save New Password</string>
+    <string name="snp_password_mismatch">Passwords do not match</string>
+
+    <!-- ── ACCOUNT LOCKED SCREEN ── -->
+    <string name="al_title">Account Locked</string>
+    <string name="al_subtitle">For your security, your account has been temporarily locked due to multiple unsuccessful login attempts.</string>
+    <string name="al_try_again">Please try again in</string>
+    <string name="al_reset_btn">Reset Password via Email</string>
+    <string name="al_contact_support">Contact Support</string>
+
+    <!-- ── REGISTRATION STEP 1 ── -->
+    <string name="reg1_step_label">STEP 1 OF 3</string>
+    <string name="reg1_section_title">Organisation Details</string>
+    <string name="reg1_section_sub">General information &amp; tax identifiers</string>
+    <string name="reg1_field_org_name">COMPANY NAME</string>
+    <string name="reg1_field_nif">NIF CODE</string>
+    <string name="reg1_field_nis">NIS NUMBER</string>
+    <string name="reg1_field_rc">COMMERCIAL REGISTER NUMBER (RC)</string>
+    <string name="reg1_ph_org">e.g. Al-Mizan Solutions Sarl</string>
+    <string name="reg1_ph_nif">15-digit NIF</string>
+    <string name="reg1_ph_nis">NIS</string>
+    <string name="reg1_ph_rc">Enter RC number</string>
+    <string name="reg1_secure_title">Sovereign Secured Data</string>
+    <string name="reg1_secure_body">Your organisation\'s identity data is encrypted and managed under sovereign protocols.</string>
+    <string name="reg1_continue_btn">Continue to Step 2  →</string>
+    <string name="reg1_back_label">← Back to home</string>
+    <string name="reg1_terms_text">I agree to the </string>
+    <string name="reg1_terms_link">Terms of Use</string>
+    <string name="reg1_and"> and the </string>
+    <string name="reg1_privacy_link">Privacy Policy</string>
+
+    <!-- ── REGISTRATION STEP 2 ── -->
+    <string name="reg2_step_label">STEP 2 OF 3</string>
+    <string name="reg2_section_title">Company Credentials</string>
+    <string name="reg2_section_sub">Create your secure login credentials</string>
+    <string name="reg2_phone_label">COMPANY PHONE NUMBER</string>
+    <string name="reg2_email_label">PROFESSIONAL EMAIL (LOGIN ID)</string>
+    <string name="reg2_password_label">PASSWORD</string>
+    <string name="reg2_confirm_label">CONFIRM PASSWORD</string>
+    <string name="reg2_ph_phone">+213 555 123 456</string>
+    <string name="reg2_ph_email">name@company.com</string>
+    <string name="reg2_admin_title">Primary Administrator</string>
+    <string name="reg2_admin_body">This account will have full administrative access to manage the organisation\'s profile.</string>
+    <string name="reg2_identity">IDENTITY VERIFICATION REQUIRED</string>
+    <string name="reg2_continue_btn">Continue to Step 3  →</string>
+    <string name="reg2_back_label">← Back to organisation details</string>
+
+    <!-- ── REGISTRATION STEP 3 ── -->
+    <string name="reg3_step_label">STEP 3 OF 3</string>
+    <string name="reg3_section_title">Document Verification</string>
+    <string name="reg3_section_sub">Upload your legal document. Our AI will analyse it automatically.</string>
+    <string name="reg3_upload_title">Upload a Document</string>
+    <string name="reg3_upload_sub">PDF, JPG or PNG · Max 10 MB</string>
+    <string name="reg3_upload_btn">SELECT FILE</string>
+    <string name="reg3_analyzing">AI Analysis in progress…</string>
+    <string name="reg3_analyzing_msg">Our AI is extracting and verifying document information.</string>
+    <string name="reg3_analyzed">Analysis complete</string>
+    <string name="reg3_analyzed_msg">Information has been extracted successfully.</string>
+    <string name="reg3_change_doc">Change document</string>
+    <string name="reg3_privacy_title">Privacy Guarantee</string>
+    <string name="reg3_privacy_body">Your documents are encrypted and accessible only by authorised verification staff.</string>
+    <string name="reg3_submit_btn">Submit Registration</string>
+    <string name="reg3_back_label">← Back to credentials</string>
+
+    <!-- ── COMMON FOOTER / BACK ── -->
+    <string name="back_to_welcome">← Back to home</string>
+    <string name="back_to_org_details">← Back to organisation details</string>
+    <string name="back_to_credentials">← Back to credentials</string>
+    <string name="sovereign_footer">© 2024 AL-MIZAN SOVEREIGN PLATFORM</string>
+</resources>

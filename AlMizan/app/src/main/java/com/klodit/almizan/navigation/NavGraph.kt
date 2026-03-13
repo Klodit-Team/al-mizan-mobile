@@ -1,19 +1,17 @@
 package com.klodit.almizan.navigation
 
 import androidx.compose.runtime.*
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.klodit.almizan.ui.auth.*
 import com.klodit.almizan.ui.Registration.RegistrationStep1Screen
 import com.klodit.almizan.ui.Registration.RegistrationStep2Screen
 import com.klodit.almizan.ui.Registration.RegistrationStep3Screen
-import com.klodit.almizan.ui.auth.*
+import com.klodit.almizan.ui.theme.AppLanguage   // ← moved here from LoginScreen.kt
+import com.klodit.almizan.util.LocaleHelper
 
-// ─────────────────────────────────────────────
-//  ROUTES
-// ─────────────────────────────────────────────
-object Routes {
+private object Routes {
     const val LOGIN              = "login"
     const val VERIFICATION       = "verification"
     const val FORGOT_PASSWORD    = "forgot_password"
@@ -22,174 +20,120 @@ object Routes {
     const val REGISTRATION_STEP1 = "registration_step1"
     const val REGISTRATION_STEP2 = "registration_step2"
     const val REGISTRATION_STEP3 = "registration_step3"
-    const val TERMS   = "terms"
-    const val PRIVACY = "privacy"
+    const val TERMS              = "terms"
+    const val PRIVACY            = "privacy"
 }
 
-// ─────────────────────────────────────────────
-//  NAV GRAPH
-// ─────────────────────────────────────────────
 @Composable
-fun NavGraph(
-    navController: NavHostController = rememberNavController()
-) {
+fun NavGraph(onAuthSuccess: () -> Unit = {}) {
+    val navController = rememberNavController()
+
     var selectedLang   by remember { mutableStateOf(AppLanguage.FRENCH) }
     var failedAttempts by remember { mutableIntStateOf(0) }
 
-    NavHost(
-        navController    = navController,
-        startDestination = Routes.LOGIN
-    ) {
+    // When user changes language, apply it system-wide via AppCompatDelegate
+    fun changeLanguage(lang: AppLanguage) {
+        selectedLang = lang
+        LocaleHelper.setLocale(lang)
+    }
 
-        // ── LOGIN ────────────────────────────
+    NavHost(navController = navController, startDestination = Routes.LOGIN) {
+
         composable(Routes.LOGIN) {
             LoginScreen(
-                selectedLang          = selectedLang,
-                onLanguageChange      = { selectedLang = it },
-                /*onLoginClick          = { _, _ ->
+                selectedLang     = selectedLang,
+                onLanguageChange = { changeLanguage(it) },
+                onLoginClick     = { _, _ ->
                     failedAttempts++
                     if (failedAttempts >= 5) {
-                        failedAttempts = 0
                         navController.navigate(Routes.ACCOUNT_LOCKED)
                     } else {
                         navController.navigate(Routes.VERIFICATION)
                     }
-                },*/
-                onLoginClick = { email, password ->
-                    if (password == "admin123") {
-                        // correct password → go to verification
-                        failedAttempts = 0
-                        navController.navigate(Routes.VERIFICATION)
-                    } else {
-                        // wrong password → count attempt
-                        failedAttempts++
-                        if (failedAttempts >= 5) {
-                            failedAttempts = 0
-                            navController.navigate(Routes.ACCOUNT_LOCKED)
-                        }
-                        // else stay on login screen and show nothing (real app shows error toast)
-                    }
                 },
-                onForgotPasswordClick = {
-                    navController.navigate(Routes.FORGOT_PASSWORD)
-                },
-                onRegisterClick       = {
-                    navController.navigate(Routes.REGISTRATION_STEP1)
-                },
-                onBiometricsClick     = { }
+                onForgotPasswordClick = { navController.navigate(Routes.FORGOT_PASSWORD) },
+                onRegisterClick       = { navController.navigate(Routes.REGISTRATION_STEP1) }
             )
         }
 
-        // ── VERIFICATION ─────────────────────
         composable(Routes.VERIFICATION) {
             VerificationScreen(
+                selectedLang     = selectedLang,
+                onLanguageChange = { changeLanguage(it) },
                 onVerifyClick    = { code ->
                     if (code == "123456") {
-                        navController.navigate(Routes.LOGIN) {
-                            popUpTo(Routes.LOGIN) { inclusive = true }
-                        }
+                        failedAttempts = 0
+                        onAuthSuccess()
                     }
                 },
-                onResendClick    = { },
-                onLogoutClick    = {
-                    navController.navigate(Routes.LOGIN) {
-                        popUpTo(Routes.LOGIN) { inclusive = true }
-                    }
-                },
-                onNotifClick     = { },
-                selectedLang     = selectedLang,
-                onLanguageChange = { selectedLang = it }
+                onResendClick = {},
+                onLogoutClick = { navController.popBackStack(Routes.LOGIN, false) }
             )
         }
 
-        // ── FORGOT PASSWORD ──────────────────
         composable(Routes.FORGOT_PASSWORD) {
             ForgotPasswordScreen(
                 selectedLang     = selectedLang,
-                onLanguageChange = { selectedLang = it },
-                onSendClick      = { _ ->
-                    navController.navigate(Routes.SET_NEW_PASSWORD)
-                },
+                onLanguageChange = { changeLanguage(it) },
+                onSendClick      = { navController.navigate(Routes.SET_NEW_PASSWORD) },
                 onBackClick      = { navController.popBackStack() },
-                onSignInClick    = { navController.popBackStack() }
+                onSignInClick    = { navController.popBackStack(Routes.LOGIN, false) }
             )
         }
 
-        // ── SET NEW PASSWORD ─────────────────
         composable(Routes.SET_NEW_PASSWORD) {
             SetNewPasswordScreen(
                 selectedLang     = selectedLang,
-                onLanguageChange = { selectedLang = it },
-                onSaveClick      = { _, _ ->
-                    navController.navigate(Routes.LOGIN) {
-                        popUpTo(Routes.LOGIN) { inclusive = true }
-                    }
-                },
+                onLanguageChange = { changeLanguage(it) },
+                onSaveClick      = { _, _ -> navController.popBackStack(Routes.LOGIN, false) },
                 onBackClick      = { navController.popBackStack() }
             )
         }
 
-        // ── ACCOUNT LOCKED ───────────────────
         composable(Routes.ACCOUNT_LOCKED) {
             AccountLockedScreen(
-                selectedLang         = selectedLang,
-                onLanguageChange     = { selectedLang = it },
-                onResetPasswordClick = {
-                    navController.navigate(Routes.FORGOT_PASSWORD)
-                },
-                onContactSupport     = { }
+                selectedLang        = selectedLang,
+                onLanguageChange    = { changeLanguage(it) },
+                onResetPasswordClick = { navController.navigate(Routes.FORGOT_PASSWORD) },
+                onContactSupport    = {}
             )
         }
 
-        // ── REGISTRATION STEP 1 ──────────────
         composable(Routes.REGISTRATION_STEP1) {
             RegistrationStep1Screen(
                 selectedLang     = selectedLang,
-                onLanguageChange = { selectedLang = it },
-                onContinueClick  = { _, _, _, _ ->
-                    navController.navigate(Routes.REGISTRATION_STEP2)
-                },
+                onLanguageChange = { changeLanguage(it) },
+                onContinueClick  = { _, _, _, _ -> navController.navigate(Routes.REGISTRATION_STEP2) },
                 onBackClick      = { navController.popBackStack() },
-                onTermsClick     = {
-                    navController.navigate(Routes.TERMS)        // TODO: create this route
-                },
-                onPrivacyClick   = {
-                    navController.navigate(Routes.PRIVACY)      // TODO: create this route
-                }
+                onTermsClick     = { navController.navigate(Routes.TERMS) },
+                onPrivacyClick   = { navController.navigate(Routes.PRIVACY) }
             )
         }
-        // ── FILES OF TERMS AND PRIVACY  ──────────────
-        composable(Routes.TERMS) {
-            // TODO: TermsScreen()
-        }
-        composable(Routes.PRIVACY) {
-            // TODO: PrivacyScreen()
-        }
 
-        // ── REGISTRATION STEP 2 ──────────────
         composable(Routes.REGISTRATION_STEP2) {
             RegistrationStep2Screen(
                 selectedLang     = selectedLang,
-                onLanguageChange = { selectedLang = it },
-                onContinueClick  = { _, _, _ ->
-                    navController.navigate(Routes.REGISTRATION_STEP3)
-                },
+                onLanguageChange = { changeLanguage(it) },
+                onContinueClick  = { _, _, _ -> navController.navigate(Routes.REGISTRATION_STEP3) },
                 onBackClick      = { navController.popBackStack() }
             )
         }
 
-        // ── REGISTRATION STEP 3 ──────────────
         composable(Routes.REGISTRATION_STEP3) {
             RegistrationStep3Screen(
                 selectedLang     = selectedLang,
-                onLanguageChange = { selectedLang = it },
-                onSubmitClick    = {
-                    navController.navigate(Routes.LOGIN) {
-                        popUpTo(Routes.LOGIN) { inclusive = true }
-                    }
-                },
+                onLanguageChange = { changeLanguage(it) },
+                onSubmitClick    = { navController.popBackStack(Routes.LOGIN, false) },
                 onBackClick      = { navController.popBackStack() }
             )
+        }
+
+        composable(Routes.TERMS) {
+            // TODO: TermsScreen()
+        }
+
+        composable(Routes.PRIVACY) {
+            // TODO: PrivacyScreen()
         }
     }
 }

@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -16,479 +18,303 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.klodit.almizan.ui.auth.AppLanguage
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.withStyle
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
+import com.klodit.almizan.R
+import com.klodit.almizan.ui.auth.AuthFieldLabel
+import com.klodit.almizan.ui.auth.LanguageSwitcher
+import com.klodit.almizan.ui.auth.authFieldColors
+import com.klodit.almizan.ui.theme.AppLanguage
+import com.klodit.almizan.ui.theme.Grey200
 
-// ─────────────────────────────────────────────
-//  COLORS
-// ─────────────────────────────────────────────
-private val DarkHeader2  = Color(0xFF364150)
-private val GreenAccent2 = Color(0xFF4CAE4F)
-private val GreenLight   = Color(0xFFE8F5E9)
-private val White2       = Color.White
-private val BorderGrey2  = Color(0xFFDDE3E8)
-private val TextDark2    = Color(0xFF1A2B38)
-private val TextMid2     = Color(0xFF4A6070)
-private val TextLight2   = Color(0xFF8FA3B0)
-private val FieldBg2     = Color(0xFFF8FAFB)
-private val PageBg2      = Color(0xFFECEFF1)
-private val LabelGrey    = Color(0xFF6B8090)
-
-// ─────────────────────────────────────────────
-//  STRINGS PER LANGUAGE
-// ─────────────────────────────────────────────
-private data class RegStrings(
-    val stepLabel     : String,
-    val sectionTitle  : String,
-    val sectionSub    : String,
-    val fieldOrgName  : String,
-    val fieldNif      : String,
-    val fieldNis      : String,
-    val fieldRc       : String,
-    val placeholderOrg: String,
-    val placeholderNif: String,
-    val placeholderNis: String,
-    val placeholderRc : String,
-    val secureTitle   : String,
-    val secureBody    : String,
-    val encryption    : String,
-    val continueBtn   : String,
-    val backLabel     : String,
-    val footer        : String
-) {
-    companion object {
-        val french = RegStrings(
-            stepLabel      = "ÉTAPE 1 SUR 3",
-            sectionTitle   = "Détails de l'organisation",
-            sectionSub     = "Informations générales & identifiants fiscaux",
-            fieldOrgName   = "DÉNOMINATION SOCIALE",
-            fieldNif       = "CODE NIF",
-            fieldNis       = "NUMÉRO NIS",
-            fieldRc        = "NUMÉRO DU REGISTRE COMMERCIAL (RC)",
-            placeholderOrg = "ex. Al-Mizan Solutions Sarl",
-            placeholderNif = "NIF à 15 chiffres",
-            placeholderNis = "NIS",
-            placeholderRc  = "Entrer le numéro RC",
-            secureTitle    = "Données Souveraines Sécurisées",
-            secureBody     = "Les données d'identité de votre organisation sont chiffrées et gérées selon des protocoles souverains.",
-            encryption     = "CHIFFREMENT BANCAIRE",
-            continueBtn    = "Continuer vers l'étape 2  →",
-            backLabel      = "← Retour à l'accueil",
-            footer         = "© 2024 PLATEFORME SOUVERAINE AL-MIZAN"
-        )
-        val arabic = RegStrings(
-            stepLabel      = "الخطوة 1 من 3",
-            sectionTitle   = "تفاصيل المنظمة",
-            sectionSub     = "المعلومات العامة والمعرفات الضريبية",
-            fieldOrgName   = "الاسم القانوني للمنظمة",
-            fieldNif       = "رمز NIF",
-            fieldNis       = "رقم NIS",
-            fieldRc        = "رقم السجل التجاري (RC)",
-            placeholderOrg = "مثال: Al-Mizan Solutions",
-            placeholderNif = "NIF مكون من 15 رقمًا",
-            placeholderNis = "NIS",
-            placeholderRc  = "أدخل رقم RC",
-            secureTitle    = "بيانات سيادية آمنة",
-            secureBody     = "يتم تشفير بيانات هوية مؤسستك وإدارتها وفق بروتوكولات سيادية.",
-            encryption     = "تشفير مصرفي",
-            continueBtn    = "المتابعة إلى الخطوة 2  ←",
-            backLabel      = "→ العودة إلى الترحيب",
-            footer         = "© 2024 منصة الميزان السيادية"
-        )
-        val english = RegStrings(
-            stepLabel      = "STEP 1 OF 3",
-            sectionTitle   = "Organization Details",
-            sectionSub     = "General Information & Fiscal Identifiers",
-            fieldOrgName   = "LEGAL ORGANIZATION NAME",
-            fieldNif       = "NIF CODE",
-            fieldNis       = "NIS NUMBER",
-            fieldRc        = "COMMERCIAL REGISTER NUMBER (RC)",
-            placeholderOrg = "e.g. Al-Mizan Solutions Ltd.",
-            placeholderNif = "15-digit NIF",
-            placeholderNis = "NIS",
-            placeholderRc  = "Enter RC Number",
-            secureTitle    = "Secure Sovereign Data",
-            secureBody     = "Your organization's identity data is encrypted and managed under sovereign protocols.",
-            encryption     = "BANK-GRADE ENCRYPTION",
-            continueBtn    = "Continue to Step 2  →",
-            backLabel      = "← Back to Welcome",
-            footer         = "© 2024 AL-MIZAN SOVEREIGN PLATFORM"
-        )
-    }
-}
-
-// ─────────────────────────────────────────────
-//  REGISTRATION STEP 1 SCREEN
-// ─────────────────────────────────────────────
 @Composable
 fun RegistrationStep1Screen(
-    onContinueClick   : (orgName: String, nif: String, nis: String, rc: String) -> Unit = { _, _, _, _ -> },
-    onBackClick       : () -> Unit = {},
-    onInfoClick       : () -> Unit = {},
-    onTermsClick      : () -> Unit = {},
-    onPrivacyClick    : () -> Unit = {},
-    selectedLang      : AppLanguage = AppLanguage.FRENCH,
-    onLanguageChange  : (AppLanguage) -> Unit = {}
-){
-    var orgName by remember { mutableStateOf("") }
-    var nif     by remember { mutableStateOf("") }
-    var nis     by remember { mutableStateOf("") }
-    var rc      by remember { mutableStateOf("") }
+    onContinueClick : (orgName: String, nif: String, nis: String, rc: String) -> Unit = { _, _, _, _ -> },
+    onBackClick     : () -> Unit = {},
+    onInfoClick     : () -> Unit = {},
+    onTermsClick    : () -> Unit = {},
+    onPrivacyClick  : () -> Unit = {},
+    selectedLang    : AppLanguage = AppLanguage.FRENCH,
+    onLanguageChange: (AppLanguage) -> Unit = {}
+) {
+    val cs = MaterialTheme.colorScheme
+
+    var orgName       by remember { mutableStateOf("") }
+    var nif           by remember { mutableStateOf("") }
+    var nis           by remember { mutableStateOf("") }
+    var rc            by remember { mutableStateOf("") }
     var agreedToTerms by remember { mutableStateOf(false) }
 
-    val canContinue = orgName.isNotBlank() && nif.length == 15
-            && nis.length == 15 && rc.isNotBlank()
-            && agreedToTerms
-
-    val strings = when (selectedLang) {
-        AppLanguage.FRENCH  -> RegStrings.french
-        AppLanguage.ARABIC  -> RegStrings.arabic
-        AppLanguage.ENGLISH -> RegStrings.english
-    }
+    val canContinue = orgName.isNotBlank() && nif.length == 15 && nis.isNotBlank()
+            && rc.isNotBlank() && agreedToTerms
 
     val screenWidth   = LocalConfiguration.current.screenWidthDp.dp
     val cardWidth     = if (screenWidth < 500.dp) screenWidth * 0.90f else 420.dp
     val overlapAmount = 32.dp
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(PageBg2)
-    ) {
+    Column(modifier = Modifier.fillMaxSize().background(cs.background)) {
 
-        // ── scrollable body ──────────────────
+        // scrollable body
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState()),
+            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            // dark header
+            // header
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(DarkHeader2)
+                modifier = Modifier.fillMaxWidth().background(cs.primary)
                     .statusBarsPadding()
                     .padding(bottom = overlapAmount + 16.dp)
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                         .padding(horizontal = 8.dp, vertical = 10.dp),
                     verticalAlignment     = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector        = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint               = White2,
-                            modifier           = Modifier.size(24.dp)
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back",
+                            tint = cs.onPrimary, modifier = Modifier.size(24.dp))
                     }
-                    Text(
-                        text       = "Registration",
-                        fontSize   = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                        color      = White2
-                    )
+                    Text("Registration", fontSize = 17.sp, fontWeight = FontWeight.Bold,
+                        color = cs.onPrimary)
                     IconButton(onClick = onInfoClick) {
-                        Icon(
-                            imageVector        = Icons.Outlined.Info,
-                            contentDescription = "Info",
-                            tint               = White2,
-                            modifier           = Modifier.size(24.dp)
-                        )
+                        Icon(Icons.Outlined.Info, "Info",
+                            tint = cs.onPrimary, modifier = Modifier.size(24.dp))
                     }
                 }
             }
 
-            // step progress card (overlapping)
+            // step progress card
             Card(
-                modifier  = Modifier
-                    .width(cardWidth)
-                    .offset(y = -overlapAmount)
-                    .zIndex(1f),
+                modifier  = Modifier.width(cardWidth).offset(y = -overlapAmount).zIndex(1f),
                 shape     = RoundedCornerShape(12.dp),
-                colors    = CardDefaults.cardColors(containerColor = White2),
+                colors    = CardDefaults.cardColors(containerColor = cs.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier              = Modifier.fillMaxWidth(),
+                    Row(modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment     = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text          = strings.stepLabel,
-                            fontSize      = 11.sp,
-                            fontWeight    = FontWeight.Bold,
-                            color         = GreenAccent2,
-                            letterSpacing = 1.sp
-                        )
-                        Text("33%", fontSize = 11.sp, color = TextLight2, fontWeight = FontWeight.Medium)
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(R.string.reg1_step_label),
+                            fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                            color = cs.secondary, letterSpacing = 1.sp)
+                        Text("33%", fontSize = 11.sp, color = cs.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium)
                     }
                     Spacer(Modifier.height(8.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(5.dp)
-                            .clip(RoundedCornerShape(3.dp))
-                            .background(Color(0xFFE0E0E0))
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth(0.33f)
-                                .fillMaxHeight()
-                                .clip(RoundedCornerShape(3.dp))
-                                .background(GreenAccent2)
-                        )
+                    Box(modifier = Modifier.fillMaxWidth().height(5.dp)
+                        .clip(RoundedCornerShape(3.dp)).background(Grey200)) {
+                        Box(modifier = Modifier.fillMaxWidth(0.33f).fillMaxHeight()
+                            .clip(RoundedCornerShape(3.dp)).background(cs.secondary))
                     }
                 }
             }
 
             Spacer(Modifier.height((-overlapAmount.value + 8).dp))
 
-            // main content
+            // content
             Column(modifier = Modifier.width(cardWidth)) {
 
-                Text(strings.sectionTitle, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = TextDark2)
+                Text(stringResource(R.string.reg1_section_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = cs.onSurface)
                 Spacer(Modifier.height(4.dp))
-                Text(strings.sectionSub, fontSize = 13.sp, color = GreenAccent2)
+                Text(stringResource(R.string.reg1_section_sub),
+                    fontSize = 13.sp, color = cs.secondary)
 
                 Spacer(Modifier.height(24.dp))
 
-                RegFieldLabel(strings.fieldOrgName)
+                // org name
+                AuthFieldLabel(stringResource(R.string.reg1_field_org_name))
                 Spacer(Modifier.height(6.dp))
-                RegTextField(orgName, { orgName = it }, strings.placeholderOrg)
+                OutlinedTextField(
+                    value         = orgName,
+                    onValueChange = { orgName = it },
+                    placeholder   = { Text(stringResource(R.string.reg1_ph_org),
+                        color = cs.onSurfaceVariant, fontSize = 13.sp) },
+                    modifier   = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape      = RoundedCornerShape(8.dp),
+                    colors     = authFieldColors()
+                )
 
                 Spacer(Modifier.height(16.dp))
 
-                RegFieldLabel(strings.fieldNif)
+                // NIF
+                AuthFieldLabel(stringResource(R.string.reg1_field_nif))
                 Spacer(Modifier.height(6.dp))
                 OutlinedTextField(
                     value         = nif,
                     onValueChange = { if (it.length <= 15 && it.all { c -> c.isDigit() }) nif = it },
-                    placeholder   = { Text(strings.placeholderNif, color = TextLight2, fontSize = 13.sp) },
+                    placeholder   = { Text(stringResource(R.string.reg1_ph_nif),
+                        color = cs.onSurfaceVariant, fontSize = 13.sp) },
                     modifier      = Modifier.fillMaxWidth(),
                     singleLine    = true,
                     shape         = RoundedCornerShape(8.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     supportingText  = {
-                        Text("${nif.length}/15", fontSize = 10.sp, color = if (nif.length == 15) GreenAccent2 else TextLight2,
+                        Text("${nif.length}/15", fontSize = 10.sp,
+                            color = if (nif.length == 15) cs.secondary else cs.onSurfaceVariant,
                             modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
                     },
-                    colors        = regFieldColors()
+                    colors = authFieldColors()
                 )
 
                 Spacer(Modifier.height(16.dp))
 
-                RegFieldLabel(strings.fieldNis)
+                // NIS
+                AuthFieldLabel(stringResource(R.string.reg1_field_nis))
                 Spacer(Modifier.height(6.dp))
                 OutlinedTextField(
                     value         = nis,
                     onValueChange = { if (it.length <= 15 && it.all { c -> c.isDigit() }) nis = it },
-                    placeholder   = { Text(strings.placeholderNis, color = TextLight2, fontSize = 13.sp) },
+                    placeholder   = { Text(stringResource(R.string.reg1_ph_nis),
+                        color = cs.onSurfaceVariant, fontSize = 13.sp) },
                     modifier      = Modifier.fillMaxWidth(),
                     singleLine    = true,
                     shape         = RoundedCornerShape(8.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     supportingText  = {
-                        Text("${nis.length}/15", fontSize = 10.sp, color = if (nis.length == 15) GreenAccent2 else TextLight2,
+                        Text("${nis.length}/15", fontSize = 10.sp,
+                            color = if (nis.length == 15) cs.secondary else cs.onSurfaceVariant,
                             modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
                     },
-                    colors        = regFieldColors()
+                    colors = authFieldColors()
                 )
 
                 Spacer(Modifier.height(16.dp))
 
-                RegFieldLabel(strings.fieldRc)
+                // RC
+                AuthFieldLabel(stringResource(R.string.reg1_field_rc))
                 Spacer(Modifier.height(6.dp))
                 OutlinedTextField(
                     value         = rc,
                     onValueChange = { rc = it },
-                    placeholder   = { Text(strings.placeholderRc, color = TextLight2, fontSize = 13.sp) },
-                    leadingIcon   = {
-                        Icon(Icons.Outlined.Edit, contentDescription = null, tint = TextLight2, modifier = Modifier.size(18.dp))
-                    },
+                    placeholder   = { Text(stringResource(R.string.reg1_ph_rc),
+                        color = cs.onSurfaceVariant, fontSize = 13.sp) },
+                    leadingIcon   = { Icon(Icons.Outlined.Edit, null,
+                        tint = cs.onSurfaceVariant, modifier = Modifier.size(18.dp)) },
                     modifier   = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape      = RoundedCornerShape(8.dp),
-                    colors     = regFieldColors()
+                    colors     = authFieldColors()
                 )
 
                 Spacer(Modifier.height(24.dp))
 
                 // secure notice
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(GreenLight)
-                        .padding(14.dp),
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
+                        .background(cs.secondaryContainer).padding(14.dp),
                     verticalAlignment = Alignment.Top
                 ) {
-                    Icon(Icons.Outlined.Lock, contentDescription = null, tint = GreenAccent2, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Outlined.Lock, null, tint = cs.secondary,
+                        modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(10.dp))
                     Column {
-                        Text(strings.secureTitle, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextDark2)
+                        Text(stringResource(R.string.reg1_secure_title),
+                            fontSize = 13.sp, fontWeight = FontWeight.Bold, color = cs.onSurface)
                         Spacer(Modifier.height(3.dp))
-                        Text(strings.secureBody, fontSize = 12.sp, color = TextMid2, lineHeight = 17.sp)
+                        Text(stringResource(R.string.reg1_secure_body),
+                            fontSize = 12.sp, color = cs.onSurfaceVariant, lineHeight = 17.sp)
                     }
                 }
 
                 Spacer(Modifier.height(24.dp))
 
-                // language selector
-                Row(
-                    modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment     = Alignment.CenterVertically
-                ) {
-                    AppLanguage.entries.forEachIndexed { index, lang ->
-                        if (index > 0) Text("  •  ", fontSize = 11.sp, color = TextLight2)
-                        Text(
-                            text       = lang.label,
-                            fontSize   = 11.sp,
-                            color      = if (selectedLang == lang) GreenAccent2 else TextLight2,
-                            fontWeight = if (selectedLang == lang) FontWeight.Bold else FontWeight.Normal,
-                            modifier   = Modifier.clickable { onLanguageChange(lang) }
-                        )
-                    }
-                }
+                LanguageSwitcher(selectedLang, onLanguageChange)
 
                 Spacer(Modifier.height(24.dp))
 
-                // ── terms checkbox ───────────────────
-                Row(
-                    modifier          = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                // terms checkbox
+                Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
                         checked         = agreedToTerms,
                         onCheckedChange = { agreedToTerms = it },
                         modifier        = Modifier.size(20.dp),
                         colors          = CheckboxDefaults.colors(
-                            checkedColor   = GreenAccent2,
-                            uncheckedColor = BorderGrey2
-                        )
+                            checkedColor   = cs.secondary,
+                            uncheckedColor = cs.outline)
                     )
                     Spacer(Modifier.width(8.dp))
-                    val termsText = buildAnnotatedString {
-                        append("I agree to the ")
-                        pushStringAnnotation(tag = "TERMS", annotation = "terms")
-                        withStyle(SpanStyle(color = GreenAccent2, fontWeight = FontWeight.SemiBold)) {
-                            append("Terms of Service")
+                    val annotated = buildAnnotatedString {
+                        append(stringResource(R.string.reg1_terms_text))
+                        pushStringAnnotation("TERMS", "terms")
+                        withStyle(SpanStyle(color = cs.secondary, fontWeight = FontWeight.SemiBold)) {
+                            append(stringResource(R.string.reg1_terms_link))
                         }
                         pop()
-                        append(" and ")
-                        pushStringAnnotation(tag = "PRIVACY", annotation = "privacy")
-                        withStyle(SpanStyle(color = GreenAccent2, fontWeight = FontWeight.SemiBold)) {
-                            append("Privacy Policy")
+                        append(stringResource(R.string.reg1_and))
+                        pushStringAnnotation("PRIVACY", "privacy")
+                        withStyle(SpanStyle(color = cs.secondary, fontWeight = FontWeight.SemiBold)) {
+                            append(stringResource(R.string.reg1_privacy_link))
                         }
                         pop()
                         append(".")
                     }
-
                     ClickableText(
-                        text  = termsText,
-                        style = androidx.compose.ui.text.TextStyle(fontSize = 12.sp, color = TextMid2),
+                        text  = annotated,
+                        style = androidx.compose.ui.text.TextStyle(
+                            fontSize = 12.sp, color = cs.onSurfaceVariant),
                         onClick = { offset ->
-                            termsText.getStringAnnotations("TERMS", offset, offset)
+                            annotated.getStringAnnotations("TERMS", offset, offset)
                                 .firstOrNull()?.let { onTermsClick() }
-                            termsText.getStringAnnotations("PRIVACY", offset, offset)
+                            annotated.getStringAnnotations("PRIVACY", offset, offset)
                                 .firstOrNull()?.let { onPrivacyClick() }
                         }
                     )
-
                 }
                 Spacer(Modifier.height(24.dp))
             }
         }
 
-        // ── fixed bottom ─────────────────────
+        // fixed bottom bar
         Column(
-            modifier            = Modifier
-                .fillMaxWidth()
-                .background(White2)
+            modifier = Modifier.fillMaxWidth().background(cs.surface)
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                Icon(Icons.Outlined.Lock, contentDescription = null, tint = TextLight2, modifier = Modifier.size(12.dp))
+            Row(verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center) {
+                Icon(Icons.Outlined.Lock, null, tint = cs.onSurfaceVariant,
+                    modifier = Modifier.size(12.dp))
                 Spacer(Modifier.width(5.dp))
-                Text(strings.encryption, fontSize = 9.sp, color = TextLight2, letterSpacing = 1.sp, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.bank_encryption),
+                    fontSize = 9.sp, color = cs.onSurfaceVariant,
+                    letterSpacing = 1.sp, fontWeight = FontWeight.Medium)
             }
-
             Spacer(Modifier.height(10.dp))
-
             Button(
                 onClick  = { onContinueClick(orgName, nif, nis, rc) },
                 enabled  = canContinue,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape    = RoundedCornerShape(10.dp),
                 colors   = ButtonDefaults.buttonColors(
-                    containerColor         = GreenAccent2,
-                    disabledContainerColor = Color(0xFFB0CDB9)
-                )
+                    containerColor         = cs.secondary,
+                    disabledContainerColor = cs.secondaryContainer)
             ) {
-                Text(strings.continueBtn, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = White2)
+                Text(stringResource(R.string.reg1_continue_btn),
+                    fontSize = 15.sp, fontWeight = FontWeight.Bold,
+                    color = cs.onSecondary)
             }
-
             Spacer(Modifier.height(10.dp))
-
-            Text(strings.backLabel, fontSize = 13.sp, color = TextMid2, modifier = Modifier.clickable { onBackClick() })
-
+            Text(stringResource(R.string.reg1_back_label),
+                fontSize = 13.sp, color = cs.onSurfaceVariant,
+                modifier = Modifier.clickable { onBackClick() })
             Spacer(Modifier.height(8.dp))
-
-            Text(strings.footer, fontSize = 9.sp, color = TextLight2, letterSpacing = 0.5.sp, textAlign = TextAlign.Center)
+            Text(stringResource(R.string.footer_ministry),
+                fontSize = 9.sp, color = cs.onSurfaceVariant,
+                letterSpacing = 0.5.sp, textAlign = TextAlign.Center)
         }
     }
 }
-
-// ─────────────────────────────────────────────
-//  HELPERS
-// ─────────────────────────────────────────────
-@Composable
-private fun RegFieldLabel(text: String) {
-    Text(text = text, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = LabelGrey, letterSpacing = 0.8.sp)
-}
-
-@Composable
-private fun RegTextField(value: String, onValueChange: (String) -> Unit, placeholder: String) {
-    OutlinedTextField(
-        value         = value,
-        onValueChange = onValueChange,
-        placeholder   = { Text(placeholder, color = TextLight2, fontSize = 13.sp) },
-        modifier      = Modifier.fillMaxWidth(),
-        singleLine    = true,
-        shape         = RoundedCornerShape(8.dp),
-        colors        = regFieldColors()
-    )
-}
-
-@Composable
-private fun regFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor      = GreenAccent2,
-    unfocusedBorderColor    = BorderGrey2,
-    focusedTextColor        = TextDark2,
-    unfocusedTextColor      = TextDark2,
-    cursorColor             = GreenAccent2,
-    focusedContainerColor   = FieldBg2,
-    unfocusedContainerColor = FieldBg2
-)

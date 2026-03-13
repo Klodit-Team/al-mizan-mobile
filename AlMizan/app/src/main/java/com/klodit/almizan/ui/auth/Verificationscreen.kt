@@ -22,9 +22,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,83 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import com.klodit.almizan.R
+import com.klodit.almizan.ui.theme.AppLanguage
+import com.klodit.almizan.ui.theme.Grey50
 
-// ─────────────────────────────────────────────
-//  COLORS
-// ─────────────────────────────────────────────
-private val DarkHeader  = Color(0xFF364150)
-private val GreenAccent = Color(0xFF4CAE4F)
-private val White       = Color.White
-private val BorderGrey  = Color(0xFFDDE3E8)
-private val TextDark    = Color(0xFF1A2B38)
-private val TextMid     = Color(0xFF4A6070)
-private val TextLight   = Color(0xFF8FA3B0)
-private val PageBg      = Color(0xFFECEFF1)
-private val IconBg      = Color(0xFFEDF0F2)
-
-// ─────────────────────────────────────────────
-//  STRINGS PER LANGUAGE  (private — never
-//  passed directly to a public function)
-// ─────────────────────────────────────────────
-private data class VerifStrings(
-    val title        : String,
-    val subtitle     : String,
-    val expiresLabel : String,
-    val verifyBtn    : String,
-    val noCode       : String,
-    val resend       : String,
-    val footerLine1  : String,
-    val footerLine2  : String,
-    val logout       : String,
-    val notifications: String,
-    val noNotifs     : String
-) {
-    companion object {
-        val french = VerifStrings(
-            title         = "Vérification Sécurisée",
-            subtitle      = "Veuillez entrer le code TOTP à 6 chiffres de votre application d'authentification pour accéder à votre tableau de bord.",
-            expiresLabel  = "Code expire dans  ",
-            verifyBtn     = "Vérifier & Accéder",
-            noCode        = "Vous n'avez pas reçu de code ?",
-            resend        = "Renvoyer le code",
-            footerLine1   = "© 2024 Al-Mizan B2B Procurement. Tous droits réservés.",
-            footerLine2   = "Session sécurisée ID : AMZ-882-X9",
-            logout        = "Se déconnecter",
-            notifications = "Notifications",
-            noNotifs      = "Aucune notification"
-        )
-        val arabic = VerifStrings(
-            title         = "التحقق الآمن",
-            subtitle      = "يرجى إدخال رمز TOTP المكون من 6 أرقام من تطبيق المصادقة للوصول إلى لوحة التحكم.",
-            expiresLabel  = "ينتهي الرمز خلال  ",
-            verifyBtn     = "تحقق والدخول",
-            noCode        = "لم تتلقَّ الرمز؟",
-            resend        = "إعادة إرسال الرمز",
-            footerLine1   = "© 2024 Al-Mizan B2B. جميع الحقوق محفوظة.",
-            footerLine2   = "معرف الجلسة الآمنة: AMZ-882-X9",
-            logout        = "تسجيل الخروج",
-            notifications = "الإشعارات",
-            noNotifs      = "لا توجد إشعارات"
-        )
-        val english = VerifStrings(
-            title         = "Secure Verification",
-            subtitle      = "Please enter the 6-digit TOTP code from your authentication app to access your dashboard.",
-            expiresLabel  = "Code expires in  ",
-            verifyBtn     = "Verify & Access",
-            noCode        = "Didn't receive a code?",
-            resend        = "Resend Code",
-            footerLine1   = "© 2024 Al-Mizan B2B Procurement. All rights reserved.",
-            footerLine2   = "Secure Session ID: AMZ-882-X9",
-            logout        = "Sign out",
-            notifications = "Notifications",
-            noNotifs      = "No notifications"
-        )
-    }
-}
-
-// ─────────────────────────────────────────────
-//  FAKE NOTIFICATIONS
-// ─────────────────────────────────────────────
 private val sampleNotifications = listOf(
     "Nouvel appel d'offres publié",
     "Votre soumission a été reçue",
@@ -117,131 +43,91 @@ private val sampleNotifications = listOf(
 )
 
 // ─────────────────────────────────────────────
-//  TOP NAV BAR
-//  Only plain types (String) as parameters
-//  so there is no private-type-in-public-function error
+//  TOP NAV BAR  (shared across main screens)
 // ─────────────────────────────────────────────
 @Composable
 fun AlMizanTopBar(
     onLogoutClick : () -> Unit = {},
     onNotifClick  : () -> Unit = {},
-    logoutLabel   : String = "Se déconnecter",
-    notifTitle    : String = "Notifications",
-    noNotifsLabel : String = "Aucune notification"
+    logoutLabel   : String = stringResource(R.string.verif_logout),
+    notifTitle    : String = stringResource(R.string.verif_notifications),
+    noNotifsLabel : String = stringResource(R.string.verif_no_notifs)
 ) {
+    val cs = MaterialTheme.colorScheme
     var showAccountMenu by remember { mutableStateOf(false) }
     var showNotifMenu   by remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(DarkHeader)
+            .background(cs.primary)
             .statusBarsPadding()
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment     = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // left: logo + title
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter            = painterResource(id = R.drawable.logo),
-                contentDescription = "Al-Mizan Logo",
-                modifier           = Modifier.size(44.dp)
-            )
+            Image(painterResource(R.drawable.logo), "Al-Mizan Logo",
+                modifier = Modifier.size(44.dp))
             Spacer(Modifier.width(10.dp))
-            Text(
-                text          = "AL-MIZAN",
-                fontSize      = 18.sp,
-                fontWeight    = FontWeight.Bold,
-                color         = White,
-                letterSpacing = 1.sp
-            )
+            Text("AL-MIZAN", fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                color = cs.onPrimary, letterSpacing = 1.sp)
         }
 
-        // right: notif + account
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment     = Alignment.CenterVertically
-        ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically) {
 
-            // notifications dropdown
+            // notifications
             Box {
                 IconButton(onClick = { showNotifMenu = !showNotifMenu }) {
-                    Icon(
-                        imageVector        = Icons.Outlined.Notifications,
-                        contentDescription = "Notifications",
-                        tint               = White,
-                        modifier           = Modifier.size(26.dp)
-                    )
+                    Icon(Icons.Outlined.Notifications, "Notifications",
+                        tint = cs.onPrimary, modifier = Modifier.size(26.dp))
                 }
-                DropdownMenu(
-                    expanded         = showNotifMenu,
+                DropdownMenu(expanded = showNotifMenu,
                     onDismissRequest = { showNotifMenu = false },
-                    modifier         = Modifier.width(260.dp).background(White)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFF5F7F9))
-                            .padding(horizontal = 16.dp, vertical = 10.dp)
-                    ) {
-                        Text(notifTitle, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextDark)
+                    modifier = Modifier.width(260.dp).background(cs.surface)) {
+                    Box(modifier = Modifier.fillMaxWidth().background(Grey50)
+                        .padding(horizontal = 16.dp, vertical = 10.dp)) {
+                        Text(notifTitle, fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp, color = cs.onSurface)
                     }
-                    HorizontalDivider(color = BorderGrey)
+                    HorizontalDivider(color = cs.outline)
                     if (sampleNotifications.isEmpty()) {
                         DropdownMenuItem(
-                            text    = { Text(noNotifsLabel, color = TextLight, fontSize = 13.sp) },
-                            onClick = { showNotifMenu = false }
-                        )
+                            text = { Text(noNotifsLabel, color = cs.onSurfaceVariant, fontSize = 13.sp) },
+                            onClick = { showNotifMenu = false })
                     } else {
                         sampleNotifications.forEach { notif ->
                             DropdownMenuItem(
                                 text = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(7.dp)
-                                                .clip(CircleShape)
-                                                .background(GreenAccent)
-                                        )
+                                        Box(modifier = Modifier.size(7.dp).clip(CircleShape)
+                                            .background(cs.secondary))
                                         Spacer(Modifier.width(10.dp))
-                                        Text(notif, fontSize = 13.sp, color = TextDark, lineHeight = 18.sp)
+                                        Text(notif, fontSize = 13.sp, color = cs.onSurface,
+                                            lineHeight = 18.sp)
                                     }
                                 },
-                                onClick = { onNotifClick(); showNotifMenu = false }
-                            )
-                            HorizontalDivider(color = BorderGrey, thickness = 0.5.dp)
+                                onClick = { onNotifClick(); showNotifMenu = false })
+                            HorizontalDivider(color = cs.outline, thickness = 0.5.dp)
                         }
                     }
                 }
             }
 
-            // account dropdown
+            // account
             Box {
                 IconButton(onClick = { showAccountMenu = !showAccountMenu }) {
-                    Icon(
-                        imageVector        = Icons.Outlined.AccountCircle,
-                        contentDescription = "Account",
-                        tint               = White,
-                        modifier           = Modifier.size(26.dp)
-                    )
+                    Icon(Icons.Outlined.AccountCircle, "Account",
+                        tint = cs.onPrimary, modifier = Modifier.size(26.dp))
                 }
-                DropdownMenu(
-                    expanded         = showAccountMenu,
+                DropdownMenu(expanded = showAccountMenu,
                     onDismissRequest = { showAccountMenu = false },
-                    modifier         = Modifier.width(180.dp).background(White)
-                ) {
+                    modifier = Modifier.width(180.dp).background(cs.surface)) {
                     DropdownMenuItem(
-                        text = {
-                            Text(
-                                text       = logoutLabel,
-                                fontSize   = 14.sp,
-                                color      = Color(0xFFE53935),
-                                fontWeight = FontWeight.Medium
-                            )
-                        },
-                        onClick = { showAccountMenu = false; onLogoutClick() }
-                    )
+                        text = { Text(logoutLabel, fontSize = 14.sp,
+                            color = cs.error, fontWeight = FontWeight.Medium) },
+                        onClick = { showAccountMenu = false; onLogoutClick() })
                 }
             }
         }
@@ -253,18 +139,14 @@ fun AlMizanTopBar(
 // ─────────────────────────────────────────────
 @Composable
 fun VerificationScreen(
-    onVerifyClick    : (code: String) -> Unit = {},
-    onResendClick    : () -> Unit = {},
-    onLogoutClick    : () -> Unit = {},
-    onNotifClick     : () -> Unit = {},
-    selectedLang     : AppLanguage = AppLanguage.FRENCH,
-    onLanguageChange : (AppLanguage) -> Unit = {}
+    onVerifyClick   : (code: String) -> Unit = {},
+    onResendClick   : () -> Unit = {},
+    onLogoutClick   : () -> Unit = {},
+    onNotifClick    : () -> Unit = {},
+    selectedLang    : AppLanguage = AppLanguage.FRENCH,
+    onLanguageChange: (AppLanguage) -> Unit = {}
 ) {
-    val strings = when (selectedLang) {
-        AppLanguage.FRENCH  -> VerifStrings.french
-        AppLanguage.ARABIC  -> VerifStrings.arabic
-        AppLanguage.ENGLISH -> VerifStrings.english
-    }
+    val cs = MaterialTheme.colorScheme
 
     val digits          = remember { mutableStateListOf("", "", "", "", "", "") }
     val focusRequesters = remember { List(6) { FocusRequester() } }
@@ -274,10 +156,7 @@ fun VerificationScreen(
 
     LaunchedEffect(timerTrigger) {
         secondsLeft = 120
-        while (secondsLeft > 0) {
-            delay(1000)
-            secondsLeft--
-        }
+        while (secondsLeft > 0) { delay(1000); secondsLeft-- }
     }
 
     val timerText    = "%02d:%02d".format(secondsLeft / 60, secondsLeft % 60)
@@ -286,77 +165,50 @@ fun VerificationScreen(
     val codeComplete = digits.all { it.isNotEmpty() }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(PageBg)
+        modifier = Modifier.fillMaxSize().background(cs.background)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        // navbar — pass plain Strings, not the private VerifStrings object
         AlMizanTopBar(
             onLogoutClick = onLogoutClick,
             onNotifClick  = onNotifClick,
-            logoutLabel   = strings.logout,
-            notifTitle    = strings.notifications,
-            noNotifsLabel = strings.noNotifs
+            logoutLabel   = stringResource(R.string.verif_logout),
+            notifTitle    = stringResource(R.string.verif_notifications),
+            noNotifsLabel = stringResource(R.string.verif_no_notifs)
         )
 
         Spacer(Modifier.height(32.dp))
 
-        // white card
         Card(
             modifier  = Modifier.fillMaxWidth(0.90f),
             shape     = RoundedCornerShape(16.dp),
-            colors    = CardDefaults.cardColors(containerColor = White),
+            colors    = CardDefaults.cardColors(containerColor = cs.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
         ) {
-            Column(
-                modifier            = Modifier.fillMaxWidth().padding(28.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            Column(modifier = Modifier.fillMaxWidth().padding(28.dp),
+                horizontalAlignment = Alignment.CenterHorizontally) {
 
-                // circle icon
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape)
-                        .background(IconBg),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector        = Icons.Outlined.AccountCircle,
-                        contentDescription = null,
-                        tint               = TextMid,
-                        modifier           = Modifier.size(34.dp)
-                    )
+                Box(modifier = Modifier.size(64.dp).clip(CircleShape)
+                    .background(cs.surfaceVariant),
+                    contentAlignment = Alignment.Center) {
+                    Icon(Icons.Outlined.AccountCircle, null,
+                        tint = cs.onSurfaceVariant, modifier = Modifier.size(34.dp))
                 }
 
                 Spacer(Modifier.height(20.dp))
-
-                Text(
-                    text       = strings.title,
-                    fontSize   = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color      = TextDark,
-                    textAlign  = TextAlign.Center
-                )
+                Text(stringResource(R.string.verif_title),
+                    fontSize = 22.sp, fontWeight = FontWeight.Bold,
+                    color = cs.onSurface, textAlign = TextAlign.Center)
                 Spacer(Modifier.height(8.dp))
-                Text(
-                    text       = strings.subtitle,
-                    fontSize   = 13.sp,
-                    color      = TextMid,
-                    textAlign  = TextAlign.Center,
-                    lineHeight = 19.sp
-                )
+                Text(stringResource(R.string.verif_subtitle),
+                    fontSize = 13.sp, color = cs.onSurfaceVariant,
+                    textAlign = TextAlign.Center, lineHeight = 19.sp)
 
                 Spacer(Modifier.height(28.dp))
 
                 // 6 digit boxes
-                Row(
-                    modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Row(modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     digits.forEachIndexed { index, digit ->
                         val isFocused = focusedIndex == index
                         BasicTextField(
@@ -373,26 +225,20 @@ fun VerificationScreen(
                                     focusRequesters[index - 1].requestFocus()
                                 }
                             },
-                            modifier        = Modifier
-                                .weight(1f)
-                                .aspectRatio(1f)
+                            modifier = Modifier
+                                .weight(1f).aspectRatio(1f)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(if (isFocused) White else Color(0xFFF5F7F9))
+                                .background(if (isFocused) cs.surface else cs.surfaceVariant)
                                 .border(
                                     width = if (isFocused) 1.5.dp else 1.dp,
-                                    color = if (isFocused) GreenAccent else BorderGrey,
-                                    shape = RoundedCornerShape(8.dp)
-                                )
+                                    color = if (isFocused) cs.secondary else cs.outline,
+                                    shape = RoundedCornerShape(8.dp))
                                 .focusRequester(focusRequesters[index])
                                 .onFocusChanged { if (it.isFocused) focusedIndex = index },
-                            textStyle       = TextStyle(
-                                fontSize   = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color      = TextDark,
-                                textAlign  = TextAlign.Center
-                            ),
+                            textStyle = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold,
+                                color = cs.onSurface, textAlign = TextAlign.Center),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            cursorBrush     = SolidColor(GreenAccent),
+                            cursorBrush     = SolidColor(cs.secondary),
                             singleLine      = true,
                             decorationBox   = { inner ->
                                 Box(contentAlignment = Alignment.Center) { inner() }
@@ -403,103 +249,66 @@ fun VerificationScreen(
 
                 Spacer(Modifier.height(20.dp))
 
-                // timer
-                Row(
-                    verticalAlignment     = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector        = Icons.Outlined.Notifications,
-                        contentDescription = null,
-                        tint               = if (timerExpired) Color(0xFFE53935) else TextLight,
-                        modifier           = Modifier.size(14.dp)
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center) {
+                    Icon(Icons.Outlined.Notifications, null,
+                        tint = if (timerExpired) cs.error else cs.onSurfaceVariant,
+                        modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(5.dp))
-                    Text(strings.expiresLabel, fontSize = 12.sp, color = TextLight)
-                    Text(
-                        text       = timerText,
-                        fontSize   = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color      = if (timerExpired) Color(0xFFE53935) else TextDark
-                    )
+                    Text(stringResource(R.string.verif_expires_label),
+                        fontSize = 12.sp, color = cs.onSurfaceVariant)
+                    Text(timerText, fontSize = 13.sp, fontWeight = FontWeight.Bold,
+                        color = if (timerExpired) cs.error else cs.onSurface)
                 }
 
                 Spacer(Modifier.height(20.dp))
 
-                // verify button
                 Button(
                     onClick  = { onVerifyClick(fullCode) },
                     enabled  = codeComplete && !timerExpired,
                     modifier = Modifier.fillMaxWidth().height(52.dp),
                     shape    = RoundedCornerShape(8.dp),
                     colors   = ButtonDefaults.buttonColors(
-                        containerColor         = GreenAccent,
-                        disabledContainerColor = Color(0xFFB0CDB9)
-                    )
+                        containerColor         = cs.secondary,
+                        disabledContainerColor = cs.secondaryContainer)
                 ) {
-                    Text(
-                        text       = strings.verifyBtn,
-                        fontSize   = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color      = White
-                    )
+                    Text(stringResource(R.string.verif_verify_btn),
+                        fontSize = 15.sp, fontWeight = FontWeight.Bold,
+                        color = cs.onSecondary)
                 }
 
                 Spacer(Modifier.height(20.dp))
 
-                // resend
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(strings.noCode, fontSize = 12.sp, color = TextMid)
+                    Text(stringResource(R.string.verif_no_code),
+                        fontSize = 12.sp, color = cs.onSurfaceVariant)
                     Spacer(Modifier.height(4.dp))
-                    Text(
-                        text       = strings.resend,
-                        fontSize   = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color      = TextDark,
-                        modifier   = Modifier
-                            .clickable {
-                                timerTrigger++
-                                digits.fill("")
-                                focusedIndex = 0
-                                focusRequesters[0].requestFocus()
-                                onResendClick()
-                            }
-                            .padding(4.dp)
-                    )
+                    Text(stringResource(R.string.verif_resend),
+                        fontSize = 13.sp, fontWeight = FontWeight.Bold,
+                        color = cs.onSurface,
+                        modifier = Modifier.clickable {
+                            timerTrigger++
+                            digits.fill("")
+                            focusedIndex = 0
+                            focusRequesters[0].requestFocus()
+                            onResendClick()
+                        }.padding(4.dp))
                 }
 
                 Spacer(Modifier.height(24.dp))
 
-                // language selector
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment     = Alignment.CenterVertically
-                ) {
-                    AppLanguage.entries.forEachIndexed { index, lang ->
-                        if (index > 0) Text("  •  ", fontSize = 11.sp, color = TextLight)
-                        Text(
-                            text       = lang.label,
-                            fontSize   = 11.sp,
-                            color      = if (selectedLang == lang) GreenAccent else TextLight,
-                            fontWeight = if (selectedLang == lang) FontWeight.Bold
-                            else FontWeight.Normal,
-                            modifier   = Modifier.clickable { onLanguageChange(lang) }
-                        )
-                    }
-                }
+                LanguageSwitcher(selectedLang, onLanguageChange)
             }
         }
 
         Spacer(Modifier.height(32.dp))
-
-        // footer
-        Text(strings.footerLine1, fontSize = 10.sp, color = TextLight, textAlign = TextAlign.Center)
+        Text(stringResource(R.string.verif_footer_1),
+            fontSize = 10.sp, color = cs.onSurfaceVariant, textAlign = TextAlign.Center)
         Spacer(Modifier.height(4.dp))
-        Text(strings.footerLine2, fontSize = 10.sp, color = TextLight, textAlign = TextAlign.Center)
+        Text(stringResource(R.string.verif_footer_2),
+            fontSize = 10.sp, color = cs.onSurfaceVariant, textAlign = TextAlign.Center)
         Spacer(Modifier.height(24.dp))
     }
 
-    LaunchedEffect(Unit) {
-        focusRequesters[0].requestFocus()
-    }
+    LaunchedEffect(Unit) { focusRequesters[0].requestFocus() }
 }
