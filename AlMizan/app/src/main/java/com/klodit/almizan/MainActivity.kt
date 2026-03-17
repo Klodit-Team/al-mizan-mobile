@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.klodit.almizan.navigation.MainNavGraph
 import com.klodit.almizan.navigation.NavGraph
+import com.klodit.almizan.ui.dashboard.DashboardScreen
 import com.klodit.almizan.ui.theme.AlMizanTheme
 
 class MainActivity : AppCompatActivity() {
@@ -18,13 +19,15 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContent {
             AlMizanTheme {
-                var isAuthenticated by remember { mutableStateOf(false) }
+              /*  var isAuthenticated by remember { mutableStateOf(false) }
 
                 if (isAuthenticated) {
                     MainNavGraph()
                 } else {
                     NavGraph(onAuthSuccess = { isAuthenticated = true })
-                }
+                } */
+
+                DashboardScreen()
             }
         }
     }
