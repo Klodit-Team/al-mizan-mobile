@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -25,16 +24,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.klodit.almizan.model.*
-import com.klodit.almizan.ui.components.AlMizanTopBar
 import com.klodit.almizan.ui.theme.*
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  SCREEN
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 fun DashboardScreen(
-    onNotificationClick: () -> Unit = {},
     onCaseClick: (String) -> Unit = {}
 ) {
     val data = remember { mockDashboardData() }
@@ -53,26 +46,18 @@ fun DashboardScreen(
         matchesTab && matchesSearch
     }
 
-    Scaffold(
-        containerColor = Color(0xFFF5F7FA),
-        topBar = {
-            AlMizanTopBar(
-                isLoggedIn = true,
-                userName = data.user.name,
-                onNotificationClick = onNotificationClick,
-                onAvatarClick = { /* navigate to profile */ }
-            )
-        }
-    ) { innerPadding ->
-
+    // No Scaffold here — MainScreen owns the TopBar and BottomBar
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF5F7FA))
+    ) {
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(bottom = 32.dp)
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 8.dp)
         ) {
 
-            // ── Search bar + filter button ───────────────────────────────────
+            // ── Search bar + filter icon ──────────────────────────────────────
             item {
                 Spacer(Modifier.height(16.dp))
                 Row(
@@ -86,18 +71,10 @@ fun DashboardScreen(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
                         placeholder = {
-                            Text(
-                                "Search cases, clients…",
-                                color = Navy500,
-                                fontSize = 14.sp
-                            )
+                            Text("Search cases, clients…", color = Navy500, fontSize = 14.sp)
                         },
                         leadingIcon = {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = null,
-                                tint = Navy500
-                            )
+                            Icon(Icons.Default.Search, contentDescription = null, tint = Navy500)
                         },
                         singleLine = true,
                         shape = RoundedCornerShape(12.dp),
@@ -121,7 +98,7 @@ fun DashboardScreen(
                             .clip(RoundedCornerShape(12.dp))
                             .background(NavyWhite)
                             .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(12.dp))
-                            .clickable { /* open advanced filter */ }
+                            .clickable { }
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Tune,
@@ -134,7 +111,7 @@ fun DashboardScreen(
                 Spacer(Modifier.height(14.dp))
             }
 
-            // ── Filter chip tabs ─────────────────────────────────────────────
+            // ── Filter chips ──────────────────────────────────────────────────
             item {
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp),
@@ -151,7 +128,7 @@ fun DashboardScreen(
                 Spacer(Modifier.height(16.dp))
             }
 
-            // ── Case cards ───────────────────────────────────────────────────
+            // ── Case cards ────────────────────────────────────────────────────
             items(visibleCases, key = { it.id }) { case ->
                 DashboardCaseCard(
                     case = case,
@@ -203,10 +180,6 @@ private fun DashboardCaseCard(
 ) {
     val status = CaseStatus.from(case.status)
 
-    // Determine the "View Details" button color based on status:
-    //  - CLOSED  → muted grey (Navy500)
-    //  - URGENT  → red accent
-    //  - OPEN / IN_PROGRESS → Green500 (brand green)
     val buttonColor: Color = when (status) {
         CaseStatus.CLOSED      -> Navy500
         CaseStatus.URGENT      -> Color(0xFFE53935)
@@ -224,7 +197,6 @@ private fun DashboardCaseCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
-            // ── Top row: ministry icon + category + status badge ─────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -253,7 +225,6 @@ private fun DashboardCaseCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                // Status badge
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -272,7 +243,6 @@ private fun DashboardCaseCard(
 
             Spacer(Modifier.height(10.dp))
 
-            // ── Case title ───────────────────────────────────────────────────
             Text(
                 text = case.title,
                 color = Navy900,
@@ -284,7 +254,6 @@ private fun DashboardCaseCard(
 
             Spacer(Modifier.height(10.dp))
 
-            // ── Meta row: case number + date ─────────────────────────────────
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -313,13 +282,9 @@ private fun DashboardCaseCard(
             }
 
             Spacer(Modifier.height(14.dp))
-
-            // ── Divider ──────────────────────────────────────────────────────
             HorizontalDivider(color = Color(0xFFF3F4F6), thickness = 1.dp)
-
             Spacer(Modifier.height(12.dp))
 
-            // ── View Details button — color driven by status ─────────────────
             Button(
                 onClick = onClick,
                 colors = ButtonDefaults.buttonColors(containerColor = buttonColor),

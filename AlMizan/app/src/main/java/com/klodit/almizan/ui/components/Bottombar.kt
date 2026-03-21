@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.klodit.almizan.ui.theme.*
 
-// ─── Route / destination sealed class ────────────────────────────────────────
+// ─── Destinations ─────────────────────────────────────────────────────────────
 
 sealed class BottomNavDestination(
     val route: String,
@@ -31,27 +31,27 @@ sealed class BottomNavDestination(
     val unselectedIcon: ImageVector
 ) {
     object Home : BottomNavDestination(
-        route = "home",
-        label = "Home",
-        selectedIcon = Icons.Filled.Home,
+        route          = "home",
+        label          = "Home",
+        selectedIcon   = Icons.Filled.Home,
         unselectedIcon = Icons.Outlined.Home
     )
     object Search : BottomNavDestination(
-        route = "search",
-        label = "Search",
-        selectedIcon = Icons.Filled.Search,
+        route          = "search",
+        label          = "Search",
+        selectedIcon   = Icons.Filled.Search,
         unselectedIcon = Icons.Outlined.Search
     )
     object MyBids : BottomNavDestination(
-        route = "my_bids",
-        label = "My Bids",
-        selectedIcon = Icons.Outlined.ShoppingBag,   // filled not available in outlined set, swap if needed
+        route          = "my_bids",
+        label          = "My Bids",
+        selectedIcon   = Icons.Outlined.ShoppingBag,
         unselectedIcon = Icons.Outlined.ShoppingBag
     )
     object Profile : BottomNavDestination(
-        route = "profile",
-        label = "Profile",
-        selectedIcon = Icons.Filled.Person,
+        route          = "profile",
+        label          = "Profile",
+        selectedIcon   = Icons.Filled.Person,
         unselectedIcon = Icons.Outlined.Person
     )
 }
@@ -63,7 +63,7 @@ val bottomNavItems = listOf(
     BottomNavDestination.Profile
 )
 
-// ─── Bottom bar composable ────────────────────────────────────────────────────
+// ─── Bottom bar ───────────────────────────────────────────────────────────────
 
 @Composable
 fun AlMizanBottomBar(
@@ -73,15 +73,22 @@ fun AlMizanBottomBar(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(elevation = 12.dp, shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
+            .shadow(
+                elevation = 12.dp,
+                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+            ),
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         color = NavyWhite,
         tonalElevation = 0.dp
     ) {
+        // ↓ WindowInsets.navigationBars pads the content above the
+        //   phone's own gesture bar / button row automatically.
+        //   On phones with no gesture bar this adds zero extra padding.
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(68.dp)
+                .navigationBarsPadding()         // ← replaces windowInsetsPadding
+                .height(64.dp)
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround
@@ -89,15 +96,15 @@ fun AlMizanBottomBar(
             bottomNavItems.forEach { destination ->
                 BottomNavItem(
                     destination = destination,
-                    isSelected = currentRoute == destination.route,
-                    onClick = { onDestinationSelected(destination) }
+                    isSelected  = currentRoute == destination.route,
+                    onClick     = { onDestinationSelected(destination) }
                 )
             }
         }
     }
 }
 
-// ─── Single nav item ─────────────────────────────────────────────────────────
+// ─── Single item ──────────────────────────────────────────────────────────────
 
 @Composable
 private fun BottomNavItem(
@@ -113,7 +120,6 @@ private fun BottomNavItem(
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        // Icon with green filled pill background when selected
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -122,17 +128,17 @@ private fun BottomNavItem(
                 .background(if (isSelected) Green500.copy(alpha = 0.12f) else Color.Transparent)
         ) {
             Icon(
-                imageVector = if (isSelected) destination.selectedIcon else destination.unselectedIcon,
+                imageVector        = if (isSelected) destination.selectedIcon else destination.unselectedIcon,
                 contentDescription = destination.label,
-                tint = if (isSelected) Green500 else Navy500,
-                modifier = Modifier.size(22.dp)
+                tint               = if (isSelected) Green500 else Navy500,
+                modifier           = Modifier.size(22.dp)
             )
         }
         Spacer(Modifier.height(2.dp))
         Text(
-            text = destination.label,
-            color = if (isSelected) Green500 else Navy500,
-            fontSize = 10.sp,
+            text       = destination.label,
+            color      = if (isSelected) Green500 else Navy500,
+            fontSize   = 10.sp,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             letterSpacing = 0.2.sp
         )

@@ -28,6 +28,13 @@ import androidx.compose.ui.unit.sp
 import com.klodit.almizan.R
 import com.klodit.almizan.ui.theme.*
 
+/**
+ * AlMizanTopBar — switches between pre-login and post-login layout.
+ *
+ * PRE-LOGIN  → logo on the left, SIGN IN button + hamburger on the right
+ * POST-LOGIN → person icon + username + verified badge on the left,
+ *              notification bell on the right, logout dropdown on avatar tap
+ */
 @Composable
 fun AlMizanTopBar(
     isLoggedIn: Boolean,
@@ -74,12 +81,13 @@ private fun PreLoginBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // App logo from drawable
+        // Logo from res/drawable/logo.png
         Image(
             painter = painterResource(id = R.drawable.logo),
             contentDescription = "Al-Mizan logo",
             modifier = Modifier.height(36.dp)
         )
+
         Row(verticalAlignment = Alignment.CenterVertically) {
             Button(
                 onClick = onSignInClick,
@@ -118,7 +126,6 @@ private fun PostLoginBar(
     onAvatarClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
-    // Controls the logout dropdown visibility
     var showLogoutMenu by remember { mutableStateOf(false) }
 
     Row(
@@ -126,7 +133,8 @@ private fun PostLoginBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Avatar + name area — tap avatar to toggle logout dropdown
+
+        // ── Left: avatar + name + logout dropdown ─────────────────────────────
         Box {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -135,7 +143,7 @@ private fun PostLoginBar(
                     onAvatarClick()
                 }
             ) {
-                // Avatar circle
+                // Person icon in white circle
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -145,22 +153,24 @@ private fun PostLoginBar(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Person,
-                        contentDescription = "User",
+                        contentDescription = "User avatar",
                         tint = Navy800,
                         modifier = Modifier.size(24.dp)
                     )
                 }
+
                 Spacer(Modifier.width(10.dp))
+
                 Column(verticalArrangement = Arrangement.Center) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = userName,
+                            text = userName.ifBlank { "User" },
                             color = NavyWhite,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp
                         )
                         Spacer(Modifier.width(4.dp))
-                        // Verified green checkmark badge
+                        // Green verified checkmark badge
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
@@ -186,9 +196,7 @@ private fun PostLoginBar(
                 }
             }
 
-            // Logout dropdown — appears below the avatar row when tapped
-            // Use androidx.compose.animation.AnimatedVisibility explicitly to avoid
-            // the RowScope extension overload being resolved inside this Box scope.
+            // Logout dropdown — appears below the avatar row
             androidx.compose.animation.AnimatedVisibility(
                 visible = showLogoutMenu,
                 modifier = Modifier
@@ -230,7 +238,7 @@ private fun PostLoginBar(
             }
         }
 
-        // Notification bell
+        // ── Right: notification bell ──────────────────────────────────────────
         IconButton(onClick = onNotificationClick, modifier = Modifier.size(40.dp)) {
             Icon(
                 imageVector = Icons.Outlined.Notifications,
