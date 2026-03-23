@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import android.content.res.Configuration
 import com.klodit.almizan.model.*
 import com.klodit.almizan.ui.components.AlMizanBottomBar
 import com.klodit.almizan.ui.components.AlMizanTopBar
@@ -32,28 +33,42 @@ import com.klodit.almizan.viewmodel.MainViewModel
 
 @Composable
 fun MainScreen(
-    viewModel: MainViewModel = viewModel()
+    viewModel: MainViewModel = viewModel(),
+    onNavigateToLogin: () -> Unit = {}
 ) {
-    val currentRoute by viewModel.currentRoute.collectAsState()
-    val isLoggedIn   by viewModel.isLoggedIn.collectAsState()
-    val userName     by viewModel.userName.collectAsState()
+    val currentRoute     by viewModel.currentRoute.collectAsState()
+    val userName         by viewModel.userName.collectAsState()
+    val language         by viewModel.language.collectAsState()
+
+    // key(language) forces this to recompute every time language changes
+    val localizedContext = remember(language) {
+        val locale = java.util.Locale(language.locale)
+        val config = android.content.res.Configuration(
+            viewModel.getApplication<android.app.Application>().resources.configuration
+        )
+        config.setLocale(locale)
+        viewModel.getApplication<android.app.Application>().createConfigurationContext(config)
+    }
 
     Scaffold(
         containerColor = Color(0xFFF5F7FA),
         topBar = {
             AlMizanTopBar(
-                isLoggedIn          = isLoggedIn,
                 userName            = userName,
-                onSignInClick       = { },
-                onMenuClick         = { },
+                language            = language,
+                localizedContext    = localizedContext,
+                onLanguageChange    = { viewModel.onLanguageChange(it) },
                 onNotificationClick = { },
-                onAvatarClick       = { },
-                onLogoutClick       = { viewModel.onLogout() }
+                onLogoutClick       = {
+                    viewModel.onLogout()
+                    onNavigateToLogin()
+                }
             )
         },
         bottomBar = {
             AlMizanBottomBar(
                 currentRoute          = currentRoute,
+                localizedContext      = localizedContext,
                 onDestinationSelected = { viewModel.onTabSelected(it) }
             )
         }
@@ -64,29 +79,25 @@ fun MainScreen(
                 .padding(innerPadding)
         ) {
             when (currentRoute) {
-                BottomNavDestination.Home.route    -> HomeTabContent()
-                BottomNavDestination.Search.route  -> PlaceholderTab("Search")
+                BottomNavDestination.Home.route    -> PlaceholderTab("Home")
+                BottomNavDestination.Search.route  -> SearchTabContent()
                 BottomNavDestination.MyBids.route  -> PlaceholderTab("My Bids")
                 BottomNavDestination.Profile.route -> PlaceholderTab("Profile")
-                else                               -> HomeTabContent()
+                else                               -> PlaceholderTab("Home")
             }
         }
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  HOME TAB — dashboard content inline, no nested Scaffold
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
-private fun HomeTabContent() {
+private fun SearchTabContent() {
     val data       = remember { mockDashboardData() }
     val filterTabs = listOf("All", "Open", "In Progress", "Closed", "Urgent")
-    var selectedTab  by remember { mutableStateOf("All") }
-    var searchQuery  by remember { mutableStateOf("") }
+    var selectedTab by remember { mutableStateOf("All") }
+    var searchQuery by remember { mutableStateOf("") }
 
     val visibleCases = data.cases.filter { case ->
-        val matchesTab = selectedTab == "All" ||
+        val matchesTab    = selectedTab == "All" ||
                 CaseStatus.from(case.status).label == selectedTab
         val matchesSearch = searchQuery.isBlank() ||
                 case.title.contains(searchQuery, ignoreCase = true) ||
@@ -96,45 +107,35 @@ private fun HomeTabContent() {
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier       = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 8.dp)
     ) {
-
-        // Search bar + filter button
         item {
             Spacer(Modifier.height(16.dp))
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                modifier              = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                verticalAlignment     = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 OutlinedTextField(
-                    value = searchQuery,
+                    value         = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = {
-                        Text("Search cases, clients…", color = Navy500, fontSize = 14.sp)
-                    },
-                    leadingIcon = {
-                        Icon(Icons.Default.Search, contentDescription = null, tint = Navy500)
-                    },
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
+                    placeholder   = { Text("Search cases…", color = Navy500, fontSize = 14.sp) },
+                    leadingIcon   = { Icon(Icons.Default.Search, null, tint = Navy500) },
+                    singleLine    = true,
+                    shape         = RoundedCornerShape(12.dp),
+                    colors        = OutlinedTextFieldDefaults.colors(
                         unfocusedContainerColor = NavyWhite,
                         focusedContainerColor   = NavyWhite,
                         unfocusedBorderColor    = Color(0xFFE5E7EB),
                         focusedBorderColor      = Navy800,
                         cursorColor             = Navy800
                     ),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(52.dp)
+                    modifier      = Modifier.weight(1f).height(52.dp)
                 )
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = Modifier
+                    modifier         = Modifier
                         .size(52.dp)
                         .shadow(2.dp, RoundedCornerShape(12.dp))
                         .clip(RoundedCornerShape(12.dp))
@@ -142,53 +143,35 @@ private fun HomeTabContent() {
                         .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(12.dp))
                         .clickable { }
                 ) {
-                    Icon(
-                        imageVector        = Icons.Outlined.Tune,
-                        contentDescription = "Filter",
-                        tint               = Navy800,
-                        modifier           = Modifier.size(22.dp)
-                    )
+                    Icon(Icons.Outlined.Tune, null, tint = Navy800, modifier = Modifier.size(22.dp))
                 }
             }
             Spacer(Modifier.height(14.dp))
         }
 
-        // Filter chips
         item {
             LazyRow(
                 contentPadding        = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filterTabs) { tab ->
-                    FilterChipItem(
-                        label    = tab,
-                        selected = selectedTab == tab,
-                        onClick  = { selectedTab = tab }
-                    )
+                    FilterChipItem(label = tab, selected = selectedTab == tab, onClick = { selectedTab = tab })
                 }
             }
             Spacer(Modifier.height(16.dp))
         }
 
-        // Case cards
         items(visibleCases, key = { it.id }) { case ->
-            CaseCardItem(
-                case     = case,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
-            )
+            CaseCardItem(case = case, modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
         }
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  FILTER CHIP
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun FilterChipItem(label: String, selected: Boolean, onClick: () -> Unit) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
+        modifier         = Modifier
             .clip(RoundedCornerShape(50.dp))
             .background(if (selected) Navy800 else NavyWhite)
             .border(1.dp, if (selected) Navy800 else Color(0xFFE5E7EB), RoundedCornerShape(50.dp))
@@ -204,115 +187,65 @@ private fun FilterChipItem(label: String, selected: Boolean, onClick: () -> Unit
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  CASE CARD
-// ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun CaseCardItem(case: CaseData, modifier: Modifier = Modifier) {
-    val status = CaseStatus.from(case.status)
+    val status      = CaseStatus.from(case.status)
     val buttonColor = when (status) {
-        CaseStatus.CLOSED      -> Navy500
-        CaseStatus.URGENT      -> Color(0xFFE53935)
-        else                   -> Green500
+        CaseStatus.CLOSED -> Navy500
+        CaseStatus.URGENT -> Color(0xFFE53935)
+        else              -> Green500
     }
-
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .shadow(2.dp, RoundedCornerShape(16.dp)),
-        shape  = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = NavyWhite)
+        modifier = modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(16.dp)),
+        shape    = RoundedCornerShape(16.dp),
+        colors   = CardDefaults.cardColors(containerColor = NavyWhite)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-
-            // Ministry + status badge
-            Row(
-                modifier          = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Navy50)
+                    modifier         = Modifier.size(36.dp).clip(RoundedCornerShape(8.dp)).background(Navy50)
                 ) {
-                    Icon(
-                        imageVector        = Icons.Outlined.AccountBalance,
-                        contentDescription = null,
-                        tint               = Navy800,
-                        modifier           = Modifier.size(20.dp)
-                    )
+                    Icon(Icons.Outlined.AccountBalance, null, tint = Navy800, modifier = Modifier.size(20.dp))
                 }
                 Spacer(Modifier.width(10.dp))
-                Text(
-                    text       = case.category,
-                    color      = Navy700,
-                    fontSize   = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier   = Modifier.weight(1f),
-                    maxLines   = 1,
-                    overflow   = TextOverflow.Ellipsis
-                )
+                Text(case.category, color = Navy700, fontSize = 13.sp, fontWeight = FontWeight.Medium,
+                    modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = Modifier
+                    modifier         = Modifier
                         .clip(RoundedCornerShape(6.dp))
                         .background(status.color.copy(alpha = 0.12f))
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
-                    Text(
-                        text       = status.label,
-                        color      = status.color,
-                        fontSize   = 11.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Text(status.label, color = status.color, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
-
             Spacer(Modifier.height(10.dp))
-
-            // Title
-            Text(
-                text       = case.title,
-                color      = Navy900,
-                fontWeight = FontWeight.SemiBold,
-                fontSize   = 15.sp,
-                maxLines   = 2,
-                overflow   = TextOverflow.Ellipsis
-            )
-
+            Text(case.title, color = Navy900, fontWeight = FontWeight.SemiBold, fontSize = 15.sp,
+                maxLines = 2, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.height(10.dp))
-
-            // Case number + date
-            Row(
-                verticalAlignment     = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Outlined.LocationOn, null, tint = Navy500, modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(3.dp))
-                    Text(text = case.caseNumber, color = Navy500, fontSize = 12.sp)
+                    Text(case.caseNumber, color = Navy500, fontSize = 12.sp)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Outlined.Schedule, null, tint = Navy500, modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(3.dp))
-                    Text(text = case.date, color = Navy500, fontSize = 12.sp)
+                    Text(case.date, color = Navy500, fontSize = 12.sp)
                 }
             }
-
             Spacer(Modifier.height(14.dp))
             HorizontalDivider(color = Color(0xFFF3F4F6))
             Spacer(Modifier.height(12.dp))
-
-            // View details button
             Button(
-                onClick       = { },
-                colors        = ButtonDefaults.buttonColors(containerColor = buttonColor),
-                shape         = RoundedCornerShape(10.dp),
+                onClick        = { },
+                colors         = ButtonDefaults.buttonColors(containerColor = buttonColor),
+                shape          = RoundedCornerShape(10.dp),
                 contentPadding = PaddingValues(vertical = 10.dp),
-                modifier      = Modifier.fillMaxWidth().height(40.dp)
+                modifier       = Modifier.fillMaxWidth().height(40.dp)
             ) {
                 Icon(Icons.Outlined.Visibility, null, tint = NavyWhite, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(6.dp))
@@ -321,10 +254,6 @@ private fun CaseCardItem(case: CaseData, modifier: Modifier = Modifier) {
         }
     }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  PLACEHOLDER TABS
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun PlaceholderTab(name: String) {

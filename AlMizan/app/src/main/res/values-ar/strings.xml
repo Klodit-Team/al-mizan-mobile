@@ -130,4 +130,16 @@
     <string name="back_to_org_details">→ العودة إلى تفاصيل المنظمة</string>
     <string name="back_to_credentials">→ العودة إلى بيانات الاعتماد</string>
     <string name="sovereign_footer">© 2024 منصة الميزان السيادية</string>
+
+    <!-- Bottom bar tabs -->
+    <string name="tab_home">الرئيسية</string>
+    <string name="tab_search">البحث</string>
+    <string name="tab_my_bids">عروضي</string>
+    <string name="tab_profile">الملف</string>
+
+    <!-- Top bar -->
+    <string name="topbar_verified">✓ موثق</string>
+    <string name="topbar_tier">مفتوح</string>
+    <string name="topbar_disconnect">تسجيل الخروج</string>
+    <string name="topbar_notifications">الإشعارات</string>
 </resources>

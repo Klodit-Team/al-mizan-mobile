@@ -130,4 +130,16 @@
     <string name="back_to_org_details">← Back to organisation details</string>
     <string name="back_to_credentials">← Back to credentials</string>
     <string name="sovereign_footer">© 2024 AL-MIZAN SOVEREIGN PLATFORM</string>
+
+    <!-- Bottom bar tabs -->
+    <string name="tab_home">Home</string>
+    <string name="tab_search">Search</string>
+    <string name="tab_my_bids">My Bids</string>
+    <string name="tab_profile">Profile</string>
+
+    <!-- Top bar -->
+    <string name="topbar_verified">✓ Verified</string>
+    <string name="topbar_tier">OPEN</string>
+    <string name="topbar_disconnect">Disconnect</string>
+    <string name="topbar_notifications">Notifications</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.klodit.almizan.ui.components
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,40 +21,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.klodit.almizan.R
 import com.klodit.almizan.ui.theme.*
-
-// ─── Destinations ─────────────────────────────────────────────────────────────
 
 sealed class BottomNavDestination(
     val route: String,
-    val label: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector
 ) {
-    object Home : BottomNavDestination(
-        route          = "home",
-        label          = "Home",
-        selectedIcon   = Icons.Filled.Home,
-        unselectedIcon = Icons.Outlined.Home
-    )
-    object Search : BottomNavDestination(
-        route          = "search",
-        label          = "Search",
-        selectedIcon   = Icons.Filled.Search,
-        unselectedIcon = Icons.Outlined.Search
-    )
-    object MyBids : BottomNavDestination(
-        route          = "my_bids",
-        label          = "My Bids",
-        selectedIcon   = Icons.Outlined.ShoppingBag,
-        unselectedIcon = Icons.Outlined.ShoppingBag
-    )
-    object Profile : BottomNavDestination(
-        route          = "profile",
-        label          = "Profile",
-        selectedIcon   = Icons.Filled.Person,
-        unselectedIcon = Icons.Outlined.Person
-    )
+    object Home   : BottomNavDestination("home",    Icons.Filled.Home,   Icons.Outlined.Home)
+    object Search : BottomNavDestination("search",  Icons.Filled.Search, Icons.Outlined.Search)
+    object MyBids : BottomNavDestination("my_bids", Icons.Outlined.ShoppingBag, Icons.Outlined.ShoppingBag)
+    object Profile: BottomNavDestination("profile", Icons.Filled.Person, Icons.Outlined.Person)
 }
 
 val bottomNavItems = listOf(
@@ -63,39 +42,41 @@ val bottomNavItems = listOf(
     BottomNavDestination.Profile
 )
 
-// ─── Bottom bar ───────────────────────────────────────────────────────────────
-
 @Composable
 fun AlMizanBottomBar(
     currentRoute: String,
+    localizedContext: Context,                        // ← context with correct locale baked in
     onDestinationSelected: (BottomNavDestination) -> Unit
 ) {
+    // Read labels from strings.xml using the localized context
+    val labels = mapOf(
+        BottomNavDestination.Home.route    to localizedContext.getString(R.string.tab_home),
+        BottomNavDestination.Search.route  to localizedContext.getString(R.string.tab_search),
+        BottomNavDestination.MyBids.route  to localizedContext.getString(R.string.tab_my_bids),
+        BottomNavDestination.Profile.route to localizedContext.getString(R.string.tab_profile)
+    )
+
     Surface(
-        modifier = Modifier
+        modifier       = Modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = 12.dp,
-                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-            ),
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-        color = NavyWhite,
+            .shadow(elevation = 12.dp, shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
+        shape          = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+        color          = NavyWhite,
         tonalElevation = 0.dp
     ) {
-        // ↓ WindowInsets.navigationBars pads the content above the
-        //   phone's own gesture bar / button row automatically.
-        //   On phones with no gesture bar this adds zero extra padding.
         Row(
-            modifier = Modifier
+            modifier              = Modifier
                 .fillMaxWidth()
-                .navigationBarsPadding()         // ← replaces windowInsetsPadding
+                .navigationBarsPadding()
                 .height(64.dp)
                 .padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment     = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             bottomNavItems.forEach { destination ->
                 BottomNavItem(
                     destination = destination,
+                    label       = labels[destination.route] ?: "",
                     isSelected  = currentRoute == destination.route,
                     onClick     = { onDestinationSelected(destination) }
                 )
@@ -104,42 +85,41 @@ fun AlMizanBottomBar(
     }
 }
 
-// ─── Single item ──────────────────────────────────────────────────────────────
-
 @Composable
 private fun BottomNavItem(
     destination: BottomNavDestination,
+    label: String,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier
+        modifier            = Modifier
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
+            modifier         = Modifier
                 .size(if (isSelected) 40.dp else 32.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .background(if (isSelected) Green500.copy(alpha = 0.12f) else Color.Transparent)
         ) {
             Icon(
                 imageVector        = if (isSelected) destination.selectedIcon else destination.unselectedIcon,
-                contentDescription = destination.label,
+                contentDescription = label,
                 tint               = if (isSelected) Green500 else Navy500,
                 modifier           = Modifier.size(22.dp)
             )
         }
         Spacer(Modifier.height(2.dp))
         Text(
-            text       = destination.label,
-            color      = if (isSelected) Green500 else Navy500,
-            fontSize   = 10.sp,
-            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+            text          = label,
+            color         = if (isSelected) Green500 else Navy500,
+            fontSize      = 10.sp,
+            fontWeight    = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             letterSpacing = 0.2.sp
         )
     }

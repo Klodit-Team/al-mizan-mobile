@@ -130,4 +130,16 @@
     <string name="back_to_org_details">← Retour aux détails de l\'organisation</string>
     <string name="back_to_credentials">← Retour aux identifiants</string>
     <string name="sovereign_footer">© 2024 PLATEFORME SOUVERAINE AL-MIZAN</string>
+
+    <!-- Bottom bar tabs -->
+    <string name="tab_home">Accueil</string>
+    <string name="tab_search">Recherche</string>
+    <string name="tab_my_bids">Mes Offres</string>
+    <string name="tab_profile">Profil</string>
+
+    <!-- Top bar -->
+    <string name="topbar_verified">✓ Vérifié</string>
+    <string name="topbar_tier">OUVERT</string>
+    <string name="topbar_disconnect">Déconnexion</string>
+    <string name="topbar_notifications">Notifications</string>
 </resources>
