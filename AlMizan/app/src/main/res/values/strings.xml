@@ -142,4 +142,39 @@
     <string name="topbar_tier">OUVERT</string>
     <string name="topbar_disconnect">Déconnexion</string>
     <string name="topbar_notifications">Notifications</string>
+
+    <!-- Advanced Filter -->
+    <string name="filter_title">Filtres avancés</string>
+    <string name="filter_reset">Réinitialiser</string>
+    <string name="filter_market_sector">Secteur de marché</string>
+    <string name="filter_procedure_type">Type de procédure</string>
+    <string name="filter_procedure_hint">Sélectionner un type</string>
+    <string name="filter_wilaya_search">Rechercher une wilaya</string>
+    <string name="filter_tender_status">Statut de l\'appel d\'offres</string>
+    <string name="filter_bank_guarantee">Garantie bancaire requise</string>
+    <string name="filter_deadline_range">Plage de délai</string>
+    <string name="filter_deadline_from">Du</string>
+    <string name="filter_deadline_to">Au</string>
+    <string name="filter_show_results">Afficher les résultats</string>
+
+    <!-- Sectors -->
+    <string name="sector_construction">Construction</string>
+    <string name="sector_it">Informatique</string>
+    <string name="sector_health">Santé</string>
+    <string name="sector_education">Éducation</string>
+    <string name="sector_energy">Énergie</string>
+    <string name="sector_transport">Transport</string>
+
+    <!-- Procedure types -->
+    <string name="proc_open">Appel d\'offres ouvert</string>
+    <string name="proc_restricted">Appel d\'offres restreint</string>
+    <string name="proc_negotiated">Procédure négociée</string>
+    <string name="proc_direct">Gré à gré</string>
+    <string name="proc_competitive">Consultation</string>
+
+    <!-- Tender status -->
+    <string name="status_open">Ouvert</string>
+    <string name="status_closed">Clôturé</string>
+    <string name="status_evaluation">En évaluation</string>
+    <string name="status_awarded">Attribué</string>
 </resources>

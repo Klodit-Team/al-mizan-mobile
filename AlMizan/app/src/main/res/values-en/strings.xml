@@ -142,4 +142,39 @@
     <string name="topbar_tier">OPEN</string>
     <string name="topbar_disconnect">Disconnect</string>
     <string name="topbar_notifications">Notifications</string>
+
+    <!-- Advanced Filter -->
+    <string name="filter_title">Advanced Filters</string>
+    <string name="filter_reset">Reset</string>
+    <string name="filter_market_sector">Market Sector</string>
+    <string name="filter_procedure_type">Procedure Type</string>
+    <string name="filter_procedure_hint">Select a type</string>
+    <string name="filter_wilaya_search">Search for wilaya</string>
+    <string name="filter_tender_status">Tender Status</string>
+    <string name="filter_bank_guarantee">Bank Guarantee Required</string>
+    <string name="filter_deadline_range">Deadline Range</string>
+    <string name="filter_deadline_from">From</string>
+    <string name="filter_deadline_to">To</string>
+    <string name="filter_show_results">Show Results</string>
+
+    <!-- Sectors -->
+    <string name="sector_construction">Construction</string>
+    <string name="sector_it">Information Technology</string>
+    <string name="sector_health">Health</string>
+    <string name="sector_education">Education</string>
+    <string name="sector_energy">Energy</string>
+    <string name="sector_transport">Transport</string>
+
+    <!-- Procedure types -->
+    <string name="proc_open">Open Tender</string>
+    <string name="proc_restricted">Restricted Tender</string>
+    <string name="proc_negotiated">Negotiated Procedure</string>
+    <string name="proc_direct">Direct Agreement</string>
+    <string name="proc_competitive">Competitive Consultation</string>
+
+    <!-- Tender status -->
+    <string name="status_open">Open</string>
+    <string name="status_closed">Closed</string>
+    <string name="status_evaluation">Under Evaluation</string>
+    <string name="status_awarded">Awarded</string>
 </resources>

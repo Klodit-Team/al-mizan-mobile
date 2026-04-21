@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.klodit.almizan.navigation.NavGraph
 import com.klodit.almizan.ui.main.MainScreen
 import com.klodit.almizan.ui.theme.AlMizanTheme
 
@@ -13,7 +14,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AlMizanTheme {
-                MainScreen()
+
+                NavGraph()
             }
         }
     }

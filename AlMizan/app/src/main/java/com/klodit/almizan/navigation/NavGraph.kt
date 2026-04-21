@@ -8,7 +8,9 @@ import com.klodit.almizan.ui.auth.*
 import com.klodit.almizan.ui.Registration.RegistrationStep1Screen
 import com.klodit.almizan.ui.Registration.RegistrationStep2Screen
 import com.klodit.almizan.ui.Registration.RegistrationStep3Screen
-import com.klodit.almizan.ui.theme.AppLanguage   // ← moved here from LoginScreen.kt
+import com.klodit.almizan.ui.main.MainScreen
+import com.klodit.almizan.ui.search.AdvancedFilterScreen
+import com.klodit.almizan.ui.theme.AppLanguage
 import com.klodit.almizan.util.LocaleHelper
 
 private object Routes {
@@ -22,34 +24,31 @@ private object Routes {
     const val REGISTRATION_STEP3 = "registration_step3"
     const val TERMS              = "terms"
     const val PRIVACY            = "privacy"
+    const val MAIN               = "main"
+    const val FILTER             = "filter"
 }
 
 @Composable
 fun NavGraph(onAuthSuccess: () -> Unit = {}) {
-    val navController = rememberNavController()
-
+    val navController  = rememberNavController()
     var selectedLang   by remember { mutableStateOf(AppLanguage.FRENCH) }
     var failedAttempts by remember { mutableIntStateOf(0) }
 
-    // When user changes language, apply it system-wide via AppCompatDelegate
     fun changeLanguage(lang: AppLanguage) {
         selectedLang = lang
         LocaleHelper.setLocale(lang)
     }
 
-    NavHost(navController = navController, startDestination = Routes.LOGIN) {
+    NavHost(navController = navController, startDestination = Routes.MAIN) {
 
         composable(Routes.LOGIN) {
             LoginScreen(
-                selectedLang     = selectedLang,
-                onLanguageChange = { changeLanguage(it) },
-                onLoginClick     = { _, _ ->
+                selectedLang          = selectedLang,
+                onLanguageChange      = { changeLanguage(it) },
+                onLoginClick          = { _, _ ->
                     failedAttempts++
-                    if (failedAttempts >= 5) {
-                        navController.navigate(Routes.ACCOUNT_LOCKED)
-                    } else {
-                        navController.navigate(Routes.VERIFICATION)
-                    }
+                    if (failedAttempts >= 5) navController.navigate(Routes.ACCOUNT_LOCKED)
+                    else navController.navigate(Routes.VERIFICATION)
                 },
                 onForgotPasswordClick = { navController.navigate(Routes.FORGOT_PASSWORD) },
                 onRegisterClick       = { navController.navigate(Routes.REGISTRATION_STEP1) }
@@ -63,7 +62,9 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 onVerifyClick    = { code ->
                     if (code == "123456") {
                         failedAttempts = 0
-                        onAuthSuccess()
+                        navController.navigate(Routes.MAIN) {
+                            popUpTo(Routes.LOGIN) { inclusive = true }
+                        }
                     }
                 },
                 onResendClick = {},
@@ -92,10 +93,10 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
 
         composable(Routes.ACCOUNT_LOCKED) {
             AccountLockedScreen(
-                selectedLang        = selectedLang,
-                onLanguageChange    = { changeLanguage(it) },
+                selectedLang         = selectedLang,
+                onLanguageChange     = { changeLanguage(it) },
                 onResetPasswordClick = { navController.navigate(Routes.FORGOT_PASSWORD) },
-                onContactSupport    = {}
+                onContactSupport     = {}
             )
         }
 
@@ -125,6 +126,35 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 onLanguageChange = { changeLanguage(it) },
                 onSubmitClick    = { navController.popBackStack(Routes.LOGIN, false) },
                 onBackClick      = { navController.popBackStack() }
+            )
+        }
+
+        // Main shell
+        composable(Routes.MAIN) {
+            MainScreen(
+                onNavigateToLogin  = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.MAIN) { inclusive = true }
+                    }
+                },
+                onNavigateToFilter = { navController.navigate(Routes.FILTER) }
+            )
+        }
+
+        // Standalone filter screen
+        composable(Routes.FILTER) {
+            val lang = LocaleHelper.currentLanguage()
+            val localizedContext = remember(lang) {
+                val locale = java.util.Locale(lang.locale)
+                val config = android.content.res.Configuration()
+                config.setLocale(locale)
+                navController.context.createConfigurationContext(config)
+            }
+            AdvancedFilterScreen(
+                localizedContext = localizedContext,
+                localeTag        = lang.locale,
+                onApply          = { navController.popBackStack() },
+                onDismiss        = { navController.popBackStack() }
             )
         }
 

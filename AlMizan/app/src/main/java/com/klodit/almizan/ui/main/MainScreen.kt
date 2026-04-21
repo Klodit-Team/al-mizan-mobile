@@ -1,5 +1,6 @@
 package com.klodit.almizan.ui.main
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,7 +24,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import android.content.res.Configuration
 import com.klodit.almizan.model.*
 import com.klodit.almizan.ui.components.AlMizanBottomBar
 import com.klodit.almizan.ui.components.AlMizanTopBar
@@ -33,14 +33,14 @@ import com.klodit.almizan.viewmodel.MainViewModel
 
 @Composable
 fun MainScreen(
-    viewModel: MainViewModel = viewModel(),
-    onNavigateToLogin: () -> Unit = {}
+    viewModel            : MainViewModel = viewModel(),
+    onNavigateToLogin    : () -> Unit    = {},
+    onNavigateToFilter   : () -> Unit    = {}
 ) {
-    val currentRoute     by viewModel.currentRoute.collectAsState()
-    val userName         by viewModel.userName.collectAsState()
-    val language         by viewModel.language.collectAsState()
+    val currentRoute by viewModel.currentRoute.collectAsState()
+    val userName     by viewModel.userName.collectAsState()
+    val language     by viewModel.language.collectAsState()
 
-    // key(language) forces this to recompute every time language changes
     val localizedContext = remember(language) {
         val locale = java.util.Locale(language.locale)
         val config = android.content.res.Configuration(
@@ -80,7 +80,11 @@ fun MainScreen(
         ) {
             when (currentRoute) {
                 BottomNavDestination.Home.route    -> PlaceholderTab("Home")
-                BottomNavDestination.Search.route  -> SearchTabContent()
+                BottomNavDestination.Search.route  -> SearchTabContent(
+                    localizedContext   = localizedContext,
+                    localeTag          = language.locale,
+                    onNavigateToFilter = onNavigateToFilter
+                )
                 BottomNavDestination.MyBids.route  -> PlaceholderTab("My Bids")
                 BottomNavDestination.Profile.route -> PlaceholderTab("Profile")
                 else                               -> PlaceholderTab("Home")
@@ -89,8 +93,13 @@ fun MainScreen(
     }
 }
 
+// Search tab
 @Composable
-private fun SearchTabContent() {
+private fun SearchTabContent(
+    localizedContext   : Context,
+    localeTag          : String,
+    onNavigateToFilter : () -> Unit
+) {
     val data       = remember { mockDashboardData() }
     val filterTabs = listOf("All", "Open", "In Progress", "Closed", "Urgent")
     var selectedTab by remember { mutableStateOf("All") }
@@ -112,6 +121,7 @@ private fun SearchTabContent() {
     ) {
         item {
             Spacer(Modifier.height(16.dp))
+            // Search bar + filter button
             Row(
                 modifier              = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 verticalAlignment     = Alignment.CenterVertically,
@@ -127,12 +137,13 @@ private fun SearchTabContent() {
                     colors        = OutlinedTextFieldDefaults.colors(
                         unfocusedContainerColor = NavyWhite,
                         focusedContainerColor   = NavyWhite,
-                        unfocusedBorderColor    = Color(0xFFE5E7EB),
+                        unfocusedBorderColor    = Navy100,
                         focusedBorderColor      = Navy800,
                         cursorColor             = Navy800
                     ),
                     modifier      = Modifier.weight(1f).height(52.dp)
                 )
+                // Filter icon button
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier         = Modifier
@@ -140,8 +151,8 @@ private fun SearchTabContent() {
                         .shadow(2.dp, RoundedCornerShape(12.dp))
                         .clip(RoundedCornerShape(12.dp))
                         .background(NavyWhite)
-                        .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(12.dp))
-                        .clickable { }
+                        .border(1.dp, Navy100, RoundedCornerShape(12.dp))
+                        .clickable { onNavigateToFilter() }
                 ) {
                     Icon(Icons.Outlined.Tune, null, tint = Navy800, modifier = Modifier.size(22.dp))
                 }
@@ -150,23 +161,32 @@ private fun SearchTabContent() {
         }
 
         item {
+            // Status filter chips
             LazyRow(
                 contentPadding        = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filterTabs) { tab ->
-                    FilterChipItem(label = tab, selected = selectedTab == tab, onClick = { selectedTab = tab })
+                    FilterChipItem(
+                        label    = tab,
+                        selected = selectedTab == tab,
+                        onClick  = { selectedTab = tab }
+                    )
                 }
             }
             Spacer(Modifier.height(16.dp))
         }
 
         items(visibleCases, key = { it.id }) { case ->
-            CaseCardItem(case = case, modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
+            CaseCardItem(
+                case     = case,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+            )
         }
     }
 }
 
+// Filter chip
 @Composable
 private fun FilterChipItem(label: String, selected: Boolean, onClick: () -> Unit) {
     Box(
@@ -174,7 +194,7 @@ private fun FilterChipItem(label: String, selected: Boolean, onClick: () -> Unit
         modifier         = Modifier
             .clip(RoundedCornerShape(50.dp))
             .background(if (selected) Navy800 else NavyWhite)
-            .border(1.dp, if (selected) Navy800 else Color(0xFFE5E7EB), RoundedCornerShape(50.dp))
+            .border(1.dp, if (selected) Navy800 else Navy100, RoundedCornerShape(50.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 10.dp)
     ) {
@@ -187,12 +207,13 @@ private fun FilterChipItem(label: String, selected: Boolean, onClick: () -> Unit
     }
 }
 
+// Case card
 @Composable
 private fun CaseCardItem(case: CaseData, modifier: Modifier = Modifier) {
     val status      = CaseStatus.from(case.status)
     val buttonColor = when (status) {
         CaseStatus.CLOSED -> Navy500
-        CaseStatus.URGENT -> Color(0xFFE53935)
+        CaseStatus.URGENT -> Red600
         else              -> Green500
     }
     Card(
@@ -202,15 +223,27 @@ private fun CaseCardItem(case: CaseData, modifier: Modifier = Modifier) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                // Category icon
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier         = Modifier.size(36.dp).clip(RoundedCornerShape(8.dp)).background(Navy50)
+                    modifier         = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Navy50)
                 ) {
                     Icon(Icons.Outlined.AccountBalance, null, tint = Navy800, modifier = Modifier.size(20.dp))
                 }
                 Spacer(Modifier.width(10.dp))
-                Text(case.category, color = Navy700, fontSize = 13.sp, fontWeight = FontWeight.Medium,
-                    modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(
+                    text       = case.category,
+                    color      = Navy700,
+                    fontSize   = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier   = Modifier.weight(1f),
+                    maxLines   = 1,
+                    overflow   = TextOverflow.Ellipsis
+                )
+                // Status badge
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier         = Modifier
@@ -222,10 +255,20 @@ private fun CaseCardItem(case: CaseData, modifier: Modifier = Modifier) {
                 }
             }
             Spacer(Modifier.height(10.dp))
-            Text(case.title, color = Navy900, fontWeight = FontWeight.SemiBold, fontSize = 15.sp,
-                maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(
+                text       = case.title,
+                color      = Navy900,
+                fontWeight = FontWeight.SemiBold,
+                fontSize   = 15.sp,
+                maxLines   = 2,
+                overflow   = TextOverflow.Ellipsis
+            )
             Spacer(Modifier.height(10.dp))
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            // Meta row
+            Row(
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Outlined.LocationOn, null, tint = Navy500, modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(3.dp))
@@ -238,7 +281,7 @@ private fun CaseCardItem(case: CaseData, modifier: Modifier = Modifier) {
                 }
             }
             Spacer(Modifier.height(14.dp))
-            HorizontalDivider(color = Color(0xFFF3F4F6))
+            HorizontalDivider(color = Grey100)
             Spacer(Modifier.height(12.dp))
             Button(
                 onClick        = { },
@@ -255,6 +298,7 @@ private fun CaseCardItem(case: CaseData, modifier: Modifier = Modifier) {
     }
 }
 
+// Placeholder tab
 @Composable
 private fun PlaceholderTab(name: String) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

@@ -142,4 +142,41 @@
     <string name="topbar_tier">مفتوح</string>
     <string name="topbar_disconnect">تسجيل الخروج</string>
     <string name="topbar_notifications">الإشعارات</string>
+
+
+    <!-- Advanced Filter -->
+    <string name="filter_title">فلاتر متقدمة</string>
+    <string name="filter_reset">إعادة تعيين</string>
+    <string name="filter_market_sector">قطاع السوق</string>
+    <string name="filter_procedure_type">نوع الإجراء</string>
+    <string name="filter_procedure_hint">اختر نوعاً</string>
+    <string name="filter_wilaya_search">البحث عن ولاية</string>
+    <string name="filter_tender_status">حالة المناقصة</string>
+    <string name="filter_bank_guarantee">ضمان بنكي مطلوب</string>
+    <string name="filter_deadline_range">نطاق الموعد النهائي</string>
+    <string name="filter_deadline_from">من</string>
+    <string name="filter_deadline_to">إلى</string>
+    <string name="filter_show_results">عرض النتائج</string>
+
+    <!-- Sectors -->
+    <string name="sector_construction">البناء</string>
+    <string name="sector_it">تكنولوجيا المعلومات</string>
+    <string name="sector_health">الصحة</string>
+    <string name="sector_education">التعليم</string>
+    <string name="sector_energy">الطاقة</string>
+    <string name="sector_transport">النقل</string>
+
+    <!-- Procedure types -->
+    <string name="proc_open">مناقصة مفتوحة</string>
+    <string name="proc_restricted">مناقصة مقيدة</string>
+    <string name="proc_negotiated">إجراء تفاوضي</string>
+    <string name="proc_direct">اتفاق مباشر</string>
+    <string name="proc_competitive">استشارة تنافسية</string>
+
+
+    <!-- Tender status -->
+    <string name="status_open">مفتوحة</string>
+    <string name="status_closed">مغلقة</string>
+    <string name="status_evaluation">قيد التقييم</string>
+    <string name="status_awarded">مُرسَاة</string>
 </resources>

@@ -54,6 +54,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+
     implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
