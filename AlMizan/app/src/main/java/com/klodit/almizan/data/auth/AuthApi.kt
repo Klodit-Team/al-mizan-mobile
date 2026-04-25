@@ -1,0 +1,22 @@
+package com.klodit.almizan.data.auth
+
+import retrofit2.http.Body
+import retrofit2.http.POST
+
+interface AuthApi {
+
+    @POST("auth/register")
+    suspend fun register(@Body request: RegisterRequest): RegisterResponse
+
+    @POST("auth/login")
+    suspend fun login(@Body request: LoginRequest): LoginResponse
+
+    @POST("auth/forgot-password")
+    suspend fun forgotPassword(@Body request: ForgotPasswordRequest): MessageResponse
+
+    @POST("auth/verify-token")
+    suspend fun verifyToken(@Body request: VerifyTokenRequest): MessageResponse
+
+    @POST("auth/reset-password")
+    suspend fun resetPassword(@Body request: ResetPasswordRequest): MessageResponse
+}

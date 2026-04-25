@@ -1,27 +1,35 @@
 package com.klodit.almizan.util
 
-import android.app.Activity
 import android.content.Context
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
+import android.content.res.Configuration
 import com.klodit.almizan.ui.theme.AppLanguage
-
+import java.util.Locale
 
 object LocaleHelper {
 
+    private const val PREF_NAME = "locale_pref"
+    private const val KEY_LANG  = "selected_lang"
 
-    fun setLocale(language: AppLanguage) {
-        val localeList = LocaleListCompat.forLanguageTags(language.locale)
-        AppCompatDelegate.setApplicationLocales(localeList)
-        // Activity will recreate automatically — no manual restart needed.
+    fun setLocale(context: Context, language: AppLanguage) {
+        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_LANG, language.locale)
+            .apply()
     }
 
-
-    fun currentLanguage(): AppLanguage {
-        val tag = AppCompatDelegate.getApplicationLocales()
-            .toLanguageTags()
-            .take(2)          // "fr", "ar", or "en"
-        return AppLanguage.entries.firstOrNull { it.locale == tag }
+    fun currentLanguage(context: Context): AppLanguage {
+        val saved = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_LANG, null)
+        return AppLanguage.entries.firstOrNull { it.locale == saved }
             ?: AppLanguage.FRENCH
+    }
+
+    // Returns a new Context with the locale baked in
+    fun applyLocale(context: Context, language: AppLanguage): Context {
+        val locale = Locale(language.locale)
+        Locale.setDefault(locale)
+        val config = Configuration(context.resources.configuration)
+        config.setLocale(locale)
+        return context.createConfigurationContext(config)
     }
 }

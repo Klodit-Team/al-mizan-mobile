@@ -1,4 +1,4 @@
-package com.klodit.almizan.model
+package com.klodit.almizan.model.Dashboard
 
 import androidx.compose.ui.graphics.Color
 import com.klodit.almizan.ui.theme.*

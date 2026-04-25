@@ -30,6 +30,8 @@
     <string name="login_biometrics">Se connecter avec la biométrie</string>
     <string name="login_no_account">Pas encore de compte ?</string>
     <string name="login_register">S\'inscrire ici</string>
+    <string name="password_show">Afficher</string>
+    <string name="password_hide">Masquer</string>
 
     <!-- ── VERIFICATION SCREEN ── -->
     <string name="verif_title">Vérification en deux étapes</string>

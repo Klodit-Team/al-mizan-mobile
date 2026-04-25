@@ -24,7 +24,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.klodit.almizan.model.*
+import com.klodit.almizan.model.Dashboard.CaseData
+import com.klodit.almizan.model.Dashboard.CaseStatus
+import com.klodit.almizan.model.Dashboard.mockDashboardData
 import com.klodit.almizan.ui.components.AlMizanBottomBar
 import com.klodit.almizan.ui.components.AlMizanTopBar
 import com.klodit.almizan.ui.components.BottomNavDestination

@@ -1,4 +1,4 @@
-package com.klodit.almizan.data
+package com.klodit.almizan.data.tender
 
 // ─────────────────────────────────────────────
 //  DATA MODELS
