@@ -142,7 +142,7 @@
 
     <!-- Bottom bar tabs -->
     <string name="tab_home">Accueil</string>
-    <string name="tab_search">Recherche</string>
+    <string name="tab_search">appels d offres</string>
     <string name="tab_my_bids">Mes Offres</string>
     <string name="tab_profile">Profil</string>
 

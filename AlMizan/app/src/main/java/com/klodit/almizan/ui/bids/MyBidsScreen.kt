@@ -1,4 +1,4 @@
-package com.klodit.almizan.ui.dashboard
+package com.klodit.almizan.ui.bids
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
@@ -10,11 +10,11 @@ import androidx.compose.ui.unit.sp
 import com.klodit.almizan.ui.theme.Navy700
 
 @Composable
-fun DashboardScreen(innerPadding: PaddingValues = PaddingValues()) {
+fun MyBidsScreen(innerPadding: PaddingValues) {
     Box(
         modifier         = Modifier.fillMaxSize().padding(innerPadding),
         contentAlignment = Alignment.Center
     ) {
-        Text("Dashboard", color = Navy700, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+        Text("My Bids", color = Navy700, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
     }
 }

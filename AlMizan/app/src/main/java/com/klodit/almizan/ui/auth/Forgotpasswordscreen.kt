@@ -33,13 +33,14 @@ import com.klodit.almizan.viewmodel.auth.AuthState
 
 @Composable
 fun ForgotPasswordScreen(
-    onSendClick     : (email: String) -> Unit = {},
+    // Matches the pattern used by LoginScreen in your NavGraph
+    authState       : AuthState = AuthState.Idle,
+    onClearError    : () -> Unit = {},
+    onSendClick     : (email: String) -> Unit = {},   // NavGraph calls forgotPassword here
     onBackClick     : () -> Unit = {},
     onSignInClick   : () -> Unit = {},
     selectedLang    : AppLanguage = AppLanguage.FRENCH,
-    onLanguageChange: (AppLanguage) -> Unit = {},
-    authState       : AuthState = AuthState.Idle,
-    onClearError    : () -> Unit = {}
+    onLanguageChange: (AppLanguage) -> Unit = {}
 ) {
     var email        by remember { mutableStateOf("") }
     var emailTouched by remember { mutableStateOf(false) }
@@ -54,10 +55,11 @@ fun ForgotPasswordScreen(
     val overlapAmount = 32.dp
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val errorMessage      = (authState as? AuthState.Error)?.message
-    LaunchedEffect(errorMessage) {
-        if (errorMessage != null) {
-            snackbarHostState.showSnackbar(errorMessage)
+
+    // Show snackbar on error then clear so it doesn't re-trigger on recomposition
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Error) {
+            snackbarHostState.showSnackbar(authState.message)
             onClearError()
         }
     }
@@ -134,16 +136,11 @@ fun ForgotPasswordScreen(
                     modifier            = Modifier.fillMaxWidth().padding(28.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-
                     Box(
                         modifier         = Modifier.size(64.dp).clip(CircleShape).background(Blue50),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            Icons.Outlined.Lock, null,
-                            tint     = Blue700,
-                            modifier = Modifier.size(32.dp)
-                        )
+                        Icon(Icons.Outlined.Lock, null, tint = Blue700, modifier = Modifier.size(32.dp))
                     }
 
                     Spacer(Modifier.height(20.dp))
@@ -166,32 +163,21 @@ fun ForgotPasswordScreen(
 
                     AuthFieldLabel(stringResource(R.string.fp_email_label))
                     Spacer(Modifier.height(6.dp))
+
                     OutlinedTextField(
                         value         = email,
                         onValueChange = { email = it; emailTouched = true },
                         placeholder   = {
-                            Text(
-                                stringResource(R.string.fp_email_placeholder),
-                                color    = cs.onSurfaceVariant,
-                                fontSize = 13.sp
-                            )
+                            Text(stringResource(R.string.fp_email_placeholder),
+                                color = cs.onSurfaceVariant, fontSize = 13.sp)
                         },
                         leadingIcon = {
-                            Icon(
-                                Icons.Outlined.Email, null,
-                                tint     = cs.onSurfaceVariant,
-                                modifier = Modifier.size(18.dp)
-                            )
+                            Icon(Icons.Outlined.Email, null,
+                                tint = cs.onSurfaceVariant, modifier = Modifier.size(18.dp))
                         },
                         isError        = showError,
                         supportingText = if (showError) {
-                            {
-                                Text(
-                                    stringResource(R.string.err_email_invalid),
-                                    color    = cs.error,
-                                    fontSize = 11.sp
-                                )
-                            }
+                            { Text(stringResource(R.string.err_email_invalid), color = cs.error, fontSize = 11.sp) }
                         } else null,
                         modifier   = Modifier.fillMaxWidth(),
                         singleLine = true,
@@ -202,6 +188,7 @@ fun ForgotPasswordScreen(
                     Spacer(Modifier.height(24.dp))
 
                     Button(
+                        // NavGraph's onSendClick lambda calls authViewModel.forgotPassword(email) { navigate() }
                         onClick  = { onSendClick(email) },
                         enabled  = emailValid && !isLoading,
                         modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -213,23 +200,13 @@ fun ForgotPasswordScreen(
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(
-                                modifier    = Modifier.size(22.dp),
-                                color       = cs.onSecondary,
-                                strokeWidth = 2.dp
-                            )
+                                modifier = Modifier.size(22.dp), color = cs.onSecondary, strokeWidth = 2.dp)
                         } else {
-                            Icon(
-                                Icons.Outlined.Email, null,
-                                tint     = cs.onSecondary,
-                                modifier = Modifier.size(18.dp)
-                            )
+                            Icon(Icons.Outlined.Email, null,
+                                tint = cs.onSecondary, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(8.dp))
-                            Text(
-                                stringResource(R.string.fp_send_btn),
-                                fontSize   = 15.sp,
-                                fontWeight = FontWeight.Bold,
-                                color      = cs.onSecondary
-                            )
+                            Text(stringResource(R.string.fp_send_btn),
+                                fontSize = 15.sp, fontWeight = FontWeight.Bold, color = cs.onSecondary)
                         }
                     }
                 }
@@ -237,15 +214,8 @@ fun ForgotPasswordScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment     = Alignment.CenterVertically
-            ) {
-                Text(
-                    stringResource(R.string.fp_remembered),
-                    fontSize = 13.sp,
-                    color    = cs.onSurfaceVariant
-                )
+            Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.fp_remembered), fontSize = 13.sp, color = cs.onSurfaceVariant)
                 Spacer(Modifier.width(4.dp))
                 Text(
                     stringResource(R.string.fp_sign_in),

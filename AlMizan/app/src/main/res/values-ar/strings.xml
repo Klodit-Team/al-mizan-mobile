@@ -143,7 +143,7 @@
 
     <!-- Bottom bar tabs -->
     <string name="tab_home">الرئيسية</string>
-    <string name="tab_search">البحث</string>
+    <string name="tab_search">المناقصات</string>
     <string name="tab_my_bids">عروضي</string>
     <string name="tab_profile">الملف</string>
 

@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -30,14 +31,14 @@ sealed class BottomNavDestination(
     val unselectedIcon: ImageVector
 ) {
     object Home   : BottomNavDestination("home",    Icons.Filled.Home,   Icons.Outlined.Home)
-    object Search : BottomNavDestination("search",  Icons.Filled.Search, Icons.Outlined.Search)
+    object Tenders : BottomNavDestination("tenders", Icons.Filled.Description, Icons.Outlined.Description)
     object MyBids : BottomNavDestination("my_bids", Icons.Outlined.ShoppingBag, Icons.Outlined.ShoppingBag)
     object Profile: BottomNavDestination("profile", Icons.Filled.Person, Icons.Outlined.Person)
 }
 
 val bottomNavItems = listOf(
     BottomNavDestination.Home,
-    BottomNavDestination.Search,
+    BottomNavDestination.Tenders,
     BottomNavDestination.MyBids,
     BottomNavDestination.Profile
 )
@@ -51,7 +52,7 @@ fun AlMizanBottomBar(
     // Read labels from strings.xml using the localized context
     val labels = mapOf(
         BottomNavDestination.Home.route    to localizedContext.getString(R.string.tab_home),
-        BottomNavDestination.Search.route  to localizedContext.getString(R.string.tab_search),
+        BottomNavDestination.Tenders.route to localizedContext.getString(R.string.tab_search), // ← was Search.route
         BottomNavDestination.MyBids.route  to localizedContext.getString(R.string.tab_my_bids),
         BottomNavDestination.Profile.route to localizedContext.getString(R.string.tab_profile)
     )
