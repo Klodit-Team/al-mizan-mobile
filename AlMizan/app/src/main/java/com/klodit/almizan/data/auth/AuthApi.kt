@@ -1,7 +1,12 @@
 package com.klodit.almizan.data.auth
 
+import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.http.Body
+import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 
 interface AuthApi {
 
@@ -19,4 +24,11 @@ interface AuthApi {
 
     @POST("auth/reset-password")
     suspend fun resetPassword(@Body request: ResetPasswordRequest): MessageResponse
+
+    @Multipart
+    @POST("documents/upload")
+    suspend fun uploadDocument(
+        @Header("Authorization") token: String,
+        @Part file: MultipartBody.Part
+    ): ResponseBody
 }

@@ -53,7 +53,7 @@ private fun passwordStrength(password: String): Int {
 
 @Composable
 fun RegistrationStep2Screen(
-    onContinueClick : (String, String, String) -> Unit = { _, _, _ -> },
+    onContinueClick: (phone: String, email: String, password: String, nom: String, prenom: String) -> Unit = { _, _, _, _, _ -> },
     onBackClick     : () -> Unit = {},
     onInfoClick     : () -> Unit = {},
     selectedLang    : AppLanguage = AppLanguage.FRENCH,
@@ -63,6 +63,8 @@ fun RegistrationStep2Screen(
 
     var phone           by remember { mutableStateOf("") }
     var email           by remember { mutableStateOf("") }
+    var nom    by remember { mutableStateOf("") }
+    var prenom by remember { mutableStateOf("") }
     var phoneTouched    by remember { mutableStateOf(false) }
     var emailTouched    by remember { mutableStateOf(false) }
     var password        by remember { mutableStateOf("") }
@@ -73,7 +75,8 @@ fun RegistrationStep2Screen(
     val phoneValid     = isValidAlgerianPhone(phone)
     val emailValid     = isValidEmail(email)
     val passwordsMatch = password.isNotEmpty() && password == confirmPassword
-    val canContinue    = phoneValid && emailValid && password.length >= 6 && passwordsMatch
+    val canContinue = phoneValid && emailValid && password.length >= 6
+            && passwordsMatch && nom.isNotBlank() && prenom.isNotBlank()
 
     val strength      = passwordStrength(password)
     val strengthLabel = when (strength) {
@@ -148,6 +151,36 @@ fun RegistrationStep2Screen(
                     fontSize = 13.sp, color = cs.secondary)
                 Spacer(Modifier.height(24.dp))
 
+
+                // Last name
+                AuthFieldLabel(stringResource(R.string.reg2_nom_label))
+                Spacer(Modifier.height(6.dp))
+                OutlinedTextField(
+                    value         = nom,
+                    onValueChange = { nom = it },
+                    placeholder   = { Text(stringResource(R.string.reg2_ph_nom), color = cs.onSurfaceVariant, fontSize = 13.sp) },
+                    modifier      = Modifier.fillMaxWidth(),
+                    singleLine    = true,
+                    shape         = RoundedCornerShape(8.dp),
+                    colors        = authFieldColors()
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                // First name
+                AuthFieldLabel( stringResource(R.string.reg2_prenom_label))
+                Spacer(Modifier.height(6.dp))
+                OutlinedTextField(
+                    value         = prenom,
+                    onValueChange = { prenom = it },
+                    placeholder   = { Text(stringResource(R.string.reg2_ph_prenom), color = cs.onSurfaceVariant, fontSize = 13.sp) },
+                    modifier      = Modifier.fillMaxWidth(),
+                    singleLine    = true,
+                    shape         = RoundedCornerShape(8.dp),
+                    colors        = authFieldColors()
+                )
+
+                Spacer(Modifier.height(16.dp))
                 // phone
                 AuthFieldLabel(stringResource(R.string.reg2_phone_label))
                 Spacer(Modifier.height(6.dp))
@@ -321,7 +354,7 @@ fun RegistrationStep2Screen(
                     letterSpacing = 1.sp, fontWeight = FontWeight.Medium)
             }
             Spacer(Modifier.height(10.dp))
-            Button(onClick = { onContinueClick(phone, email, password) },
+            Button(onClick = { onContinueClick(phone, email, password, nom, prenom) },
                 enabled = canContinue,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(10.dp),

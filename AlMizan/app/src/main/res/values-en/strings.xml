@@ -34,6 +34,7 @@
     <string name="password_hide">Masquer</string>
 
 
+
     <!-- ── VERIFICATION SCREEN ── -->
     <string name="verif_title">Two-Step Verification</string>
     <string name="verif_subtitle">A 6-digit verification code has been sent to your registered professional email address.</string>
@@ -110,6 +111,10 @@
     <string name="reg2_identity">IDENTITY VERIFICATION REQUIRED</string>
     <string name="reg2_continue_btn">Continue to Step 3  →</string>
     <string name="reg2_back_label">← Back to organisation details</string>
+    <string name="reg2_nom_label">Last Name</string>
+    <string name="reg2_ph_nom">Enter your last name</string>
+    <string name="reg2_prenom_label">First Name</string>
+    <string name="reg2_ph_prenom">Enter your first name</string>
 
     <!-- ── REGISTRATION STEP 3 ── -->
     <string name="reg3_step_label">STEP 3 OF 3</string>
@@ -127,6 +132,9 @@
     <string name="reg3_privacy_body">Your documents are encrypted and accessible only by authorised verification staff.</string>
     <string name="reg3_submit_btn">Submit Registration</string>
     <string name="reg3_back_label">← Back to credentials</string>
+    <string name="reg_success_title">Registration Successful!</string>
+    <string name="reg_success_body">Your account has been created</string>
+    <string name="reg_success_btn">Go to Login</string>
 
     <!-- ── COMMON FOOTER / BACK ── -->
     <string name="back_to_welcome">← Back to home</string>

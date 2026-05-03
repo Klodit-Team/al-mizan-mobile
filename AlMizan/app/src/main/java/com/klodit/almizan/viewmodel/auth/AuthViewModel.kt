@@ -11,6 +11,12 @@ import com.klodit.almizan.data.auth.RegisterRequest
 import com.klodit.almizan.data.remote.ApiClient
 import com.klodit.almizan.ui.theme.AppLanguage
 import kotlinx.coroutines.launch
+import android.content.Context
+import android.net.Uri
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
+
 
 data class RegStep1Data(
     val orgName : String,
@@ -22,7 +28,9 @@ data class RegStep1Data(
 data class RegStep2Data(
     val phone    : String,
     val email    : String,
-    val password : String
+    val password : String,
+    val nom      : String,
+    val prenom   : String
 )
 
 sealed class AuthState {
@@ -40,6 +48,9 @@ class AuthViewModel : ViewModel() {
     var authState by mutableStateOf<AuthState>(AuthState.Idle)
         private set
 
+    var uploadState by mutableStateOf<AuthState>(AuthState.Idle)
+        private set
+
     var step1Data: RegStep1Data? by mutableStateOf(null)
         private set
 
@@ -47,29 +58,52 @@ class AuthViewModel : ViewModel() {
         private set
 
     // ── Login ─────────────────────────────────────────────────────────────────
+    // Add this property
+    var failedLoginAttempts by mutableStateOf(0)
+        private set
+
+    // for the upload doc
+    var authToken by mutableStateOf<String?>(null)
+        private set
+
+
     fun login(
         email    : String,
         password : String,
-        onSuccess: (token: String) -> Unit
+        onSuccess: (token: String) -> Unit,
+        onLocked : () -> Unit = {}
     ) {
         viewModelScope.launch {
             authState = AuthState.Loading
             try {
-                val response = repository.login(email, password)
-                val token    = response.resolvedToken() ?: ""
-                authState    = AuthState.Success(token)
+                val response     = repository.login(email, password)
+                val token        = response.resolvedToken() ?: ""
+                failedLoginAttempts = 0          // reset on success
+                authState        = AuthState.Success(token)
                 onSuccess(token)
             } catch (e: retrofit2.HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
-                authState = AuthState.Error(
-                    when (e.code()) {
-                        401  -> "Email ou mot de passe incorrect"
-                        403  -> "Accès refusé"
-                        429  -> "Trop de tentatives, réessayez plus tard"
-                        502  -> "Service temporairement indisponible"
-                        else -> "Erreur serveur (${e.code()}): $errorBody"
+                when (e.code()) {
+                    401 -> {
+                        failedLoginAttempts++
+                        if (failedLoginAttempts >= 5) {
+                            authState = AuthState.Idle
+                            onLocked()           // trigger navigation to locked screen
+                        } else {
+                            authState = AuthState.Error(
+                                "Email ou mot de passe incorrect (${failedLoginAttempts}/5)"
+                            )
+                        }
                     }
-                )
+                    403  -> authState = AuthState.Error("Accès refusé")
+                    429  -> {
+                        // server itself says too many attempts
+                        authState = AuthState.Idle
+                        onLocked()
+                    }
+                    502  -> authState = AuthState.Error("Service temporairement indisponible")
+                    else -> authState = AuthState.Error("Erreur serveur (${e.code()}): $errorBody")
+                }
             } catch (e: java.net.UnknownHostException) {
                 authState = AuthState.Error("Pas de connexion internet")
             } catch (e: Exception) {
@@ -78,13 +112,18 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+
+    fun resetFailedAttempts() {
+        failedLoginAttempts = 0
+    }
+
     // ── Registration step helpers ─────────────────────────────────────────────
     fun saveStep1(orgName: String, nif: String, nis: String, rc: String) {
         step1Data = RegStep1Data(orgName, nif, nis, rc)
     }
 
-    fun saveStep2(phone: String, email: String, password: String) {
-        step2Data = RegStep2Data(phone, email, password)
+    fun saveStep2(phone: String, email: String, password: String, nom: String, prenom: String) {
+        step2Data = RegStep2Data(phone, email, password, nom, prenom)
     }
 
     // ── Final registration submit ─────────────────────────────────────────────
@@ -105,31 +144,34 @@ class AuthViewModel : ViewModel() {
             email             = s2.email,
             password          = s2.password,
             role              = "SERVICE_CONTRACTANT",
-            langue            = selectedLang.locale,   // uses actual selected language
-            nom               = "",
-            prenom            = "",
+            langue            = selectedLang.locale,
+            nom               = s2.nom,
+            prenom            = s2.prenom,
             telephone         = s2.phone,
             denomination      = s1.orgName,
             nif               = s1.nif,
             nis               = s1.nis,
             registre_commerce = s1.rc,
-            adresse           = null,
-            wilaya            = null,
-            commune           = null,
-            type              = null,
-            code_service      = null,
-            secteur_activite  = null,
-            ordonnateur       = null
+            adresse           = "string",
+            wilaya            = "string",
+            commune           = "string",
+            type              = "EPA",
+            code_service      = "string",
+            secteur_activite  = "string",
+            ordonnateur       = "string"
         )
 
         viewModelScope.launch {
             authState = AuthState.Loading
             try {
                 val response = repository.register(request)
+                authToken = response.resolvedToken()
                 authState    = AuthState.Success(response.message ?: "Inscription réussie")
                 onSuccess(response.user_id ?: "")
             } catch (e: retrofit2.HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
+
+                android.util.Log.e("AUTH_DEBUG", "HTTP ${e.code()}: $errorBody")
                 authState = AuthState.Error(
                     when (e.code()) {
                         409  -> "Un compte avec cet email existe déjà"
@@ -226,6 +268,51 @@ class AuthViewModel : ViewModel() {
             } catch (e: Exception) {
                 authState = AuthState.Error(e.message ?: "Erreur")
             }
+
         }
     }
+
+    fun uploadDocument(context: android.content.Context, uri: android.net.Uri, onSuccess: () -> Unit) {
+        val token = authToken ?: run {
+            uploadState = AuthState.Error("Non authentifié")
+            return
+        }
+
+        viewModelScope.launch {
+            uploadState = AuthState.Loading
+            try {
+                val inputStream = context.contentResolver.openInputStream(uri)
+                val bytes       = inputStream?.readBytes() ?: throw Exception("Fichier illisible")
+                val mimeType    = context.contentResolver.getType(uri) ?: "application/pdf"
+                val fileName    = uri.lastPathSegment ?: "document.pdf"
+
+                val requestBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+                val part        = MultipartBody.Part.createFormData("file", fileName, requestBody)
+
+                repository.uploadDocument(token, part)
+                uploadState = AuthState.Success("Document uploadé")
+                onSuccess()
+            } catch (e: retrofit2.HttpException) {
+                uploadState = AuthState.Error(
+                    when (e.code()) {
+                        401  -> "Session expirée, reconnectez-vous"
+                        413  -> "Fichier trop volumineux"
+                        415  -> "Format de fichier non supporté"
+                        429  -> "Trop de tentatives"
+                        502  -> "Service indisponible"
+                        else -> "Erreur upload (${e.code()})"
+                    }
+                )
+            } catch (e: java.net.UnknownHostException) {
+                uploadState = AuthState.Error("Pas de connexion internet")
+            } catch (e: Exception) {
+                uploadState = AuthState.Error(e.message ?: "Erreur upload")
+            }
+        }
+    }
+
+    fun clearUploadError() {
+        if (uploadState is AuthState.Error) uploadState = AuthState.Idle
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 }

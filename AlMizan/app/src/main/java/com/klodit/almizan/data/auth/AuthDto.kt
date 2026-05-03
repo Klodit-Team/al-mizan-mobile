@@ -3,28 +3,32 @@ package com.klodit.almizan.data.auth
 data class RegisterRequest(
     val email             : String,
     val password          : String,
-    val role              : String  = "SERVICE_CONTRACTANT",
-    val langue            : String  = "fr",
-    val nom               : String  = "",
-    val prenom            : String  = "",
+    val role              : String = "SERVICE_CONTRACTANT",
+    val langue            : String = "fr",
+    val nom               : String,
+    val prenom            : String,
     val telephone         : String,
-    val denomination      : String? = null,
-    val nif               : String? = null,
-    val nis               : String? = null,
-    val registre_commerce : String? = null,
-    val adresse           : String? = null,
-    val wilaya            : String? = null,
-    val commune           : String? = null,
-    val type              : String? = null,
-    val code_service      : String? = null,
-    val secteur_activite  : String? = null,
-    val ordonnateur       : String? = null
+    val denomination      : String,
+    val nif               : String,
+    val nis               : String,
+    val registre_commerce : String,
+    val adresse           : String = "string",
+    val wilaya            : String = "string",
+    val commune           : String = "string",
+    val type              : String = "EPA",
+    val code_service      : String = "string",
+    val secteur_activite  : String = "string",
+    val ordonnateur       : String = "string"
 )
 
 data class RegisterResponse(
     val message : String? = null,
-    val user_id : String? = null
-)
+    val user_id : String? = null,
+    val access_token : String? = null,
+    val token        : String? = null
+){
+    fun resolvedToken() = access_token ?: token
+}
 
 data class LoginRequest(
     val email    : String,

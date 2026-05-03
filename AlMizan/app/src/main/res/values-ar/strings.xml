@@ -110,6 +110,10 @@
     <string name="reg2_identity">التحقق من الهوية مطلوب</string>
     <string name="reg2_continue_btn">المتابعة إلى الخطوة 3 ←</string>
     <string name="reg2_back_label">→ العودة إلى تفاصيل المنظمة</string>
+    <string name="reg2_nom_label">اللقب</string>
+    <string name="reg2_ph_nom">أدخل لقبك</string>
+    <string name="reg2_prenom_label">الاسم</string>
+    <string name="reg2_ph_prenom">أدخل اسمك</string>
 
     <!-- ── REGISTRATION STEP 3 ── -->
     <string name="reg3_step_label">الخطوة 3 من 3</string>
@@ -127,6 +131,9 @@
     <string name="reg3_privacy_body">وثائقك مشفّرة ولا يمكن الاطلاع عليها إلا من قِبَل موظفي التحقق المعتمدين.</string>
     <string name="reg3_submit_btn">إرسال طلب التسجيل</string>
     <string name="reg3_back_label">→ العودة إلى بيانات الاعتماد</string>
+    <string name="reg_success_title">!تم التسجيل بنجاح</string>
+    <string name="reg_success_body">تم إنشاء حسابك.</string>
+    <string name="reg_success_btn">الذهاب إلى تسجيل الدخول</string>
 
     <!-- ── COMMON FOOTER / BACK ── -->
     <string name="back_to_welcome">→ العودة إلى الرئيسية</string>

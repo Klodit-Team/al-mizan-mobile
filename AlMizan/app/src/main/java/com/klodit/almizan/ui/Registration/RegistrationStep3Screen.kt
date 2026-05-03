@@ -1,5 +1,8 @@
 package com.klodit.almizan.ui.Registration
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,15 +41,19 @@ import com.klodit.almizan.viewmodel.auth.AuthState
 
 private enum class DocState { EMPTY, ANALYZING, DONE }
 
+
 @Composable
 fun RegistrationStep3Screen(
     onSubmitClick   : () -> Unit = {},
     onBackClick     : () -> Unit = {},
     selectedLang    : AppLanguage = AppLanguage.FRENCH,
     onLanguageChange: (AppLanguage) -> Unit = {},
-    // ── integration params ──
     authState       : AuthState = AuthState.Idle,
-    onClearError    : () -> Unit = {}
+    uploadState     : AuthState = AuthState.Idle,
+    onPickFile        : () -> Unit = {},
+    onClearError    : () -> Unit = {},
+    onClearUploadError: () -> Unit = {}
+
 ) {
     val cs = MaterialTheme.colorScheme
 
@@ -68,13 +76,56 @@ fun RegistrationStep3Screen(
 
     // Error snackbar
     val snackbarHostState = remember { SnackbarHostState() }
+    //succes registration
+    var showSuccessDialog by remember { mutableStateOf(false) }
+
     val errorMessage = (authState as? AuthState.Error)?.message
+
     LaunchedEffect(errorMessage) {
         if (errorMessage != null) {
             snackbarHostState.showSnackbar(errorMessage)
             onClearError()
         }
     }
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Success) {
+            showSuccessDialog = true
+        }
+    }
+    LaunchedEffect(uploadState) {
+        when (uploadState) {
+            is AuthState.Success -> {
+                analysisProgress = 1f
+                delay(300)
+                docState = DocState.DONE
+            }
+            is AuthState.Error -> {
+                docState         = DocState.EMPTY
+                docFileName      = ""
+                analysisProgress = 0f
+                snackbarHostState.showSnackbar(
+                    (uploadState as AuthState.Error).message
+                )
+                onClearUploadError()
+            }
+            is AuthState.Loading -> {
+                // animate progress while uploading
+                scope.launch {
+                    for (step in listOf(0.2f, 0.4f, 0.6f, 0.78f)) {
+                        delay(600)
+                        if (docState == DocState.ANALYZING)
+                            analysisProgress = step
+                    }
+                }
+            }
+            else -> {}
+        }
+    }
+
+
+
+
+
 
     fun simulateUpload(fakeName: String) {
         docFileName      = fakeName
@@ -89,6 +140,74 @@ fun RegistrationStep3Screen(
             docState = DocState.DONE
         }
     }
+
+    // ── Success Dialog ────────────────────────────────────────────────────────────
+    if (showSuccessDialog) {
+        AlertDialog(
+            onDismissRequest = { },   // prevent dismiss by tapping outside
+            containerColor   = cs.surface,
+            shape            = RoundedCornerShape(20.dp),
+            title = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()) {
+
+                    // green circle with checkmark
+                    Box(
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(CircleShape)
+                            .background(cs.secondaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Outlined.CheckCircle, null,
+                            tint     = cs.secondary,
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+
+                    Text(
+                        stringResource(R.string.reg_success_title),
+                        fontSize   = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color      = cs.onSurface,
+                        textAlign  = TextAlign.Center
+                    )
+                }
+            },
+            text = {
+                Text(
+                    stringResource(R.string.reg_success_body),
+                    fontSize  = 13.sp,
+                    color     = cs.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 19.sp,
+                    modifier  = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick  = {
+                        showSuccessDialog = false
+                        onSubmitClick()   // this triggers NavGraph navigation to Login
+                    },
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    shape    = RoundedCornerShape(10.dp),
+                    colors   = ButtonDefaults.buttonColors(containerColor = cs.secondary)
+                ) {
+                    Text(
+                        stringResource(R.string.reg_success_btn),
+                        fontSize   = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color      = cs.onSecondary
+                    )
+                }
+            }
+        )
+    }
+
 
     Scaffold(
         snackbarHost   = { SnackbarHost(snackbarHostState) },
@@ -192,7 +311,7 @@ fun RegistrationStep3Screen(
                                     .clip(RoundedCornerShape(14.dp))
                                     .border(1.5.dp, cs.outline, RoundedCornerShape(14.dp))
                                     .background(cs.surface)
-                                    .clickable { simulateUpload("document_RC_2024.pdf") }
+                                    .clickable { onPickFile() }
                                     .padding(vertical = 36.dp),
                                 contentAlignment = Alignment.Center
                             ) {

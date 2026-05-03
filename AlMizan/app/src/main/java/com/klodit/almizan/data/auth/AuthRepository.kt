@@ -1,5 +1,8 @@
 package com.klodit.almizan.data.auth
 
+import okhttp3.MultipartBody
+import okhttp3.ResponseBody
+
 class AuthRepository(private val api: AuthApi) {
 
     suspend fun register(request: RegisterRequest): RegisterResponse =
@@ -16,4 +19,8 @@ class AuthRepository(private val api: AuthApi) {
 
     suspend fun resetPassword(token: String, newPassword: String): MessageResponse =
         api.resetPassword(ResetPasswordRequest(token, newPassword))
+
+
+    suspend fun uploadDocument(token: String, file: MultipartBody.Part): ResponseBody =
+        api.uploadDocument("Bearer $token", file)
 }

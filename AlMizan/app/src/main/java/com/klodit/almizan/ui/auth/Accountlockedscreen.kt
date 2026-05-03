@@ -34,18 +34,27 @@ import com.klodit.almizan.ui.theme.RedNotice
 
 @Composable
 fun AccountLockedScreen(
-    lockDurationSeconds : Int = 900,
+    lockDurationSeconds : Int = 300,
     onResetPasswordClick: () -> Unit = {},
     onContactSupport    : () -> Unit = {},
+    onTimerExpired      : () -> Unit = {},   // called when countdown reaches 0
     selectedLang        : AppLanguage = AppLanguage.FRENCH,
     onLanguageChange    : (AppLanguage) -> Unit = {}
 ) {
     val cs = MaterialTheme.colorScheme
 
-    var secondsLeft by remember { mutableIntStateOf(lockDurationSeconds) }
+    var secondsLeft  by remember { mutableIntStateOf(lockDurationSeconds) }
+    val timerExpired = secondsLeft == 0
+
     LaunchedEffect(Unit) {
-        while (secondsLeft > 0) { delay(1000); secondsLeft-- }
+        while (secondsLeft > 0) {
+            delay(1000)
+            secondsLeft--
+        }
+        // timer done — notify parent so it can pop back to login
+        onTimerExpired()
     }
+
     val timerText = "%02d:%02d".format(secondsLeft / 60, secondsLeft % 60)
 
     val screenWidth   = LocalConfiguration.current.screenWidthDp.dp
@@ -53,25 +62,32 @@ fun AccountLockedScreen(
     val overlapAmount = 32.dp
 
     Column(
-        modifier = Modifier.fillMaxSize().background(cs.background)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(cs.background)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // header
+        // ── Header ───────────────────────────────────────────────────────────
         Box(
-            modifier = Modifier.fillMaxWidth().background(cs.primary)
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(cs.primary)
                 .statusBarsPadding()
                 .padding(top = 16.dp, bottom = overlapAmount + 24.dp,
                     start = 16.dp, end = 16.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically,
+            Row(
+                verticalAlignment     = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()) {
+                modifier              = Modifier.fillMaxWidth()
+            ) {
                 Image(painterResource(R.drawable.logo), "Logo",
                     modifier = Modifier.size(44.dp))
                 Spacer(Modifier.width(10.dp))
                 Column {
-                    Text("AL-MIZAN", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,
+                    Text("AL-MIZAN", fontSize = 18.sp,
+                        fontWeight = FontWeight.ExtraBold,
                         color = cs.onPrimary, letterSpacing = 1.sp)
                     Text(stringResource(R.string.app_tagline), fontSize = 9.sp,
                         color = cs.secondary, letterSpacing = 1.sp)
@@ -79,51 +95,67 @@ fun AccountLockedScreen(
             }
         }
 
-        // card
+        // ── Card ─────────────────────────────────────────────────────────────
         Card(
             modifier  = Modifier.width(cardWidth).offset(y = -overlapAmount).zIndex(1f),
             shape     = RoundedCornerShape(20.dp),
             colors    = CardDefaults.cardColors(containerColor = cs.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(28.dp),
-                horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier            = Modifier.fillMaxWidth().padding(28.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-                Box(modifier = Modifier.size(72.dp).clip(CircleShape).background(Red50),
-                    contentAlignment = Alignment.Center) {
+                Box(
+                    modifier         = Modifier.size(72.dp).clip(CircleShape).background(Red50),
+                    contentAlignment = Alignment.Center
+                ) {
                     Icon(Icons.Outlined.Lock, null, tint = Red600,
                         modifier = Modifier.size(36.dp))
                 }
 
                 Spacer(Modifier.height(20.dp))
                 Text(stringResource(R.string.al_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = cs.onSurface, textAlign = TextAlign.Center)
+                    style     = MaterialTheme.typography.headlineMedium,
+                    color     = cs.onSurface,
+                    textAlign = TextAlign.Center)
                 Spacer(Modifier.height(10.dp))
                 Text(stringResource(R.string.al_subtitle),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = cs.onSurfaceVariant, textAlign = TextAlign.Center)
+                    style     = MaterialTheme.typography.bodyMedium,
+                    color     = cs.onSurfaceVariant,
+                    textAlign = TextAlign.Center)
 
                 Spacer(Modifier.height(24.dp))
 
-                // countdown notice
+                // ── Countdown ─────────────────────────────────────────────────
                 Row(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
-                        .background(RedNotice)
+                        .background(if (timerExpired) cs.secondaryContainer else RedNotice)
                         .padding(horizontal = 16.dp, vertical = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment     = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Icon(Icons.Outlined.Info, null, tint = Red600,
+                    Icon(Icons.Outlined.Info, null,
+                        tint     = if (timerExpired) cs.secondary else Red600,
                         modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("${stringResource(R.string.al_try_again)}  $timerText",
-                        fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Red600)
+                    Text(
+                        text = if (timerExpired)
+                            "Vous pouvez réessayer maintenant"
+                        else
+                            "${stringResource(R.string.al_try_again)}  $timerText",
+                        fontSize   = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color      = if (timerExpired) cs.secondary else Red600
+                    )
                 }
 
                 Spacer(Modifier.height(20.dp))
 
+                // ── Reset password button ─────────────────────────────────────
                 Button(
                     onClick  = onResetPasswordClick,
                     modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -135,20 +167,44 @@ fun AccountLockedScreen(
                         modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
                     Text(stringResource(R.string.al_reset_btn),
-                        fontSize = 14.sp, fontWeight = FontWeight.Bold,
-                        color = cs.surface)
+                        fontSize   = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color      = cs.surface)
                 }
 
                 Spacer(Modifier.height(14.dp))
 
-                Row(modifier = Modifier.clickable { onContactSupport() },
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center) {
-                    Icon(Icons.Outlined.Info, null, tint = cs.onSurfaceVariant,
+                // ── Try again button (visible only when timer expires) ─────────
+                if (timerExpired) {
+                    Button(
+                        onClick  = onTimerExpired,
+                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                        shape    = RoundedCornerShape(10.dp),
+                        colors   = ButtonDefaults.buttonColors(
+                            containerColor = cs.secondary)
+                    ) {
+                        Text("Réessayer de se connecter",
+                            fontSize   = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color      = cs.onSecondary)
+                    }
+                    Spacer(Modifier.height(14.dp))
+                }
+
+                // ── Contact support ───────────────────────────────────────────
+                Row(
+                    modifier              = Modifier.clickable { onContactSupport() },
+                    verticalAlignment     = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Outlined.Info, null,
+                        tint     = cs.onSurfaceVariant,
                         modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(6.dp))
                     Text(stringResource(R.string.al_contact_support),
-                        fontSize = 14.sp, color = cs.onSurface, fontWeight = FontWeight.Medium)
+                        fontSize   = 14.sp,
+                        color      = cs.onSurface,
+                        fontWeight = FontWeight.Medium)
                 }
             }
         }
@@ -157,8 +213,10 @@ fun AccountLockedScreen(
         LanguageSwitcher(selectedLang, onLanguageChange)
         Spacer(Modifier.height(16.dp))
         Text(stringResource(R.string.footer_ministry),
-            fontSize = 9.sp, color = cs.onSurfaceVariant,
-            letterSpacing = 1.5.sp, textAlign = TextAlign.Center)
+            fontSize      = 9.sp,
+            color         = cs.onSurfaceVariant,
+            letterSpacing = 1.5.sp,
+            textAlign     = TextAlign.Center)
         Spacer(Modifier.height(32.dp))
     }
 }

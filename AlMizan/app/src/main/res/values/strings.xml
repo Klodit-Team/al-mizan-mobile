@@ -109,6 +109,10 @@
     <string name="reg2_identity">VÉRIFICATION D\'IDENTITÉ REQUISE</string>
     <string name="reg2_continue_btn">Continuer vers l\'étape 3  →</string>
     <string name="reg2_back_label">← Retour aux détails de l\'organisation</string>
+    <string name="reg2_nom_label">Nom</string>
+    <string name="reg2_ph_nom">Entrez votre nom</string>
+    <string name="reg2_prenom_label">Prénom</string>
+    <string name="reg2_ph_prenom">Entrez votre prénom</string>
 
     <!-- ── REGISTRATION STEP 3 ── -->
     <string name="reg3_step_label">ÉTAPE 3 SUR 3</string>
@@ -126,6 +130,9 @@
     <string name="reg3_privacy_body">Vos documents sont chiffrés et accessibles uniquement par le personnel de vérification autorisé.</string>
     <string name="reg3_submit_btn">Soumettre l\'inscription</string>
     <string name="reg3_back_label">← Retour aux identifiants</string>
+    <string name="reg_success_title">Inscription Réussie !</string>
+    <string name="reg_success_body">Votre compte a été créé.</string>
+    <string name="reg_success_btn">Aller à la connexion</string>
 
     <!-- ── COMMON FOOTER / BACK ── -->
     <string name="back_to_welcome">← Retour à l\'accueil</string>

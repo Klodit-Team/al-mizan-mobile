@@ -1,5 +1,8 @@
 package com.klodit.almizan.navigation
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -16,6 +19,7 @@ import com.klodit.almizan.ui.main.MainScreen
 import com.klodit.almizan.ui.search.DetailedFilterScreen
 import com.klodit.almizan.ui.theme.AppLanguage
 import com.klodit.almizan.util.LocaleHelper
+import com.klodit.almizan.viewmodel.auth.AuthState
 import com.klodit.almizan.viewmodel.auth.AuthViewModel
 
 private object Routes {
@@ -62,6 +66,18 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
         selectedLang = lang
     }
 
+    //upload file
+    var pickedUri by remember { mutableStateOf<Uri?>(null) }
+
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        pickedUri = uri
+        if (uri != null) {
+            authViewModel.uploadDocument(baseContext, uri) {}
+        }
+    }
+
     // Provide BOTH localized context AND layout direction to the entire tree
     CompositionLocalProvider(
         LocalContext       provides localizedContext,
@@ -79,10 +95,18 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                     authState             = authViewModel.authState,
                     onClearError          = { authViewModel.clearError() },
                     onLoginClick          = { email, password ->
-                        authViewModel.login(email, password) {
-                            failedAttempts = 0
-                            navController.navigate(Routes.VERIFICATION)
-                        }
+                        authViewModel.login(
+                            email    = email,
+                            password = password,
+                            onSuccess = {
+                                navController.navigate(Routes.MAIN) {
+                                    popUpTo(Routes.LOGIN) { inclusive = true }
+                                }
+                            },
+                            onLocked = {
+                                navController.navigate(Routes.ACCOUNT_LOCKED)
+                            }
+                        )
                     },
                     onForgotPasswordClick = { navController.navigate(Routes.FORGOT_PASSWORD) },
                     onRegisterClick       = { navController.navigate(Routes.REGISTRATION_STEP1) },
@@ -131,10 +155,18 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
             // ── Account locked ────────────────────────────────────────────────
             composable(Routes.ACCOUNT_LOCKED) {
                 AccountLockedScreen(
+                    lockDurationSeconds  = 300 + (authViewModel.failedLoginAttempts - 5) * 60,
                     selectedLang         = selectedLang,
                     onLanguageChange     = onLanguageChange,
-                    onResetPasswordClick = { navController.navigate(Routes.FORGOT_PASSWORD) },
-                    onContactSupport     = {}
+                    onResetPasswordClick = {
+                        authViewModel.resetFailedAttempts()
+                        navController.navigate(Routes.FORGOT_PASSWORD)
+                    },
+                    onTimerExpired = {
+                        authViewModel.resetFailedAttempts()
+                        navController.popBackStack(Routes.LOGIN, false)
+                    },
+                    onContactSupport = { }
                 )
             }
 
@@ -159,26 +191,34 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                     selectedLang     = selectedLang,
                     onLanguageChange = onLanguageChange,
                     onBackClick      = { navController.popBackStack() },
-                    onContinueClick  = { phone, email, password ->
-                        authViewModel.saveStep2(phone, email, password)
+                    onContinueClick  = { phone, email, password, nom, prenom ->
+                        authViewModel.saveStep2(phone, email, password, nom, prenom)
                         navController.navigate(Routes.REGISTRATION_STEP3)
                     }
                 )
             }
 
             // ── Registration step 3 ───────────────────────────────────────────
+
             composable(Routes.REGISTRATION_STEP3) {
+                val context = LocalContext.current
                 RegistrationStep3Screen(
-                    selectedLang     = selectedLang,
-                    onLanguageChange = onLanguageChange,
-                    onBackClick      = { authViewModel.clearError(); navController.popBackStack() },
-                    authState        = authViewModel.authState,
-                    onClearError     = { authViewModel.clearError() },
-                    onSubmitClick    = {
-                        authViewModel.register(selectedLang) { _ ->  // pass selectedLang here
+                    selectedLang       = selectedLang,
+                    onLanguageChange   = onLanguageChange,
+                    onBackClick        = { authViewModel.clearError(); navController.popBackStack() },
+                    authState          = authViewModel.authState,
+                    uploadState        = authViewModel.uploadState,
+                    onPickFile         = { },//filePickerLauncher.launch("application/pdf") },
+                    onClearError       = { authViewModel.clearError() },
+                    onClearUploadError = { authViewModel.clearUploadError() },
+                    onSubmitClick      = {
+                        if (authViewModel.authState is AuthState.Success) {
+                            authViewModel.resetState()
                             navController.navigate(Routes.LOGIN) {
                                 popUpTo(Routes.REGISTRATION_STEP1) { inclusive = true }
                             }
+                        } else {
+                            authViewModel.register(selectedLang) { _ -> }
                         }
                     }
                 )
@@ -208,11 +248,14 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
             composable(Routes.TERMS)   { }
             composable(Routes.PRIVACY) { }
 
+
             // ── Forgot password ───────────────────────────────────────────────────────────
             composable(Routes.FORGOT_PASSWORD) {
                 ForgotPasswordScreen(
                     selectedLang     = selectedLang,
                     onLanguageChange = onLanguageChange,
+                    authState        = authViewModel.authState,
+                    onClearError     = { authViewModel.clearError() },
                     onSendClick      = { email ->
                         authViewModel.forgotPassword(email) {
                             navController.navigate(Routes.SET_NEW_PASSWORD)
@@ -228,6 +271,8 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 SetNewPasswordScreen(
                     selectedLang     = selectedLang,
                     onLanguageChange = onLanguageChange,
+                    authState        = authViewModel.authState,
+                    onClearError     = { authViewModel.clearError() },
                     onSaveClick      = { code, newPassword ->
                         authViewModel.resetPassword(code, newPassword) {
                             navController.popBackStack(Routes.LOGIN, false)
