@@ -1,0 +1,795 @@
+============================================================
+DIRECTORY STRUCTURE
+============================================================
++---.gradle/
+|   +---9.2.1/
+|   |   +---checksums/
+|   |   +---executionHistory/
+|   |   +---expanded/
+|   |   +---fileChanges/
+|   |   +---fileHashes/
+|   |   +---vcsMetadata/
+|   |   \---gc.properties
+|   +---buildOutputCleanup/
+|   |   \---cache.properties
+|   \---vcs-1/
+|       \---gc.properties
++---.kotlin/
+|   \---sessions/
++---.vscode/
+|   \---settings.json
++---app/
+|   +---build/
+|   |   +---generated/
+|   |   |   +---res/
+|   |   |   |   \---pngs/
+|   |   |   |       \---debug/
+|   |   |   \---updated_navigation_xml/
+|   |   |       \---debug/
+|   |   +---intermediates/
+|   |   |   +---aar_metadata_check/
+|   |   |   |   \---debug/
+|   |   |   |       \---checkDebugAarMetadata/
+|   |   |   +---android_res_source_set_path_map/
+|   |   |   |   \---debug/
+|   |   |   |       \---mapDebugSourceSetPaths/
+|   |   |   |           \---file-map.txt
+|   |   |   +---annotation_processor_list/
+|   |   |   |   \---debug/
+|   |   |   |       \---javaPreCompileDebug/
+|   |   |   |           \---annotationProcessors.json
+|   |   |   +---apk/
+|   |   |   |   \---debug/
+|   |   |   |       \---output-metadata.json
+|   |   |   +---apk_ide_redirect_file/
+|   |   |   |   \---debug/
+|   |   |   |       \---createDebugApkListingFileRedirect/
+|   |   |   |           \---redirect.txt
+|   |   |   +---app_metadata/
+|   |   |   |   \---debug/
+|   |   |   |       \---writeDebugAppMetadata/
+|   |   |   |           \---app-metadata.properties
+|   |   |   +---assets/
+|   |   |   |   \---debug/
+|   |   |   |       \---mergeDebugAssets/
+|   |   |   +---built_in_kotlinc/
+|   |   |   |   \---debug/
+|   |   |   |       \---compileDebugKotlin/
+|   |   |   |           \---classes/
+|   |   |   |               +---com/
+|   |   |   |               |   \---klodit/
+|   |   |   |               |       \---almizan/
+|   |   |   |               |           +---data/
+|   |   |   |               |           |   +---api/
+|   |   |   |               |           |   \---repository/
+|   |   |   |               |           +---model/
+|   |   |   |               |           +---navigation/
+|   |   |   |               |           +---ui/
+|   |   |   |               |           |   +---auth/
+|   |   |   |               |           |   +---bidwizard/
+|   |   |   |               |           |   |   \---components/
+|   |   |   |               |           |   +---components/
+|   |   |   |               |           |   +---dashboard/
+|   |   |   |               |           |   +---main/
+|   |   |   |               |           |   +---profile/
+|   |   |   |               |           |   |   +---security/
+|   |   |   |               |           |   |   \---settings/
+|   |   |   |               |           |   +---Registration/
+|   |   |   |               |           |   +---soumissions/
+|   |   |   |               |           |   |   \---wizard/
+|   |   |   |               |           |   |       \---steps/
+|   |   |   |               |           |   \---theme/
+|   |   |   |               |           +---util/
+|   |   |   |               |           \---viewmodel/
+|   |   |   |               \---META-INF/
+|   |   |   +---compatible_screen_manifest/
+|   |   |   |   \---debug/
+|   |   |   |       \---createDebugCompatibleScreenManifests/
+|   |   |   |           \---output-metadata.json
+|   |   |   +---compile_and_runtime_r_class_jar/
+|   |   |   |   \---debug/
+|   |   |   |       \---processDebugResources/
+|   |   |   +---compile_r_class_jar/
+|   |   |   |   \---debug/
+|   |   |   |       \---generateDebugRFile/
+|   |   |   +---compile_symbol_list/
+|   |   |   |   \---debug/
+|   |   |   |       \---generateDebugRFile/
+|   |   |   |           \---R.txt
+|   |   |   +---compiled_navigation_res/
+|   |   |   |   \---debug/
+|   |   |   |       \---compileDebugNavigationResources/
+|   |   |   +---compressed_assets/
+|   |   |   |   \---debug/
+|   |   |   |       \---compressDebugAssets/
+|   |   |   |           \---out/
+|   |   |   +---data_binding_layout_info_type_merge/
+|   |   |   |   \---debug/
+|   |   |   |       \---mergeDebugResources/
+|   |   |   |           \---out/
+|   |   |   +---data_binding_layout_info_type_package/
+|   |   |   |   \---debug/
+|   |   |   |       \---packageDebugResources/
+|   |   |   |           \---out/
+|   |   |   +---desugar_graph/
+|   |   |   |   \---debug/
+|   |   |   |       \---dexBuilderDebug/
+|   |   |   |           \---out/
+|   |   |   |               +---currentProject/
+|   |   |   |               |   +---dirs_bucket_0/
+|   |   |   |               |   +---dirs_bucket_1/
+|   |   |   |               |   +---dirs_bucket_2/
+|   |   |   |               |   +---dirs_bucket_3/
+|   |   |   |               |   +---jar_7054047a3ca133aea5539c07742470d916f9ea04869a7f201def85e6b4bd4740_bucket_0/
+|   |   |   |               |   +---jar_7054047a3ca133aea5539c07742470d916f9ea04869a7f201def85e6b4bd4740_bucket_1/
+|   |   |   |               |   +---jar_7054047a3ca133aea5539c07742470d916f9ea04869a7f201def85e6b4bd4740_bucket_2/
+|   |   |   |               |   \---jar_7054047a3ca133aea5539c07742470d916f9ea04869a7f201def85e6b4bd4740_bucket_3/
+|   |   |   |               +---externalLibs/
+|   |   |   |               +---mixedScopes/
+|   |   |   |               \---otherProjects/
+|   |   |   +---dex/
+|   |   |   |   \---debug/
+|   |   |   |       +---mergeExtDexDebug/
+|   |   |   |       +---mergeLibDexDebug/
+|   |   |   |       |   +---0/
+|   |   |   |       |   +---1/
+|   |   |   |       |   +---10/
+|   |   |   |       |   +---11/
+|   |   |   |       |   +---12/
+|   |   |   |       |   +---13/
+|   |   |   |       |   +---14/
+|   |   |   |       |   +---15/
+|   |   |   |       |   +---2/
+|   |   |   |       |   +---3/
+|   |   |   |       |   +---4/
+|   |   |   |       |   +---5/
+|   |   |   |       |   +---6/
+|   |   |   |       |   +---7/
+|   |   |   |       |   +---8/
+|   |   |   |       |   \---9/
+|   |   |   |       \---mergeProjectDexDebug/
+|   |   |   |           +---0/
+|   |   |   |           +---1/
+|   |   |   |           +---10/
+|   |   |   |           +---11/
+|   |   |   |           +---12/
+|   |   |   |           +---13/
+|   |   |   |           +---14/
+|   |   |   |           +---15/
+|   |   |   |           +---2/
+|   |   |   |           +---3/
+|   |   |   |           +---4/
+|   |   |   |           +---5/
+|   |   |   |           +---6/
+|   |   |   |           +---7/
+|   |   |   |           +---8/
+|   |   |   |           \---9/
+|   |   |   +---dex_archive_input_jar_hashes/
+|   |   |   |   \---debug/
+|   |   |   |       \---dexBuilderDebug/
+|   |   |   +---dex_number_of_buckets_file/
+|   |   |   |   \---debug/
+|   |   |   |       \---dexBuilderDebug/
+|   |   |   |           \---out
+|   |   |   +---duplicate_classes_check/
+|   |   |   |   \---debug/
+|   |   |   |       \---checkDebugDuplicateClasses/
+|   |   |   +---external_file_lib_dex_archives/
+|   |   |   |   \---debug/
+|   |   |   |       \---desugarDebugFileDependencies/
+|   |   |   +---external_libs_dex_archive/
+|   |   |   |   \---debug/
+|   |   |   |       \---dexBuilderDebug/
+|   |   |   |           \---out/
+|   |   |   +---external_libs_dex_archive_with_artifact_transforms/
+|   |   |   |   \---debug/
+|   |   |   |       \---dexBuilderDebug/
+|   |   |   |           \---out/
+|   |   |   +---incremental/
+|   |   |   |   +---debug/
+|   |   |   |   |   +---mergeDebugResources/
+|   |   |   |   |   |   +---merged.dir/
+|   |   |   |   |   |   |   +---values/
+|   |   |   |   |   |   |   |   \---values.xml
+|   |   |   |   |   |   |   +---values-ar/
+|   |   |   |   |   |   |   |   \---values-ar.xml
+|   |   |   |   |   |   |   \---values-en/
+|   |   |   |   |   |   |       \---values-en.xml
+|   |   |   |   |   |   +---stripped.dir/
+|   |   |   |   |   |   +---compile-file-map.properties
+|   |   |   |   |   |   \---merger.xml
+|   |   |   |   |   \---packageDebugResources/
+|   |   |   |   |       +---merged.dir/
+|   |   |   |   |       |   +---values/
+|   |   |   |   |       |   |   \---values.xml
+|   |   |   |   |       |   +---values-ar/
+|   |   |   |   |       |   |   \---values-ar.xml
+|   |   |   |   |       |   \---values-en/
+|   |   |   |   |       |       \---values-en.xml
+|   |   |   |   |       +---stripped.dir/
+|   |   |   |   |       +---compile-file-map.properties
+|   |   |   |   |       \---merger.xml
+|   |   |   |   +---debug-mergeJavaRes/
+|   |   |   |   |   \---zip-cache/
+|   |   |   |   |       +---19kHphyZZVCw7x07pYA9Tg==
+|   |   |   |   |       +---1Ahx5B7peIMPI9BzcibTrg==
+|   |   |   |   |       +---1CdNT78gfNuqWxWQFRySBQ==
+|   |   |   |   |       +---3M+C+He_N1JBZ6qReQAAMQ==
+|   |   |   |   |       +---3R+wVEI62zZC0ZbNKiyFeA==
+|   |   |   |   |       +---4dgc_9KSobXKt_sYOt3tng==
+|   |   |   |   |       +---569L6lE48rGonsNKyVhJQg==
+|   |   |   |   |       +---5bGhZE5zV+VdMxy0p6nFVQ==
+|   |   |   |   |       +---5f_A5YFhr54xUqN8rHs2Ag==
+|   |   |   |   |       +---5MICEGhJ2UIYZCeYtqUPTg==
+|   |   |   |   |       +---7_UL+hJci9Txi70VamqtfA==
+|   |   |   |   |       +---7AR5sflPZ1yBZJVmVFjbbw==
+|   |   |   |   |       +---7C18K65YUt314j+O7dGiRQ==
+|   |   |   |   |       +---7Cx6T8NcFfcgFfDM3EYRZQ==
+|   |   |   |   |       +---8HZ+IVKe8E8FmnvnWIIeYw==
+|   |   |   |   |       +---9+3dhY44aY9bVQY3FQ4nfw==
+|   |   |   |   |       +---9izXGzUvxFPlKqY4HagYPg==
+|   |   |   |   |       +---aLzbqWjSgGeDE3E3O7fpPA==
+|   |   |   |   |       +---b+LQMLUOd2KpBFLuiwhs+A==
+|   |   |   |   |       +---b021qZ0BuUTw71fPbO1N7w==
+|   |   |   |   |       +---B0O_O0vYdr9H1qbgKMDA7g==
+|   |   |   |   |       +---B8drZ6N2Wf8_FrIHkG_2AA==
+|   |   |   |   |       +---COS2DOuH44CZ1I9lX5CY9w==
+|   |   |   |   |       +---cQY3nZIhFSd7SzLb2Bl2Hw==
+|   |   |   |   |       +---D4nUyZZ2DTpVH7B6sXoxsw==
+|   |   |   |   |       +---dbBcEZ_UBcJP2utBsWS5CQ==
+|   |   |   |   |       +---DIzqtxYknA7pASz6rrL7Mg==
+|   |   |   |   |       +---dN5irIqy2Vyrd7gJb2324Q==
+|   |   |   |   |       +---e469bxQs8Okxe85OMRRP5w==
+|   |   |   |   |       +---E6ONFAMjyaU_782RcSYFGQ==
+|   |   |   |   |       +---ETNLU22ZYX9j4xSJ2iZvKg==
+|   |   |   |   |       +---F2BJ1vgRPSVmSHfbHbpWdQ==
+|   |   |   |   |       +---f45H3Ff5mDlXI+cGLapDHA==
+|   |   |   |   |       +---FU2IHWRLU2DBRTC8Hi+VQA==
+|   |   |   |   |       +---fUbyM5HvvtfggOv4geOdtQ==
+|   |   |   |   |       +---ghHkJQeeSUsq5yqG6NIZhA==
+|   |   |   |   |       +---gHST+FTMZb8nFSAZgq3wvQ==
+|   |   |   |   |       +---gLs86s3dAkc9IDA+VOPPiA==
+|   |   |   |   |       +---gRyLixXI3sejn2_6Ku8B3g==
+|   |   |   |   |       +---hBKxpvdd2RT43IOQqB6GtA==
+|   |   |   |   |       +---HHllzPBb+cBV9V6UE523vQ==
+|   |   |   |   |       +---HqQ5LVTbBLLKEaJviyEV5A==
+|   |   |   |   |       +---i8DFihG1_gSYc9EabTCYCQ==
+|   |   |   |   |       +---if1AA8fMXbWqMooOHJeW2w==
+|   |   |   |   |       +---iMgCy+0cMQfvj0ZJ2WndYQ==
+|   |   |   |   |       +---IPjOf8bC2gRT00kH5UuqTA==
+|   |   |   |   |       +---ivVyO5JDrSJvevj2oHRgZA==
+|   |   |   |   |       +---j5z_cJSRFObmihFzhawszg==
+|   |   |   |   |       +---jMHc_ZGXmEUfbqb2sLqd4Q==
+|   |   |   |   |       +---jVAN4m81LKsxQHxOBDkskA==
+|   |   |   |   |       +---jvJ9cR1406sGMxqtiGZT7A==
+|   |   |   |   |       +---l8IKCRN1wuSUp6dyr8BGfg==
+|   |   |   |   |       +---leuZxOAdAQvgInhS5HgTWg==
+|   |   |   |   |       +---lIIVzw447hxllnvPpYVKkA==
+|   |   |   |   |       +---LKcC9waLN1rvA+3Kavs9sw==
+|   |   |   |   |       +---LM0th1AMuEN9yIFC+yMP1A==
+|   |   |   |   |       +---lpqItHp24dvJfKXp_i9oXA==
+|   |   |   |   |       +---MEQWi7tsNLZtdADfrdcfFw==
+|   |   |   |   |       +---MHCK0Y+5OI7F5CeBG7N52A==
+|   |   |   |   |       +---mLHSIgtTmKNS5aZKKSaEiw==
+|   |   |   |   |       +---nrwk9KzLVAoYzvn4wQ_9Pg==
+|   |   |   |   |       +---OA_yF+LxXAYY81ZyRkcqKw==
+|   |   |   |   |       +---OzhR4wwoH71v71D6jUDetw==
+|   |   |   |   |       +---PdqLGj8tKy88LtePe6UoJw==
+|   |   |   |   |       +---pVCvmy6+xlvkISlwnqO13g==
+|   |   |   |   |       +---q4aXUk9n9ALp5ojaxzK5rQ==
+|   |   |   |   |       +---Q8APbfiTZvzL74WRnIWAiw==
+|   |   |   |   |       +---qm0g+PprQN6iNz5VvvArvA==
+|   |   |   |   |       +---Qp1nFAOsf0h78AZbdRTK6g==
+|   |   |   |   |       +---qRTuieG2WOclggKrUhFBdw==
+|   |   |   |   |       +---qXN6ir8UDV5fP20U+8pzCA==
+|   |   |   |   |       +---rOfc9rbSfiIBWGwx5ZXRkg==
+|   |   |   |   |       +---saHwEFuRKrDNTfIgocsADQ==
+|   |   |   |   |       +---Spw+fNz3FSCkL+2n9l0mqA==
+|   |   |   |   |       +---SrH_Su+w9Il_x7CYg6_8Ww==
+|   |   |   |   |       +---ssMo7gcPpS7HdgtnooGLVA==
+|   |   |   |   |       +---su88T4x8Vdk1scT9f1TwJg==
+|   |   |   |   |       +---sYSZMz8SO2bjrZdgxWDMTw==
+|   |   |   |   |       +---tFtq4gYHf1HrO3V4ghr2Zg==
+|   |   |   |   |       +---tOkToUmTLl7X1POAhbhTDA==
+|   |   |   |   |       +---TP8sV1oHaozfZhHYrLGzTw==
+|   |   |   |   |       +---tUfyjIUMzTTUnDbE6KuTdA==
+|   |   |   |   |       +---U8s7lga9Kq6ByRLh6Iz9JA==
+|   |   |   |   |       +---u8WLHBfOu7wHu_jbtuZwTQ==
+|   |   |   |   |       +---UMxi2JEDFVQpa0bRA0bBwg==
+|   |   |   |   |       +---UQVD_PuB0zDdVNK1fRQfhw==
+|   |   |   |   |       +---veqzyj3o8cw6+SvGnDq_Xg==
+|   |   |   |   |       +---Vl0v4LcBU7opBiUX4doBJA==
+|   |   |   |   |       +---vTI688mVlnSlhYTDMUg87Q==
+|   |   |   |   |       +---W0bbdiM0+JiLaFVXIkj8iQ==
+|   |   |   |   |       +---wZC7BW9rEUhiBL2Jf2sa5A==
+|   |   |   |   |       +---x_twJNu1UzgmHJLFnzSOyQ==
+|   |   |   |   |       +---XG_O4ShOjGtTevuCCI5JHw==
+|   |   |   |   |       +---XtzF9QvS1V9IFWZroQXMhg==
+|   |   |   |   |       +---Y0G3kpHLdC0zGcbMvEKFUg==
+|   |   |   |   |       +---Y3AdCgv49e0Ap_uZTWELGg==
+|   |   |   |   |       +---YEDJfFDyp_eHLtUf7tGSLg==
+|   |   |   |   |       +---YPBsGnko2RHgGOV6UDuUKg==
+|   |   |   |   |       +---Z+pfHHywlEN5Hrsd6FR4hw==
+|   |   |   |   |       +---z3lSwc5aw48_TGcwhQKEMg==
+|   |   |   |   |       +---Z5iTqcyObKsWdKYf9a5wdw==
+|   |   |   |   |       +---Z6ZIfNcMolw_Pdm1+LTJ+Q==
+|   |   |   |   |       +---zLhunJ+7FDP3xO+nArwe2w==
+|   |   |   |   |       \---zQbSe3gHUu2JJ+A9+T3mRQ==
+|   |   |   |   +---mergeDebugAssets/
+|   |   |   |   |   \---merger.xml
+|   |   |   |   +---mergeDebugJniLibFolders/
+|   |   |   |   |   \---merger.xml
+|   |   |   |   \---packageDebug/
+|   |   |   |       \---tmp/
+|   |   |   |           \---debug/
+|   |   |   |               +---zip-cache/
+|   |   |   |               |   +---androidResources
+|   |   |   |               |   \---javaResources0
+|   |   |   |               \---dex-renamer-state.txt
+|   |   |   +---java_res/
+|   |   |   |   \---debug/
+|   |   |   |       \---processDebugJavaRes/
+|   |   |   |           \---out/
+|   |   |   |               +---com/
+|   |   |   |               |   \---klodit/
+|   |   |   |               |       \---almizan/
+|   |   |   |               |           +---data/
+|   |   |   |               |           |   +---api/
+|   |   |   |               |           |   \---repository/
+|   |   |   |               |           +---model/
+|   |   |   |               |           +---navigation/
+|   |   |   |               |           +---ui/
+|   |   |   |               |           |   +---auth/
+|   |   |   |               |           |   +---bidwizard/
+|   |   |   |               |           |   |   \---components/
+|   |   |   |               |           |   +---components/
+|   |   |   |               |           |   +---dashboard/
+|   |   |   |               |           |   +---main/
+|   |   |   |               |           |   +---profile/
+|   |   |   |               |           |   |   +---security/
+|   |   |   |               |           |   |   \---settings/
+|   |   |   |               |           |   +---Registration/
+|   |   |   |               |           |   +---soumissions/
+|   |   |   |               |           |   |   \---wizard/
+|   |   |   |               |           |   |       \---steps/
+|   |   |   |               |           |   \---theme/
+|   |   |   |               |           +---util/
+|   |   |   |               |           \---viewmodel/
+|   |   |   |               \---META-INF/
+|   |   |   +---linked_resources_binary_format/
+|   |   |   |   \---debug/
+|   |   |   |       \---processDebugResources/
+|   |   |   |           \---output-metadata.json
+|   |   |   +---local_only_symbol_list/
+|   |   |   |   \---debug/
+|   |   |   |       \---parseDebugLocalResources/
+|   |   |   |           \---R-def.txt
+|   |   |   +---manifest_merge_blame_file/
+|   |   |   |   \---debug/
+|   |   |   |       \---processDebugMainManifest/
+|   |   |   |           \---manifest-merger-blame-debug-report.txt
+|   |   |   +---merged_java_res/
+|   |   |   |   \---debug/
+|   |   |   |       \---mergeDebugJavaResource/
+|   |   |   +---merged_jni_libs/
+|   |   |   |   \---debug/
+|   |   |   |       \---mergeDebugJniLibFolders/
+|   |   |   |           \---out/
+|   |   |   +---merged_manifest/
+|   |   |   |   \---debug/
+|   |   |   |       \---processDebugMainManifest/
+|   |   |   |           \---AndroidManifest.xml
+|   |   |   +---merged_manifests/
+|   |   |   |   \---debug/
+|   |   |   |       \---processDebugManifest/
+|   |   |   |           +---AndroidManifest.xml
+|   |   |   |           \---output-metadata.json
+|   |   |   +---merged_native_libs/
+|   |   |   |   \---debug/
+|   |   |   |       \---mergeDebugNativeLibs/
+|   |   |   |           \---out/
+|   |   |   |               \---lib/
+|   |   |   |                   +---arm64-v8a/
+|   |   |   |                   +---armeabi-v7a/
+|   |   |   |                   +---x86/
+|   |   |   |                   \---x86_64/
+|   |   |   +---merged_res/
+|   |   |   |   \---debug/
+|   |   |   |       \---mergeDebugResources/
+|   |   |   +---merged_res_blame_folder/
+|   |   |   |   \---debug/
+|   |   |   |       \---mergeDebugResources/
+|   |   |   |           \---out/
+|   |   |   |               +---multi-v2/
+|   |   |   |               |   +---mergeDebugResources.json
+|   |   |   |               |   +---values-af.json
+|   |   |   |               |   +---values-am.json
+|   |   |   |               |   +---values-ar.json
+|   |   |   |               |   +---values-as.json
+|   |   |   |               |   +---values-az.json
+|   |   |   |               |   +---values-b+sr+Latn.json
+|   |   |   |               |   +---values-be.json
+|   |   |   |               |   +---values-bg.json
+|   |   |   |               |   +---values-bn.json
+|   |   |   |               |   +---values-bs.json
+|   |   |   |               |   +---values-ca.json
+|   |   |   |               |   +---values-cs.json
+|   |   |   |               |   +---values-da.json
+|   |   |   |               |   +---values-de.json
+|   |   |   |               |   +---values-el.json
+|   |   |   |               |   +---values-en-rAU.json
+|   |   |   |               |   +---values-en-rCA.json
+|   |   |   |               |   +---values-en-rGB.json
+|   |   |   |               |   +---values-en-rIN.json
+|   |   |   |               |   +---values-en-rXC.json
+|   |   |   |               |   +---values-en.json
+|   |   |   |               |   +---values-es-rUS.json
+|   |   |   |               |   +---values-es.json
+|   |   |   |               |   +---values-et.json
+|   |   |   |               |   +---values-eu.json
+|   |   |   |               |   +---values-fa.json
+|   |   |   |               |   +---values-fi.json
+|   |   |   |               |   +---values-fr-rCA.json
+|   |   |   |               |   +---values-fr.json
+|   |   |   |               |   +---values-gl.json
+|   |   |   |               |   +---values-gu.json
+|   |   |   |               |   +---values-h720dp-v13.json
+|   |   |   |               |   +---values-hdpi-v4.json
+|   |   |   |               |   +---values-hi.json
+|   |   |   |               |   +---values-hr.json
+|   |   |   |               |   +---values-hu.json
+|   |   |   |               |   +---values-hy.json
+|   |   |   |               |   +---values-in.json
+|   |   |   |               |   +---values-is.json
+|   |   |   |               |   +---values-it.json
+|   |   |   |               |   +---values-iw.json
+|   |   |   |               |   +---values-ja.json
+|   |   |   |               |   +---values-ka.json
+|   |   |   |               |   +---values-kk.json
+|   |   |   |               |   +---values-km.json
+|   |   |   |               |   +---values-kn.json
+|   |   |   |               |   +---values-ko.json
+|   |   |   |               |   +---values-ky.json
+|   |   |   |               |   +---values-land.json
+|   |   |   |               |   +---values-large-v4.json
+|   |   |   |               |   +---values-ldltr-v21.json
+|   |   |   |               |   +---values-lo.json
+|   |   |   |               |   +---values-lt.json
+|   |   |   |               |   +---values-lv.json
+|   |   |   |               |   +---values-mk.json
+|   |   |   |               |   +---values-ml.json
+|   |   |   |               |   +---values-mn.json
+|   |   |   |               |   +---values-mr.json
+|   |   |   |               |   +---values-ms.json
+|   |   |   |               |   +---values-my.json
+|   |   |   |               |   +---values-nb.json
+|   |   |   |               |   +---values-ne.json
+|   |   |   |               |   +---values-night-v8.json
+|   |   |   |               |   +---values-nl.json
+|   |   |   |               |   +---values-or.json
+|   |   |   |               |   +---values-pa.json
+|   |   |   |               |   +---values-pl.json
+|   |   |   |               |   +---values-port.json
+|   |   |   |               |   +---values-pt-rBR.json
+|   |   |   |               |   +---values-pt-rPT.json
+|   |   |   |               |   +---values-pt.json
+|   |   |   |               |   +---values-ro.json
+|   |   |   |               |   +---values-ru.json
+|   |   |   |               |   +---values-si.json
+|   |   |   |               |   +---values-sk.json
+|   |   |   |               |   +---values-sl.json
+|   |   |   |               |   +---values-sq.json
+|   |   |   |               |   +---values-sr.json
+|   |   |   |               |   +---values-sv.json
+|   |   |   |               |   +---values-sw.json
+|   |   |   |               |   +---values-sw600dp-v13.json
+|   |   |   |               |   +---values-ta.json
+|   |   |   |               |   +---values-te.json
+|   |   |   |               |   +---values-th.json
+|   |   |   |               |   +---values-tl.json
+|   |   |   |               |   +---values-tr.json
+|   |   |   |               |   +---values-uk.json
+|   |   |   |               |   +---values-ur.json
+|   |   |   |               |   +---values-uz.json
+|   |   |   |               |   +---values-v16.json
+|   |   |   |               |   +---values-v17.json
+|   |   |   |               |   +---values-v18.json
+|   |   |   |               |   +---values-v21.json
+|   |   |   |               |   +---values-v22.json
+|   |   |   |               |   +---values-v23.json
+|   |   |   |               |   +---values-v24.json
+|   |   |   |               |   +---values-v25.json
+|   |   |   |               |   +---values-v26.json
+|   |   |   |               |   +---values-v28.json
+|   |   |   |               |   +---values-v30.json
+|   |   |   |               |   +---values-vi.json
+|   |   |   |               |   +---values-watch-v20.json
+|   |   |   |               |   +---values-watch-v21.json
+|   |   |   |               |   +---values-xlarge-v4.json
+|   |   |   |               |   +---values-zh-rCN.json
+|   |   |   |               |   +---values-zh-rHK.json
+|   |   |   |               |   +---values-zh-rTW.json
+|   |   |   |               |   +---values-zu.json
+|   |   |   |               |   \---values.json
+|   |   |   |               \---single/
+|   |   |   |                   \---mergeDebugResources.json
+|   |   |   +---merged_test_only_native_libs/
+|   |   |   |   \---debug/
+|   |   |   |       \---mergeDebugNativeLibs/
+|   |   |   |           \---out/
+|   |   |   +---mixed_scope_dex_archive/
+|   |   |   |   \---debug/
+|   |   |   |       \---dexBuilderDebug/
+|   |   |   |           \---out/
+|   |   |   +---navigation_json/
+|   |   |   |   \---debug/
+|   |   |   |       \---extractDeepLinksDebug/
+|   |   |   |           \---navigation.json
+|   |   |   +---nested_resources_validation_report/
+|   |   |   |   \---debug/
+|   |   |   |       \---generateDebugResources/
+|   |   |   |           \---nestedResourcesValidationReport.txt
+|   |   |   +---packaged_manifests/
+|   |   |   |   \---debug/
+|   |   |   |       \---processDebugManifestForPackage/
+|   |   |   |           +---AndroidManifest.xml
+|   |   |   |           \---output-metadata.json
+|   |   |   +---packaged_res/
+|   |   |   |   \---debug/
+|   |   |   |       \---packageDebugResources/
+|   |   |   |           +---drawable/
+|   |   |   |           |   +---ic_launcher_background.xml
+|   |   |   |           |   \---ic_launcher_foreground.xml
+|   |   |   |           +---mipmap-anydpi-v26/
+|   |   |   |           |   +---ic_launcher.xml
+|   |   |   |           |   \---ic_launcher_round.xml
+|   |   |   |           +---mipmap-hdpi-v4/
+|   |   |   |           +---mipmap-mdpi-v4/
+|   |   |   |           +---mipmap-xhdpi-v4/
+|   |   |   |           +---mipmap-xxhdpi-v4/
+|   |   |   |           +---mipmap-xxxhdpi-v4/
+|   |   |   |           +---values/
+|   |   |   |           |   \---values.xml
+|   |   |   |           +---values-ar/
+|   |   |   |           |   \---values-ar.xml
+|   |   |   |           +---values-en/
+|   |   |   |           |   \---values-en.xml
+|   |   |   |           \---xml/
+|   |   |   |               +---backup_rules.xml
+|   |   |   |               \---data_extraction_rules.xml
+|   |   |   +---project_dex_archive/
+|   |   |   |   \---debug/
+|   |   |   |       \---dexBuilderDebug/
+|   |   |   |           \---out/
+|   |   |   |               \---com/
+|   |   |   |                   \---klodit/
+|   |   |   |                       \---almizan/
+|   |   |   |                           +---data/
+|   |   |   |                           |   +---api/
+|   |   |   |                           |   \---repository/
+|   |   |   |                           +---model/
+|   |   |   |                           +---navigation/
+|   |   |   |                           +---ui/
+|   |   |   |                           |   +---auth/
+|   |   |   |                           |   +---bidwizard/
+|   |   |   |                           |   |   \---components/
+|   |   |   |                           |   +---components/
+|   |   |   |                           |   +---dashboard/
+|   |   |   |                           |   +---main/
+|   |   |   |                           |   +---profile/
+|   |   |   |                           |   |   +---security/
+|   |   |   |                           |   |   \---settings/
+|   |   |   |                           |   +---Registration/
+|   |   |   |                           |   +---soumissions/
+|   |   |   |                           |   |   \---wizard/
+|   |   |   |                           |   |       \---steps/
+|   |   |   |                           |   \---theme/
+|   |   |   |                           +---util/
+|   |   |   |                           \---viewmodel/
+|   |   |   +---runtime_symbol_list/
+|   |   |   |   \---debug/
+|   |   |   |       \---processDebugResources/
+|   |   |   |           \---R.txt
+|   |   |   +---signing_config_versions/
+|   |   |   |   \---debug/
+|   |   |   |       \---writeDebugSigningConfigVersions/
+|   |   |   |           \---signing-config-versions.json
+|   |   |   +---stable_resource_ids_file/
+|   |   |   |   \---debug/
+|   |   |   |       \---processDebugResources/
+|   |   |   |           \---stableIds.txt
+|   |   |   +---stripped_native_libs/
+|   |   |   |   \---debug/
+|   |   |   |       \---stripDebugDebugSymbols/
+|   |   |   |           \---out/
+|   |   |   |               \---lib/
+|   |   |   |                   +---arm64-v8a/
+|   |   |   |                   +---armeabi-v7a/
+|   |   |   |                   +---x86/
+|   |   |   |                   \---x86_64/
+|   |   |   +---sub_project_dex_archive/
+|   |   |   |   \---debug/
+|   |   |   |       \---dexBuilderDebug/
+|   |   |   |           \---out/
+|   |   |   +---symbol_list_with_package_name/
+|   |   |   |   \---debug/
+|   |   |   |       \---generateDebugRFile/
+|   |   |   |           \---package-aware-r.txt
+|   |   |   \---validate_signing_config/
+|   |   |       \---debug/
+|   |   |           \---validateSigningDebug/
+|   |   +---kotlin/
+|   |   |   \---compileDebugKotlin/
+|   |   |       +---cacheable/
+|   |   |       |   \---caches-jvm/
+|   |   |       |       +---inputs/
+|   |   |       |       |   \---source-to-output.tab.values.s
+|   |   |       |       +---jvm/
+|   |   |       |       |   \---kotlin/
+|   |   |       |       |       +---internal-name-to-source.tab.values.s
+|   |   |       |       |       +---proto.tab.values.s
+|   |   |       |       |       \---source-to-classes.tab.values.s
+|   |   |       |       \---lookups/
+|   |   |       |           +---counters.tab
+|   |   |       |           \---lookups.tab.values.s
+|   |   |       +---classpath-snapshot/
+|   |   |       \---local-state/
+|   |   \---outputs/
+|   |       \---logs/
+|   |           \---manifest-merger-debug-report.txt
+|   +---src/
+|   |   +---androidTest/
+|   |   |   \---java/
+|   |   |       \---com/
+|   |   |           \---klodit/
+|   |   |               \---almizan/
+|   |   |                   \---ExampleInstrumentedTest.kt
+|   |   +---main/
+|   |   |   +---java/
+|   |   |   |   \---com/
+|   |   |   |       \---klodit/
+|   |   |   |           \---almizan/
+|   |   |   |               +---data/
+|   |   |   |               |   +---api/
+|   |   |   |               |   |   +---ApiClient.kt
+|   |   |   |               |   |   +---MockAuthInterceptor.kt
+|   |   |   |               |   |   +---ProfileApiService.kt
+|   |   |   |               |   |   +---RecoursApiService.kt
+|   |   |   |               |   |   +---SoumissionApiService.kt
+|   |   |   |               |   |   \---TenderApiService.kt
+|   |   |   |               |   +---repository/
+|   |   |   |               |   |   +---ProfileRepository.kt
+|   |   |   |               |   |   +---RecoursRepository.kt
+|   |   |   |               |   |   \---SoumissionRepository.kt
+|   |   |   |               |   \---TenderRepository.kt
+|   |   |   |               +---model/
+|   |   |   |               |   +---BidWizardData.kt
+|   |   |   |               |   +---DashboardData.kt
+|   |   |   |               |   +---MyBidsModels.kt
+|   |   |   |               |   +---OperatorDashboardData.kt
+|   |   |   |               |   \---TenderModels.kt
+|   |   |   |               +---navigation/
+|   |   |   |               |   \---NavGraph.kt
+|   |   |   |               +---ui/
+|   |   |   |               |   +---auth/
+|   |   |   |               |   |   +---Accountlockedscreen.kt
+|   |   |   |               |   |   +---Forgotpasswordscreen.kt
+|   |   |   |               |   |   +---LoginScreen.kt
+|   |   |   |               |   |   +---SetNewPasswordScreen.kt
+|   |   |   |               |   |   \---Verificationscreen.kt
+|   |   |   |               |   +---bidwizard/
+|   |   |   |               |   |   +---components/
+|   |   |   |               |   |   |   \---WizardUiComponents.kt
+|   |   |   |               |   |   +---BidStatusScreen.kt
+|   |   |   |               |   |   +---EvaluationResultsScreen.kt
+|   |   |   |               |   |   \---FileAppealScreen.kt
+|   |   |   |               |   +---components/
+|   |   |   |               |   |   +---Bottombar.kt
+|   |   |   |               |   |   \---TopBar.kt
+|   |   |   |               |   +---dashboard/
+|   |   |   |               |   |   \---Dashboardscreen.kt
+|   |   |   |               |   +---main/
+|   |   |   |               |   |   \---MainScreen.kt
+|   |   |   |               |   +---profile/
+|   |   |   |               |   |   +---security/
+|   |   |   |               |   |   |   +---SecurityData.kt
+|   |   |   |               |   |   |   \---SecurityScreen.kt
+|   |   |   |               |   |   +---settings/
+|   |   |   |               |   |   |   +---SettingsData.kt
+|   |   |   |               |   |   |   \---SettingsScreen.kt
+|   |   |   |               |   |   +---DocumentsData.kt
+|   |   |   |               |   |   +---DocumentsScreen.kt
+|   |   |   |               |   |   +---ProfileData.kt
+|   |   |   |               |   |   \---ProfileScreen.kt
+|   |   |   |               |   +---recours/
+|   |   |   |               |   +---Registration/
+|   |   |   |               |   |   +---RegistrationStep1Screen.kt
+|   |   |   |               |   |   +---RegistrationStep2Screen.kt
+|   |   |   |               |   |   \---RegistrationStep3Screen.kt
+|   |   |   |               |   +---soumissions/
+|   |   |   |               |   |   +---wizard/
+|   |   |   |               |   |   |   +---steps/
+|   |   |   |               |   |   |   |   +---Step1LotSelection.kt
+|   |   |   |               |   |   |   |   +---Step2TechnicalOffer.kt
+|   |   |   |               |   |   |   |   +---Step3FinancialOffer.kt
+|   |   |   |               |   |   |   |   +---Step4BankGuarantee.kt
+|   |   |   |               |   |   |   |   \---Step5FinalReview.kt
+|   |   |   |               |   |   |   \---BidWizardScreen.kt
+|   |   |   |               |   |   \---MyBidsScreen.kt
+|   |   |   |               |   \---theme/
+|   |   |   |               |       +---Applanguage.kt
+|   |   |   |               |       +---Color.kt
+|   |   |   |               |       +---Theme.kt
+|   |   |   |               |       \---Type.kt
+|   |   |   |               +---util/
+|   |   |   |               |   +---E2EECryptoManager.kt
+|   |   |   |               |   +---FileUtil.kt
+|   |   |   |               |   \---Localehelper.kt
+|   |   |   |               +---viewmodel/
+|   |   |   |               |   +---BidWizardViewModel.kt
+|   |   |   |               |   +---MainViewModel.kt
+|   |   |   |               |   +---MyBidsViewModel.kt
+|   |   |   |               |   +---ProfileViewModel.kt
+|   |   |   |               |   +---RecoursViewModel.kt
+|   |   |   |               |   \---SoumissionDetailViewModel.kt
+|   |   |   |               \---MainActivity.kt
+|   |   |   +---res/
+|   |   |   |   +---drawable/
+|   |   |   |   |   +---ic_launcher_background.xml
+|   |   |   |   |   \---ic_launcher_foreground.xml
+|   |   |   |   +---mipmap-anydpi-v26/
+|   |   |   |   |   +---ic_launcher.xml
+|   |   |   |   |   \---ic_launcher_round.xml
+|   |   |   |   +---mipmap-hdpi/
+|   |   |   |   +---mipmap-mdpi/
+|   |   |   |   +---mipmap-xhdpi/
+|   |   |   |   +---mipmap-xxhdpi/
+|   |   |   |   +---mipmap-xxxhdpi/
+|   |   |   |   +---values/
+|   |   |   |   |   +---colors.xml
+|   |   |   |   |   +---strings.xml
+|   |   |   |   |   \---themes.xml
+|   |   |   |   +---values-ar/
+|   |   |   |   |   \---strings.xml
+|   |   |   |   +---values-en/
+|   |   |   |   |   \---strings.xml
+|   |   |   |   \---xml/
+|   |   |   |       +---backup_rules.xml
+|   |   |   |       \---data_extraction_rules.xml
+|   |   |   \---AndroidManifest.xml
+|   |   \---test/
+|   |       \---java/
+|   |           \---com/
+|   |               \---klodit/
+|   |                   \---almizan/
+|   |                       \---ExampleUnitTest.kt
+|   +---.gitignore
+|   +---build.gradle.kts
+|   \---proguard-rules.pro
++---build/
+|   \---reports/
+|       \---problems/
+|           \---problems-report.html
++---gradle/
+|   +---wrapper/
+|   |   \---gradle-wrapper.properties
+|   +---gradle-daemon-jvm.properties
+|   \---libs.versions.toml
++---Logo/
+|   +---al_mizan_app_icon.svg
+|   +---al_mizan_icon.svg
+|   +---al_mizan_logo.svg
+|   \---al_mizan_logo_horizontal.svg
++---screenshots/
++---.gitignore
++---build.gradle.kts
++---DB.txt
++---gradle.properties
++---gradlew
++---gradlew.bat
++---local.properties
+\---settings.gradle.kts
+
+============================================================
+FILE CONTENTS
+============================================================

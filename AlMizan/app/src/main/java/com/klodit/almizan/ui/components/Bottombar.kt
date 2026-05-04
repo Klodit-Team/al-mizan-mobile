@@ -103,24 +103,23 @@ private fun BottomNavItem(
         Box(
             contentAlignment = Alignment.Center,
             modifier         = Modifier
-                .size(if (isSelected) 40.dp else 32.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(if (isSelected) Green500.copy(alpha = 0.12f) else Color.Transparent)
+                .size(48.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(if (isSelected) Green50 else Color.Transparent) // Solid visible light green
         ) {
             Icon(
                 imageVector        = if (isSelected) destination.selectedIcon else destination.unselectedIcon,
                 contentDescription = label,
-                tint               = if (isSelected) Green500 else Navy500,
-                modifier           = Modifier.size(22.dp)
+                tint               = if (isSelected) Green500 else Navy400,
+                modifier           = Modifier.size(26.dp)
             )
         }
-        Spacer(Modifier.height(2.dp))
+        Spacer(Modifier.height(4.dp))
         Text(
             text          = label,
-            color         = if (isSelected) Green500 else Navy500,
-            fontSize      = 10.sp,
-            fontWeight    = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-            letterSpacing = 0.2.sp
+            color         = if (isSelected) Green500 else Navy400,
+            fontSize      = 11.sp,
+            fontWeight    = if (isSelected) FontWeight.Medium else FontWeight.Normal
         )
     }
 }

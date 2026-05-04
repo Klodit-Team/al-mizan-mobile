@@ -25,9 +25,18 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import android.content.res.Configuration
 import com.klodit.almizan.model.*
+import com.klodit.almizan.ui.bidwizard.BidStatusScreen
+import com.klodit.almizan.ui.bidwizard.BidWizardScreen
+import com.klodit.almizan.ui.bidwizard.EvaluationResultsScreen
+import com.klodit.almizan.ui.bidwizard.FileAppealScreen
 import com.klodit.almizan.ui.components.AlMizanBottomBar
 import com.klodit.almizan.ui.components.AlMizanTopBar
 import com.klodit.almizan.ui.components.BottomNavDestination
+import com.klodit.almizan.ui.profile.DocumentsScreen
+import com.klodit.almizan.ui.profile.ProfileScreen
+import com.klodit.almizan.ui.profile.security.SecurityScreen
+import com.klodit.almizan.ui.profile.settings.SettingsScreen
+import com.klodit.almizan.ui.soumissions.MyBidsScreen
 import com.klodit.almizan.ui.theme.*
 import com.klodit.almizan.viewmodel.MainViewModel
 
@@ -39,6 +48,17 @@ fun MainScreen(
     val currentRoute     by viewModel.currentRoute.collectAsState()
     val userName         by viewModel.userName.collectAsState()
     val language         by viewModel.language.collectAsState()
+    val showBidWizard    by viewModel.showBidWizard.collectAsState()
+    val currentBidAppelOffreId by viewModel.currentBidAppelOffreId.collectAsState()
+    val showBidStatus    by viewModel.showBidStatus.collectAsState()
+    val currentStatusSubmissionId by viewModel.currentStatusSubmissionId.collectAsState()
+    val showEvaluationResults by viewModel.showEvaluationResults.collectAsState()
+    val currentEvalSubmissionId by viewModel.currentEvalSubmissionId.collectAsState()
+    val showFileAppeal by viewModel.showFileAppeal.collectAsState()
+    val currentAppealSubmissionId by viewModel.currentAppealSubmissionId.collectAsState()
+    val showDocuments by viewModel.showDocuments.collectAsState()
+    val showSecurity by viewModel.showSecurity.collectAsState()
+    val showSettings by viewModel.showSettings.collectAsState()
 
     // key(language) forces this to recompute every time language changes
     val localizedContext = remember(language) {
@@ -48,6 +68,88 @@ fun MainScreen(
         )
         config.setLocale(locale)
         viewModel.getApplication<android.app.Application>().createConfigurationContext(config)
+    }
+
+    // Show Bid Wizard as full-screen overlay (no top/bottom bars)
+    if (showBidWizard && currentBidAppelOffreId != null) {
+        BidWizardScreen(
+            localizedContext = localizedContext,
+            appelOffreId = currentBidAppelOffreId!!,
+            onExit = { viewModel.closeBidWizard() },
+            onSubmitBid = { state ->
+                // TODO: Submit bid to API
+                // Don't close wizard here - let BidSubmittedScreen handle it via onReturnToDashboard
+            }
+        )
+        return
+    }
+
+    // Show Bid Status as full-screen overlay (no top/bottom bars)
+    if (showBidStatus && currentStatusSubmissionId != null) {
+        BidStatusScreen(
+            submissionId = currentStatusSubmissionId!!,
+            localizedContext = localizedContext,
+            onBackClick = { viewModel.closeBidStatus() },
+            onContactSupport = { /* TODO: Open support */ }
+        )
+        return
+    }
+
+    // Show Evaluation Results as full-screen overlay
+    if (showEvaluationResults && currentEvalSubmissionId != null) {
+        EvaluationResultsScreen(
+            submissionId = currentEvalSubmissionId!!,
+            localizedContext = localizedContext,
+            onBackClick = { viewModel.closeEvaluationResults() },
+            onFileAppeal = {
+                viewModel.closeEvaluationResults()
+                viewModel.openFileAppeal(currentEvalSubmissionId!!)
+            }
+        )
+        return
+    }
+
+    // Show File Appeal as full-screen overlay
+    if (showFileAppeal && currentAppealSubmissionId != null) {
+        FileAppealScreen(
+            submissionId = currentAppealSubmissionId!!,
+            localizedContext = localizedContext,
+            onBackClick = { viewModel.closeFileAppeal() },
+            onSubmitAppeal = { appealData ->
+                // TODO: Submit appeal to API
+                viewModel.closeFileAppeal()
+            }
+        )
+        return
+    }
+
+    // Show Documents as full-screen overlay
+    if (showDocuments) {
+        DocumentsScreen(
+            localizedContext = localizedContext,
+            onBackClick = { viewModel.closeDocuments() },
+            onUploadClick = { /* TODO: Implement upload */ },
+            onUpdateDocument = { /* TODO: Implement update */ }
+        )
+        return
+    }
+
+    // Show Security as full-screen overlay
+    if (showSecurity) {
+        SecurityScreen(
+            localizedContext = localizedContext,
+            onBackClick = { viewModel.closeSecurity() }
+        )
+        return
+    }
+
+    // Show Settings as full-screen overlay
+    if (showSettings) {
+        SettingsScreen(
+            localizedContext = localizedContext,
+            onBackClick = { viewModel.closeSettings() }
+        )
+        return
     }
 
     Scaffold(
@@ -81,8 +183,21 @@ fun MainScreen(
             when (currentRoute) {
                 BottomNavDestination.Home.route    -> PlaceholderTab("Home")
                 BottomNavDestination.Search.route  -> SearchTabContent()
-                BottomNavDestination.MyBids.route  -> PlaceholderTab("My Bids")
-                BottomNavDestination.Profile.route -> PlaceholderTab("Profile")
+                BottomNavDestination.MyBids.route  -> MyBidsScreen(
+                    localizedContext = localizedContext,
+                    onStartBidWizard = { appelOffreId -> viewModel.openBidWizard(appelOffreId) },
+                    onTrackStatus = { submissionId -> viewModel.openBidStatus(submissionId) },
+                    onViewResults = { submissionId -> viewModel.openEvaluationResults(submissionId) },
+                    onFileAppeal = { submissionId -> viewModel.openFileAppeal(submissionId) }
+                )
+                BottomNavDestination.Profile.route -> ProfileScreen(
+                    localizedContext = localizedContext,
+                    onEditPersonalInfo = { /* TODO: Navigate to edit profile */ },
+                    onRequestOrganisationUpdate = { /* TODO: Request update */ },
+                    onNavigateToDocuments = { viewModel.openDocuments() },
+                    onNavigateToSecurity = { viewModel.openSecurity() },
+                    onNavigateToSettings = { viewModel.openSettings() }
+                )
                 else                               -> PlaceholderTab("Home")
             }
         }
