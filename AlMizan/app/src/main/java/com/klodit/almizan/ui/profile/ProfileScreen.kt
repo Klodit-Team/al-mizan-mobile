@@ -55,9 +55,24 @@ fun ProfileScreen(
     val scrollState = rememberScrollState()
     val profileData = profileDataState
 
-    if (isLoading || profileData == null) {
+    if (isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = Green500)
+        }
+        return
+    }
+
+    if (profileData == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(Icons.Outlined.ErrorOutline, null, tint = Red600, modifier = Modifier.size(48.dp))
+                Spacer(Modifier.height(16.dp))
+                Text("Erreur de chargement du profil.", color = Navy800, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(8.dp))
+                Button(onClick = { viewModel.loadProfileData() }, colors = ButtonDefaults.buttonColors(containerColor = Green500)) {
+                    Text("Réessayer")
+                }
+            }
         }
         return
     }

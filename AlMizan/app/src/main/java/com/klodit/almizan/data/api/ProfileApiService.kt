@@ -1,3 +1,4 @@
+// app/src/main/java/com/klodit/almizan/data/api/ProfileApiService.kt
 package com.klodit.almizan.data.api
 
 import retrofit2.Response
@@ -72,20 +73,20 @@ data class DocumentDto(
 
 interface ProfileApiService {
     @GET("auth/me")
-    suspend fun getMe(): Response<ApiResponse<MeResponseDto>>
+    suspend fun getMe(): Response<MeResponseDto>
 
     @GET("users/profiles/user/{userId}")
-    suspend fun getProfile(@Path("userId") userId: String): Response<ApiResponse<ProfileDto>>
+    suspend fun getProfile(@Path("userId") userId: String): Response<ProfileDto>
 
     @GET("users/operateurs-economiques?page=1&limit=200")
-    suspend fun getOperateurs(): Response<ApiResponse<List<OperateurDto>>>
+    suspend fun getOperateurs(): Response<List<OperateurDto>>
 
     @GET("auth/sessions")
-    suspend fun getSessions(): Response<ApiResponse<List<SessionDto>>>
+    suspend fun getSessions(): Response<List<SessionDto>>
 
     @GET("audit/logs")
-    suspend fun getAuditLogs(): Response<ApiResponse<List<AuditLogDto>>>
+    suspend fun getAuditLogs(): Response<List<AuditLogDto>>
 
     @GET("users/pieces-administratives")
-    suspend fun getDocuments(): Response<ApiResponse<List<DocumentDto>>>
+    suspend fun getDocuments(): Response<List<DocumentDto>>
 }
