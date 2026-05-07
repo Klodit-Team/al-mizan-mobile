@@ -57,15 +57,17 @@ class AuthViewModel : ViewModel() {
     var step2Data: RegStep2Data? by mutableStateOf(null)
         private set
 
-    // ── Login ─────────────────────────────────────────────────────────────────
-    // Add this property
-    var failedLoginAttempts by mutableStateOf(0)
-        private set
-
-    // for the upload doc
+    // ── Session state (populated after login/register) ────────────────────────
     var authToken by mutableStateOf<String?>(null)
         private set
 
+
+    var currentUserId by mutableStateOf<String?>(null)
+        private set
+
+    // ── Login ─────────────────────────────────────────────────────────────────
+    var failedLoginAttempts by mutableStateOf(0)
+        private set
 
     fun login(
         email    : String,
@@ -76,10 +78,16 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             authState = AuthState.Loading
             try {
-                val response     = repository.login(email, password)
-                val token        = response.resolvedToken() ?: ""
-                failedLoginAttempts = 0          // reset on success
-                authState        = AuthState.Success(token)
+                val response        = repository.login(email, password)
+                android.util.Log.d("AUTH_DEBUG", "raw response = $response")
+                android.util.Log.d("AUTH_DEBUG", "resolvedToken = ${response.resolvedToken()}")
+                val token           = response.resolvedToken() ?: ""
+                failedLoginAttempts = 0
+                authToken           = token
+
+                currentUserId = decodeUserIdFromJwt(token) ?: response.user?.userId
+                authState           = AuthState.Success(token)
+                android.util.Log.d("AUTH_DEBUG", "Login success — token=$token userId=$currentUserId")
                 onSuccess(token)
             } catch (e: retrofit2.HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
@@ -88,7 +96,7 @@ class AuthViewModel : ViewModel() {
                         failedLoginAttempts++
                         if (failedLoginAttempts >= 5) {
                             authState = AuthState.Idle
-                            onLocked()           // trigger navigation to locked screen
+                            onLocked()
                         } else {
                             authState = AuthState.Error(
                                 "Email ou mot de passe incorrect (${failedLoginAttempts}/5)"
@@ -96,11 +104,7 @@ class AuthViewModel : ViewModel() {
                         }
                     }
                     403  -> authState = AuthState.Error("Accès refusé")
-                    429  -> {
-                        // server itself says too many attempts
-                        authState = AuthState.Idle
-                        onLocked()
-                    }
+                    429  -> { authState = AuthState.Idle; onLocked() }
                     502  -> authState = AuthState.Error("Service temporairement indisponible")
                     else -> authState = AuthState.Error("Erreur serveur (${e.code()}): $errorBody")
                 }
@@ -112,10 +116,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-
-    fun resetFailedAttempts() {
-        failedLoginAttempts = 0
-    }
+    fun resetFailedAttempts() { failedLoginAttempts = 0 }
 
     // ── Registration step helpers ─────────────────────────────────────────────
     fun saveStep1(orgName: String, nif: String, nis: String, rc: String) {
@@ -131,14 +132,8 @@ class AuthViewModel : ViewModel() {
         selectedLang: AppLanguage = AppLanguage.FRENCH,
         onSuccess   : (userId: String) -> Unit
     ) {
-        val s1 = step1Data ?: run {
-            authState = AuthState.Error("Données étape 1 manquantes")
-            return
-        }
-        val s2 = step2Data ?: run {
-            authState = AuthState.Error("Données étape 2 manquantes")
-            return
-        }
+        val s1 = step1Data ?: run { authState = AuthState.Error("Données étape 1 manquantes"); return }
+        val s2 = step2Data ?: run { authState = AuthState.Error("Données étape 2 manquantes"); return }
 
         val request = RegisterRequest(
             email             = s2.email,
@@ -164,13 +159,13 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             authState = AuthState.Loading
             try {
-                val response = repository.register(request)
-                authToken = response.resolvedToken()
-                authState    = AuthState.Success(response.message ?: "Inscription réussie")
+                val response  = repository.register(request)
+                authToken     = response.resolvedToken()
+                currentUserId = response.user_id ?: ""
+                authState     = AuthState.Success(response.message ?: "Inscription réussie")
                 onSuccess(response.user_id ?: "")
             } catch (e: retrofit2.HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
-
                 android.util.Log.e("AUTH_DEBUG", "HTTP ${e.code()}: $errorBody")
                 authState = AuthState.Error(
                     when (e.code()) {
@@ -189,17 +184,24 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun clearError() {
-        if (authState is AuthState.Error) authState = AuthState.Idle
-    }
+    fun clearError() { if (authState is AuthState.Error) authState = AuthState.Idle }
 
     fun resetState() {
-        authState = AuthState.Idle
-        step1Data = null
-        step2Data = null
+        authState     = AuthState.Idle
+        step1Data     = null
+        step2Data     = null
     }
 
-    // ── Forgot password ───────────────────────────────────────────────────────────
+    fun clearSession() {
+        authToken     = null
+        currentUserId = null
+        authState     = AuthState.Idle
+        step1Data     = null
+        step2Data     = null
+        failedLoginAttempts = 0
+    }
+
+    // ── Forgot password ───────────────────────────────────────────────────────
     fun forgotPassword(email: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             authState = AuthState.Loading
@@ -223,7 +225,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // ── Verify OTP token (used in VerificationScreen AND SetNewPasswordScreen) ────
+    // ── Verify OTP token ─────────────────────────────────────────────────────
     fun verifyToken(token: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             authState = AuthState.Loading
@@ -247,7 +249,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // ── Reset password ────────────────────────────────────────────────────────────
+    // ── Reset password ────────────────────────────────────────────────────────
     fun resetPassword(token: String, newPassword: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             authState = AuthState.Loading
@@ -268,16 +270,12 @@ class AuthViewModel : ViewModel() {
             } catch (e: Exception) {
                 authState = AuthState.Error(e.message ?: "Erreur")
             }
-
         }
     }
 
-    fun uploadDocument(context: android.content.Context, uri: android.net.Uri, onSuccess: () -> Unit) {
-        val token = authToken ?: run {
-            uploadState = AuthState.Error("Non authentifié")
-            return
-        }
-
+    // ── Document upload ───────────────────────────────────────────────────────
+    fun uploadDocument(context: Context, uri: Uri, onSuccess: () -> Unit) {
+        val token = authToken ?: run { uploadState = AuthState.Error("Non authentifié"); return }
         viewModelScope.launch {
             uploadState = AuthState.Loading
             try {
@@ -285,10 +283,8 @@ class AuthViewModel : ViewModel() {
                 val bytes       = inputStream?.readBytes() ?: throw Exception("Fichier illisible")
                 val mimeType    = context.contentResolver.getType(uri) ?: "application/pdf"
                 val fileName    = uri.lastPathSegment ?: "document.pdf"
-
                 val requestBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
                 val part        = MultipartBody.Part.createFormData("file", fileName, requestBody)
-
                 repository.uploadDocument(token, part)
                 uploadState = AuthState.Success("Document uploadé")
                 onSuccess()
@@ -311,8 +307,23 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun clearUploadError() {
-        if (uploadState is AuthState.Error) uploadState = AuthState.Idle
+    fun clearUploadError() { if (uploadState is AuthState.Error) uploadState = AuthState.Idle }
+
+    // ── JWT userId decoder ──────────────────────────
+
+    private fun decodeUserIdFromJwt(token: String): String? {
+        return try {
+            val payload = token.split(".").getOrNull(1) ?: return null
+            // JWT uses base64url (no padding) — add padding manually
+            val padded  = payload + "=".repeat((4 - payload.length % 4) % 4)
+            val decoded = android.util.Base64.decode(padded, android.util.Base64.URL_SAFE)
+            val json    = org.json.JSONObject(String(decoded))
+            // Try common claim names
+            json.optString("sub").takeIf { it.isNotEmpty() }
+                ?: json.optString("userId").takeIf { it.isNotEmpty() }
+                ?: json.optString("id").takeIf { it.isNotEmpty() }
+        } catch (e: Exception) {
+            null
+        }
     }
-    // ─────────────────────────────────────────────────────────────────────────
 }

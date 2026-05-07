@@ -1,4 +1,4 @@
-package com.klodit.almizan.ui.search
+package com.klodit.almizan.data.tender
 
 data class FilterState(
     val selectedSectors: Set<String> = emptySet(),

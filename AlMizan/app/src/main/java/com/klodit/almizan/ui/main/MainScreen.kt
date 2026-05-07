@@ -1,28 +1,38 @@
 package com.klodit.almizan.ui.main
 
-import android.content.Context
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.klodit.almizan.ui.components.AlMizanBottomBar
-import com.klodit.almizan.ui.components.AlMizanTopBar
+import com.klodit.almizan.ui.components.TopBar
 import com.klodit.almizan.ui.components.BottomNavDestination
 import com.klodit.almizan.ui.home.HomeScreen
 import com.klodit.almizan.ui.bids.MyBidsScreen
 import com.klodit.almizan.ui.profile.ProfileScreen
+import com.klodit.almizan.ui.search.FilterState
 import com.klodit.almizan.ui.tender.TenderListScreen
 import com.klodit.almizan.viewmodel.MainViewModel
 
 @Composable
 fun MainScreen(
-    viewModel            : MainViewModel = viewModel(),
-    onNavigateToLogin    : () -> Unit    = {},
-    onNavigateToFilter   : () -> Unit    = {}
+    viewModel              : MainViewModel = viewModel(),
+    activeFilter           : FilterState   = FilterState(),
+    userId                 : String        = "",
+    token                  : String        = "",
+    onNavigateToLogin      : () -> Unit    = {},
+    onNavigateToFilter     : () -> Unit    = {},
+    onNavigateToEditProfile: (profileId: String) -> Unit = {},
+    onNavigateToChangePassword: () -> Unit = {},
+    onNavigateToDeleteAccount : (profileId: String) -> Unit = {}
 ) {
-    val currentRoute by viewModel.currentRoute.collectAsState()
-    val userName     by viewModel.userName.collectAsState()
-    val language     by viewModel.language.collectAsState()
+    val currentRoute  by viewModel.currentRoute.collectAsState()
+    val userFirstName by viewModel.userFirstName.collectAsState()
+    val userLastName  by viewModel.userLastName.collectAsState()
+    val isVerified    by viewModel.isVerified.collectAsState()
+    val tier          by viewModel.tier.collectAsState()
+    val unreadCount   by viewModel.unreadCount.collectAsState()
+    val language      by viewModel.language.collectAsState()
 
     val localizedContext = remember(language) {
         val locale = java.util.Locale(language.locale)
@@ -36,13 +46,14 @@ fun MainScreen(
     Scaffold(
         containerColor = Color(0xFFF5F7FA),
         topBar = {
-            AlMizanTopBar(
-                userName            = userName,
-                language            = language,
-                localizedContext    = localizedContext,
-                onLanguageChange    = { viewModel.onLanguageChange(it) },
-                onNotificationClick = { },
-                onLogoutClick       = {
+            TopBar(
+                userFirstName        = userFirstName,
+                userLastName         = userLastName,
+                isVerified           = isVerified,
+                tier                 = tier,
+                unreadCount          = unreadCount,
+                onNotificationsClick = { },
+                onLogoutClick        = {
                     viewModel.onLogout()
                     onNavigateToLogin()
                 }
@@ -56,17 +67,31 @@ fun MainScreen(
             )
         }
     ) { innerPadding ->
-        // Each tab is its own self-contained screen file
         when (currentRoute) {
             BottomNavDestination.Home.route    -> HomeScreen(innerPadding)
+
             BottomNavDestination.Tenders.route -> TenderListScreen(
                 innerPadding       = innerPadding,
                 localizedContext   = localizedContext,
+                activeFilter       = activeFilter,
                 onNavigateToFilter = onNavigateToFilter
             )
+
             BottomNavDestination.MyBids.route  -> MyBidsScreen(innerPadding)
-            BottomNavDestination.Profile.route -> ProfileScreen(innerPadding)
-            else                               -> HomeScreen(innerPadding)
+
+            BottomNavDestination.Profile.route -> ProfileScreen(
+                userId                     = userId,
+                token                      = token,
+                onNavigateToEdit           = onNavigateToEditProfile,
+                onNavigateToChangePassword = onNavigateToChangePassword,
+                onNavigateToDeleteAccount  = onNavigateToDeleteAccount,
+                onLogout                   = {
+                    viewModel.onLogout()
+                    onNavigateToLogin()
+                }
+            )
+
+            else -> HomeScreen(innerPadding)
         }
     }
 }

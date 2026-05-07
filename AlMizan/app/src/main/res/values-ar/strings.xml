@@ -189,4 +189,53 @@
     <string name="status_closed">مغلقة</string>
     <string name="status_evaluation">قيد التقييم</string>
     <string name="status_awarded">مُرسَاة</string>
+
+    <!-- ── PROFILE SCREEN ── -->
+    <string name="profile_loading">جارٍ تحميل الملف الشخصي…</string>
+    <string name="profile_retry">إعادة المحاولة</string>
+    <string name="profile_section_org">المؤسسة</string>
+    <string name="profile_section_personal">المعلومات الشخصية</string>
+    <string name="profile_section_account">حسابي</string>
+    <string name="profile_section_danger">منطقة الخطر</string>
+    <string name="profile_field_fullname">الاسم الكامل</string>
+    <string name="profile_edit_profile">تعديل الملف الشخصي</string>
+    <string name="profile_change_password">تغيير كلمة المرور</string>
+    <string name="profile_language">اللغة</string>
+    <string name="profile_delete_account">حذف الحساب</string>
+
+    <!-- Logout dialog -->
+    <string name="profile_logout_confirm_title">تسجيل الخروج</string>
+    <string name="profile_logout_confirm_body">هل أنت متأكد من رغبتك في تسجيل الخروج من منصة الميزان؟</string>
+    <string name="profile_logout_confirm_btn">تسجيل الخروج</string>
+    <string name="profile_cancel">إلغاء</string>
+
+    <!-- Edit profile -->
+    <string name="profile_edit_notice">يمكن تعديل الاسم ورقم الهاتف فقط. للتعديل على بيانات المؤسسة يرجى التواصل مع الدعم الفني.</string>
+    <string name="profile_field_required">هذا الحقل مطلوب</string>
+    <string name="profile_save_btn">حفظ التغييرات</string>
+    <string name="profile_update_success">تم تحديث الملف الشخصي بنجاح!</string>
+
+    <!-- Change password -->
+    <string name="profile_password_notice">لأمانك، ستبقى جلستك نشطة بعد تغيير كلمة المرور. سيُرسل إليك بريد إلكتروني للتأكيد.</string>
+    <string name="profile_current_password">كلمة المرور الحالية</string>
+    <string name="profile_password_changed">تم تغيير كلمة المرور بنجاح!</string>
+
+    <!-- Language screen -->
+    <string name="profile_language_title">اختيار اللغة</string>
+    <string name="profile_language_subtitle">اختر لغة عرض منصة الميزان.</string>
+    <string name="profile_language_apply">تطبيق</string>
+
+    <!-- Delete account -->
+    <string name="profile_delete_title">حذف الحساب</string>
+    <string name="profile_delete_subtitle">هذا الإجراء لا رجعة فيه. سيتم حذف جميع بياناتك نهائيًا من منصة الميزان.</string>
+    <string name="profile_delete_consequences_title">ما سيتم حذفه</string>
+    <string name="profile_delete_con1">ملفك الشخصي ومعلوماتك الشخصية</string>
+    <string name="profile_delete_con2">جميع عروضك وطلباتك الجارية</string>
+    <string name="profile_delete_con3">الوصول إلى منصة الميزان السيادية</string>
+    <string name="profile_delete_con4">سجل جميع معاملاتك</string>
+    <string name="profile_delete_type_confirm">اكتب "%1$s" للتأكيد</string>
+    <string name="profile_delete_confirm_word">حذف</string>
+    <string name="profile_delete_btn">حذف نهائي</string>
+    <string name="profile_delete_dialog_title">التأكيد النهائي</string>
+    <string name="profile_delete_dialog_body">سيتم حذف حسابك نهائيًا. هذا الإجراء لا يمكن التراجع عنه.</string>
 </resources>

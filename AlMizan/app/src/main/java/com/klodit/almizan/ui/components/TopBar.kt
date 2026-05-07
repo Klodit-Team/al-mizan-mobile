@@ -1,20 +1,21 @@
 package com.klodit.almizan.ui.components
 
+
+
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Logout
-import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Verified
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,154 +23,153 @@ import com.klodit.almizan.R
 import com.klodit.almizan.ui.theme.*
 
 @Composable
-fun AlMizanTopBar(
-    userName: String = "",
-    language: AppLanguage = AppLanguage.FRENCH,
-    localizedContext: android.content.Context,        // ← context with correct locale baked in
-    onLanguageChange: (AppLanguage) -> Unit = {},
-    onNotificationClick: () -> Unit = {},
+fun TopBar(
+    userFirstName: String = "",          // from session / ProfileViewModel
+    userLastName:  String = "",
+    isVerified:    Boolean = false,
+    tier:          String = "OUVERT",
+    unreadCount:   Int = 0,
+    onNotificationsClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {}
 ) {
-    // These read from strings.xml using the localized context
-    // They update correctly when language changes because localizedContext changes
-    val verified    = localizedContext.getString(R.string.topbar_verified)
-    val tier        = localizedContext.getString(R.string.topbar_tier)
-    val disconnect  = localizedContext.getString(R.string.topbar_disconnect)
+    val initials = buildString {
+        append(userFirstName.firstOrNull()?.uppercaseChar() ?: "")
+        append(userLastName.firstOrNull()?.uppercaseChar() ?: "")
+    }.ifEmpty { "?" }
 
-    var accountMenuExpanded  by remember { mutableStateOf(false) }
-    var languageMenuExpanded by remember { mutableStateOf(false) }
+    val displayName = when {
+        userFirstName.isNotEmpty() -> userFirstName
+        else -> stringResource(R.string.tab_profile)
+    }
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Navy800)
-            .statusBarsPadding()
-            .height(64.dp)
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = Navy800,
+        shadowElevation = 4.dp
     ) {
         Row(
-            modifier              = Modifier.fillMaxWidth(),
-            verticalAlignment     = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-
-            // ── Left: avatar + name + disconnect dropdown ─────────────────────
-            Box {
+            // ── App brand ───────────────────────────────────────────────
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.app_name),
+                    color = NavyWhite,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 18.sp,
+                    letterSpacing = 1.sp
+                )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier          = Modifier.clickable { accountMenuExpanded = true }
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier         = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(NavyWhite)
-                    ) {
-                        Icon(Icons.Default.Person, null, tint = Navy800, modifier = Modifier.size(24.dp))
-                    }
-                    Spacer(Modifier.width(10.dp))
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text       = userName.ifBlank { "User" },
-                                color      = NavyWhite,
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize   = 14.sp
+                    // Verified badge
+                    if (isVerified) {
+                        Row(
+                            modifier = Modifier
+                                .background(Green500.copy(alpha = 0.2f), RoundedCornerShape(10.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Icon(
+                                Icons.Outlined.Verified,
+                                contentDescription = null,
+                                tint = Green400,
+                                modifier = Modifier.size(10.dp)
                             )
-                            Spacer(Modifier.width(6.dp))
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier         = Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(Green500.copy(alpha = 0.25f))
-                                    .padding(horizontal = 6.dp, vertical = 2.dp)
-                            ) {
-                                Text(verified, color = Green500, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                            }
+                            Text(
+                                stringResource(R.string.topbar_verified),
+                                color = Green400,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.3.sp
+                            )
                         }
-                        Text(tier, color = Green500, fontSize = 10.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.8.sp)
                     }
-                }
-
-                DropdownMenu(
-                    expanded         = accountMenuExpanded,
-                    onDismissRequest = { accountMenuExpanded = false },
-                    modifier         = Modifier.background(NavyWhite)
-                ) {
-                    DropdownMenuItem(
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Outlined.Logout, null, tint = Navy800, modifier = Modifier.size(18.dp))
-                                Spacer(Modifier.width(10.dp))
-                                Text(disconnect, color = Navy800, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                            }
-                        },
-                        onClick = {
-                            accountMenuExpanded = false
-                            onLogoutClick()
-                        }
+                    // Tier badge
+                    Text(
+                        text = tier,
+                        color = NavyWhite.copy(alpha = 0.6f),
+                        fontSize = 9.sp,
+                        letterSpacing = 0.5.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
 
-            // ── Right: language switcher + bell ───────────────────────────────
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier          = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(NavyWhite.copy(alpha = 0.15f))
-                            .clickable { languageMenuExpanded = true }
-                            .padding(horizontal = 10.dp, vertical = 6.dp)
+            // ── Notifications icon ────────────────────────────────────
+            Box {
+                IconButton(onClick = onNotificationsClick) {
+                    Icon(
+                        Icons.Filled.Notifications,
+                        contentDescription = stringResource(R.string.topbar_notifications),
+                        tint = NavyWhite,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+                if (unreadCount > 0) {
+                    Box(
+                        modifier = Modifier
+                            .size(16.dp)
+                            .align(Alignment.TopEnd)
+                            .offset(x = (-2).dp, y = 2.dp)
+                            .background(Red600, CircleShape),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(language.locale.uppercase(), color = NavyWhite, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        Spacer(Modifier.width(2.dp))
-                        Icon(Icons.Outlined.KeyboardArrowDown, null, tint = NavyWhite, modifier = Modifier.size(14.dp))
-                    }
-
-                    DropdownMenu(
-                        expanded         = languageMenuExpanded,
-                        onDismissRequest = { languageMenuExpanded = false },
-                        modifier         = Modifier.background(NavyWhite)
-                    ) {
-                        AppLanguage.entries.forEach { lang ->
-                            val isSelected = lang == language
-                            DropdownMenuItem(
-                                text = {
-                                    Row(
-                                        verticalAlignment     = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        modifier              = Modifier.fillMaxWidth()
-                                    ) {
-                                        Text(
-                                            text       = lang.label,
-                                            color      = if (isSelected) Green500 else Navy800,
-                                            fontSize   = 14.sp,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                        )
-                                        if (isSelected) {
-                                            Spacer(Modifier.width(12.dp))
-                                            Text("✓", color = Green500, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                        }
-                                    }
-                                },
-                                onClick = {
-                                    languageMenuExpanded = false
-                                    onLanguageChange(lang)
-                                }
-                            )
-                        }
+                        Text(
+                            text = if (unreadCount > 9) "9+" else unreadCount.toString(),
+                            color = NavyWhite,
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
+            }
 
-                Spacer(Modifier.width(4.dp))
+            Spacer(Modifier.width(4.dp))
 
-                IconButton(onClick = onNotificationClick, modifier = Modifier.size(40.dp)) {
-                    Icon(Icons.Outlined.Notifications, null, tint = NavyWhite, modifier = Modifier.size(24.dp))
-                }
+            // ── User avatar with initials ─────────────────────────────
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(Green500),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = initials,
+                    color = NavyWhite,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(Modifier.width(8.dp))
+
+            // ── User first name ───────────────────────────────────────
+            Text(
+                text = displayName,
+                color = NavyWhite,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1
+            )
+
+            Spacer(Modifier.width(4.dp))
+
+            // ── Logout icon ───────────────────────────────────────────
+            IconButton(onClick = onLogoutClick, modifier = Modifier.size(36.dp)) {
+                Icon(
+                    Icons.Outlined.Logout,
+                    contentDescription = stringResource(R.string.topbar_disconnect),
+                    tint = NavyWhite.copy(alpha = 0.75f),
+                    modifier = Modifier.size(18.dp)
+                )
             }
         }
     }

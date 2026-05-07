@@ -186,4 +186,54 @@
     <string name="status_closed">Clôturé</string>
     <string name="status_evaluation">En évaluation</string>
     <string name="status_awarded">Attribué</string>
+
+    <!-- ── PROFILE SCREEN ── -->
+    <string name="profile_loading">Chargement du profil…</string>
+    <string name="profile_retry">Réessayer</string>
+    <string name="profile_section_org">ORGANISATION</string>
+    <string name="profile_section_personal">INFORMATIONS PERSONNELLES</string>
+    <string name="profile_section_account">MON COMPTE</string>
+    <string name="profile_section_danger">ZONE DE DANGER</string>
+    <string name="profile_field_fullname">Nom complet</string>
+    <string name="profile_edit_profile">Modifier le profil</string>
+    <string name="profile_change_password">Modifier le mot de passe</string>
+    <string name="profile_language">Langue</string>
+    <string name="profile_delete_account">Supprimer le compte</string>
+
+    <!-- Logout dialog -->
+    <string name="profile_logout_confirm_title">Déconnexion</string>
+    <string name="profile_logout_confirm_body">Êtes-vous sûr de vouloir vous déconnecter de la plateforme Al-Mizan ?</string>
+    <string name="profile_logout_confirm_btn">Déconnexion</string>
+    <string name="profile_cancel">Annuler</string>
+
+    <!-- Edit profile -->
+    <string name="profile_edit_notice">Seuls votre nom et votre numéro de téléphone peuvent être modifiés. Pour toute modification des identifiants de l\'organisation, veuillez contacter le support.</string>
+    <string name="profile_field_required">Ce champ est obligatoire</string>
+    <string name="profile_save_btn">Enregistrer les modifications</string>
+    <string name="profile_update_success">Profil mis à jour avec succès !</string>
+
+    <!-- Change password -->
+    <string name="profile_password_notice">Pour votre sécurité, votre session sera maintenue après le changement de mot de passe. Un e-mail de confirmation vous sera envoyé.</string>
+    <string name="profile_current_password">MOT DE PASSE ACTUEL</string>
+    <string name="profile_password_changed">Mot de passe modifié avec succès !</string>
+
+    <!-- Language screen -->
+    <string name="profile_language_title">Choisir la langue</string>
+    <string name="profile_language_subtitle">Sélectionnez la langue d\'affichage de la plateforme Al-Mizan.</string>
+    <string name="profile_language_apply">Appliquer</string>
+
+    <!-- Delete account -->
+    <string name="profile_delete_title">Supprimer le compte</string>
+    <string name="profile_delete_subtitle">Cette action est irréversible. Toutes vos données seront définitivement supprimées de la plateforme Al-Mizan.</string>
+    <string name="profile_delete_consequences_title">CE QUI SERA SUPPRIMÉ</string>
+    <string name="profile_delete_con1">Votre profil et vos informations personnelles</string>
+    <string name="profile_delete_con2">Toutes vos offres et candidatures en cours</string>
+    <string name="profile_delete_con3">L\'accès à la plateforme souveraine Al-Mizan</string>
+    <string name="profile_delete_con4">L\'historique de toutes vos transactions</string>
+    <string name="profile_delete_type_confirm">Tapez « %1$s » pour confirmer</string>
+    <string name="profile_delete_confirm_word">SUPPRIMER</string>
+    <string name="profile_delete_btn">Supprimer définitivement</string>
+    <string name="profile_delete_dialog_title">Dernière confirmation</string>
+    <string name="profile_delete_dialog_body">Votre compte sera définitivement supprimé. Cette action est irréversible et ne peut pas être annulée.</string>
+
 </resources>

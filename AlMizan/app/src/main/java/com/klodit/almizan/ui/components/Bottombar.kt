@@ -46,13 +46,13 @@ val bottomNavItems = listOf(
 @Composable
 fun AlMizanBottomBar(
     currentRoute: String,
-    localizedContext: Context,                        // ← context with correct locale baked in
+    localizedContext: Context,
     onDestinationSelected: (BottomNavDestination) -> Unit
 ) {
     // Read labels from strings.xml using the localized context
     val labels = mapOf(
         BottomNavDestination.Home.route    to localizedContext.getString(R.string.tab_home),
-        BottomNavDestination.Tenders.route to localizedContext.getString(R.string.tab_search), // ← was Search.route
+        BottomNavDestination.Tenders.route to localizedContext.getString(R.string.tab_search),
         BottomNavDestination.MyBids.route  to localizedContext.getString(R.string.tab_my_bids),
         BottomNavDestination.Profile.route to localizedContext.getString(R.string.tab_profile)
     )

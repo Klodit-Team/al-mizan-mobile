@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.klodit.almizan.model.tender.Tender
+import com.klodit.almizan.ui.search.FilterState
 import com.klodit.almizan.ui.theme.*
 import com.klodit.almizan.viewmodel.TenderViewModel
 
@@ -31,6 +32,8 @@ import com.klodit.almizan.viewmodel.TenderViewModel
 fun TenderListScreen(
     innerPadding       : PaddingValues,
     localizedContext   : Context,
+    // ── Receive the active filter from NavGraph ───────────────────────────────
+    activeFilter       : FilterState = FilterState(),
     onNavigateToFilter : () -> Unit,
     viewModel          : TenderViewModel = viewModel()
 ) {
@@ -39,20 +42,44 @@ fun TenderListScreen(
     val error     by viewModel.error.collectAsState()
 
     val filterTabs = listOf("All", "PUBLIE", "ANNULE")
-    var selectedTab  by remember { mutableStateOf("All") }
-    var searchQuery  by remember { mutableStateOf("") }
+    var selectedTab by remember { mutableStateOf("All") }
+    var searchQuery by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) { viewModel.fetchTenders() }
 
-    val visible = tenders.filter { tender ->
-        val matchesTab    = selectedTab == "All" || tender.statut == selectedTab
-        val matchesSearch = searchQuery.isBlank() ||
-                tender.objet.contains(searchQuery, ignoreCase = true) ||
-                tender.reference.contains(searchQuery, ignoreCase = true) ||
-                tender.wilaya.contains(searchQuery, ignoreCase = true) ||
-                tender.secteurActivite.contains(searchQuery, ignoreCase = true)
-        matchesTab && matchesSearch
+    // ── Apply both the quick tab + the detailed filter + search ──────────────
+    val visible = remember(tenders, selectedTab, searchQuery, activeFilter) {
+        tenders.filter { t ->
+            // 1. Quick status tab
+            val matchesTab = selectedTab == "All" || t.statut == selectedTab
+
+            // 2. Text search
+            val matchesSearch = searchQuery.isBlank() ||
+                    t.objet.contains(searchQuery, ignoreCase = true) ||
+                    t.reference.contains(searchQuery, ignoreCase = true) ||
+                    t.wilaya.contains(searchQuery, ignoreCase = true) ||
+                    t.secteurActivite.contains(searchQuery, ignoreCase = true)
+
+            // 3. Detailed filter (empty set = "no restriction")
+            val matchesSector  = activeFilter.selectedSectors.isEmpty()  ||
+                    t.secteurActivite in activeFilter.selectedSectors
+            val matchesStatus  = activeFilter.selectedStatuses.isEmpty() ||
+                    t.statut in activeFilter.selectedStatuses
+            val matchesWilaya  = activeFilter.selectedWilayas.isEmpty()  ||
+                    t.wilaya in activeFilter.selectedWilayas
+            val matchesFrom    = activeFilter.dateFrom == null ||
+                    (t.datePublication ?: "") >= activeFilter.dateFrom!!
+            val matchesTo      = activeFilter.dateTo == null ||
+                    (t.datePublication ?: "") <= activeFilter.dateTo!!
+
+            matchesTab && matchesSearch &&
+                    matchesSector && matchesStatus && matchesWilaya &&
+                    matchesFrom && matchesTo
+        }
     }
+
+    // Show a badge on the filter button when any filter is active
+    val filterIsActive = activeFilter != FilterState()
 
     LazyColumn(
         modifier       = Modifier
@@ -88,17 +115,34 @@ fun TenderListScreen(
                         .weight(1f)
                         .height(52.dp)
                 )
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier         = Modifier
-                        .size(52.dp)
-                        .shadow(2.dp, RoundedCornerShape(12.dp))
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(NavyWhite)
-                        .border(1.dp, Navy100, RoundedCornerShape(12.dp))
-                        .clickable { onNavigateToFilter() }
+
+                // Filter button — shows a green dot when a filter is active
+                BadgedBox(
+                    badge = {
+                        if (filterIsActive) Badge(containerColor = Green500)
+                    }
                 ) {
-                    Icon(Icons.Outlined.Tune, null, tint = Navy800, modifier = Modifier.size(22.dp))
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier         = Modifier
+                            .size(52.dp)
+                            .shadow(2.dp, RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(if (filterIsActive) Green500.copy(alpha = 0.08f) else NavyWhite)
+                            .border(
+                                1.dp,
+                                if (filterIsActive) Green500 else Navy100,
+                                RoundedCornerShape(12.dp)
+                            )
+                            .clickable { onNavigateToFilter() }
+                    ) {
+                        Icon(
+                            Icons.Outlined.Tune,
+                            null,
+                            tint     = if (filterIsActive) Green500 else Navy800,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
                 }
             }
             Spacer(Modifier.height(14.dp))
@@ -129,9 +173,7 @@ fun TenderListScreen(
                         .fillMaxWidth()
                         .padding(32.dp),
                     contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = Navy800)
-                }
+                ) { CircularProgressIndicator(color = Navy800) }
             }
         }
 
@@ -155,9 +197,7 @@ fun TenderListScreen(
                         .fillMaxWidth()
                         .padding(top = 64.dp),
                     contentAlignment = Alignment.Center
-                ) {
-                    Text("No tenders found.", color = Navy500, fontSize = 14.sp)
-                }
+                ) { Text("No tenders found.", color = Navy500, fontSize = 14.sp) }
             }
         }
 
@@ -172,7 +212,6 @@ fun TenderListScreen(
 }
 
 // ── Filter chip ───────────────────────────────────────────────────────────────
-
 @Composable
 private fun TenderFilterChip(label: String, selected: Boolean, onClick: () -> Unit) {
     Box(
@@ -194,7 +233,6 @@ private fun TenderFilterChip(label: String, selected: Boolean, onClick: () -> Un
 }
 
 // ── Tender card ───────────────────────────────────────────────────────────────
-
 @Composable
 fun TenderCard(tender: Tender, modifier: Modifier = Modifier) {
     val statusColor = when (tender.statut) {
@@ -211,8 +249,6 @@ fun TenderCard(tender: Tender, modifier: Modifier = Modifier) {
         colors = CardDefaults.cardColors(containerColor = NavyWhite)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-
-            // ── Header row: sector icon + status badge ────────────────────
             Row(
                 modifier          = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -224,12 +260,7 @@ fun TenderCard(tender: Tender, modifier: Modifier = Modifier) {
                         .clip(RoundedCornerShape(8.dp))
                         .background(Navy50)
                 ) {
-                    Icon(
-                        Icons.Outlined.AccountBalance,
-                        contentDescription = null,
-                        tint               = Navy800,
-                        modifier           = Modifier.size(20.dp)
-                    )
+                    Icon(Icons.Outlined.AccountBalance, null, tint = Navy800, modifier = Modifier.size(20.dp))
                 }
                 Spacer(Modifier.width(10.dp))
                 Text(
@@ -248,104 +279,50 @@ fun TenderCard(tender: Tender, modifier: Modifier = Modifier) {
                         .background(statusColor.copy(alpha = 0.12f))
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
-                    Text(
-                        text       = tender.statut,
-                        color      = statusColor,
-                        fontSize   = 11.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Text(tender.statut, color = statusColor, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
 
             Spacer(Modifier.height(10.dp))
-
-            // ── Tender title ──────────────────────────────────────────────
-            Text(
-                text       = tender.objet,
-                color      = Navy900,
-                fontWeight = FontWeight.SemiBold,
-                fontSize   = 15.sp,
-                maxLines   = 2,
-                overflow   = TextOverflow.Ellipsis
-            )
-
+            Text(tender.objet, color = Navy900, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.height(4.dp))
-
-            // ── Reference ─────────────────────────────────────────────────
-            Text(
-                text     = tender.reference,
-                color    = Navy500,
-                fontSize = 12.sp
-            )
-
+            Text(tender.reference, color = Navy500, fontSize = 12.sp)
             Spacer(Modifier.height(10.dp))
 
-            // ── Meta row: wilaya + deadline ───────────────────────────────
-            Row(
-                verticalAlignment     = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Outlined.LocationOn,
-                        contentDescription = null,
-                        tint               = Navy500,
-                        modifier           = Modifier.size(14.dp)
-                    )
+                    Icon(Icons.Outlined.LocationOn, null, tint = Navy500, modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(3.dp))
                     Text(tender.wilaya, color = Navy500, fontSize = 12.sp)
                 }
                 tender.dateLimiteSoumission?.let { date ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Outlined.Schedule,
-                            contentDescription = null,
-                            tint               = Navy500,
-                            modifier           = Modifier.size(14.dp)
-                        )
+                        Icon(Icons.Outlined.Schedule, null, tint = Navy500, modifier = Modifier.size(14.dp))
                         Spacer(Modifier.width(3.dp))
                         Text(date.take(10), color = Navy500, fontSize = 12.sp)
                     }
                 }
             }
 
-            // ── Lots badge ────────────────────────────────────────────────
             if (tender.lots.isNotEmpty()) {
                 Spacer(Modifier.height(6.dp))
-                Text(
-                    text     = "${tender.lots.size} lot(s)",
-                    color    = Navy500,
-                    fontSize = 12.sp
-                )
+                Text("${tender.lots.size} lot(s)", color = Navy500, fontSize = 12.sp)
             }
 
             Spacer(Modifier.height(14.dp))
             HorizontalDivider(color = Grey100)
             Spacer(Modifier.height(12.dp))
 
-            // ── Action button ─────────────────────────────────────────────
             Button(
                 onClick        = { /* TODO: navigate to tender detail */ },
                 colors         = ButtonDefaults.buttonColors(containerColor = statusColor),
                 shape          = RoundedCornerShape(10.dp),
                 contentPadding = PaddingValues(vertical = 10.dp),
-                modifier       = Modifier
-                    .fillMaxWidth()
-                    .height(40.dp)
+                modifier       = Modifier.fillMaxWidth().height(40.dp)
             ) {
-                Icon(
-                    Icons.Outlined.Visibility,
-                    contentDescription = null,
-                    tint               = NavyWhite,
-                    modifier           = Modifier.size(16.dp)
-                )
+                Icon(Icons.Outlined.Visibility, null, tint = NavyWhite, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(6.dp))
-                Text(
-                    "View Details",
-                    color      = NavyWhite,
-                    fontSize   = 13.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Text("View Details", color = NavyWhite, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             }
         }
     }

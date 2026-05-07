@@ -14,9 +14,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentRoute = MutableStateFlow(BottomNavDestination.Home.route)
     val currentRoute: StateFlow<String> = _currentRoute.asStateFlow()
 
-    private val _userName = MutableStateFlow("CodedTech")
-    val userName: StateFlow<String> = _userName.asStateFlow()
+    // ── User identity ─────────────────────────────────────────────────────
+    private val _userFirstName = MutableStateFlow("")
+    val userFirstName: StateFlow<String> = _userFirstName.asStateFlow()
 
+    private val _userLastName = MutableStateFlow("")
+    val userLastName: StateFlow<String> = _userLastName.asStateFlow()
+
+    private val _isVerified = MutableStateFlow(false)
+    val isVerified: StateFlow<Boolean> = _isVerified.asStateFlow()
+
+    private val _tier = MutableStateFlow("OUVERT")
+    val tier: StateFlow<String> = _tier.asStateFlow()
+
+    private val _unreadCount = MutableStateFlow(0)
+    val unreadCount: StateFlow<Int> = _unreadCount.asStateFlow()
+
+    // ── Language ──────────────────────────────────────────────────────────
     private val _language = MutableStateFlow(LocaleHelper.currentLanguage(application))
     val language: StateFlow<AppLanguage> = _language.asStateFlow()
 
@@ -30,10 +44,38 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun onLogout() {
-        _userName.value = ""
+        _userFirstName.value = ""
+        _userLastName.value  = ""
+        _isVerified.value    = false
+        _tier.value          = "OUVERT"
+        _unreadCount.value   = 0
     }
 
-    fun onLogin(name: String) {
-        _userName.value = name
+    fun onLogin(
+        firstName : String,
+        lastName  : String,
+        verified  : Boolean = false,
+        tier      : String  = "OUVERT"
+    ) {
+        _userFirstName.value = firstName
+        _userLastName.value  = lastName
+        _isVerified.value    = verified
+        _tier.value          = tier
+    }
+
+    fun onProfileLoaded(
+        firstName  : String,
+        lastName   : String,
+        isVerified : Boolean,
+        tier       : String
+    ) {
+        _userFirstName.value = firstName
+        _userLastName.value  = lastName
+        _isVerified.value    = isVerified
+        _tier.value          = tier
+    }
+
+    fun setUnreadCount(count: Int) {
+        _unreadCount.value = count
     }
 }
