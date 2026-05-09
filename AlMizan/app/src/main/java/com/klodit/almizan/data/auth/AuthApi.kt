@@ -13,9 +13,11 @@ interface AuthApi {
     @POST("auth/register")
     suspend fun register(@Body request: RegisterRequest): RegisterResponse
 
-    @POST("auth/login")
-    suspend fun login(@Body request: LoginRequest): LoginResponse
 
+   @POST("auth/login")
+   suspend fun loginRaw(
+       @Body request: LoginRequest
+   ): retrofit2.Response<LoginResponse>
     @POST("auth/forgot-password")
     suspend fun forgotPassword(@Body request: ForgotPasswordRequest): MessageResponse
 
@@ -31,4 +33,9 @@ interface AuthApi {
         @Header("Authorization") token: String,
         @Part file: MultipartBody.Part
     ): ResponseBody
+
+
+    @POST("auth/logout")
+    suspend fun logout(): MessageResponse
+
 }

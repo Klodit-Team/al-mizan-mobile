@@ -20,10 +20,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.klodit.almizan.R
+import com.klodit.almizan.data.profile.ProfileUiState      // FIX: correct package
+import com.klodit.almizan.data.profile.UpdateProfileRequest
+import com.klodit.almizan.data.profile.UpdateUiState       // FIX: correct package
 import com.klodit.almizan.ui.theme.*
-import com.klodit.almizan.viewmodel.profile.ProfileUiState
-import com.klodit.almizan.viewmodel.profile.UpdateProfileRequest
-import com.klodit.almizan.viewmodel.profile.UpdateUiState
 import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,10 +35,10 @@ fun EditProfileScreen(
     onBack: () -> Unit,
     viewModel: ProfileViewModel = viewModel()
 ) {
-    val profileState by viewModel.profileState.collectAsState()
-    val updateState by viewModel.updateState.collectAsState()
+    // FIX: was viewModel.profileState / viewModel.updateState
+    val profileState by viewModel.profileUiState.collectAsState()
+    val updateState  by viewModel.updateUiState.collectAsState()
 
-    // Pre-fill from already-loaded profile
     var firstName by remember { mutableStateOf("") }
     var lastName  by remember { mutableStateOf("") }
     var phone     by remember { mutableStateOf("") }
@@ -49,7 +49,7 @@ fun EditProfileScreen(
 
     var showSuccess by remember { mutableStateOf(false) }
 
-    // Fill fields when profile loads
+    // Pre-fill fields when profile is already loaded
     LaunchedEffect(profileState) {
         if (profileState is ProfileUiState.Success) {
             val p = (profileState as ProfileUiState.Success).profile
@@ -123,7 +123,9 @@ fun EditProfileScreen(
                         Icons.Outlined.Info,
                         contentDescription = null,
                         tint = Blue800,
-                        modifier = Modifier.size(18.dp).padding(top = 2.dp)
+                        modifier = Modifier
+                            .size(18.dp)
+                            .padding(top = 2.dp)
                     )
                     Text(
                         stringResource(R.string.profile_edit_notice),
@@ -135,35 +137,35 @@ fun EditProfileScreen(
 
             // ── First Name ───────────────────────────────────────────────
             ProfileInputField(
-                label = stringResource(R.string.reg2_prenom_label),
-                value = firstName,
+                label        = stringResource(R.string.reg2_prenom_label),
+                value        = firstName,
                 onValueChange = { firstName = it; firstNameError = false },
-                placeholder = stringResource(R.string.reg2_ph_prenom),
-                isError = firstNameError,
+                placeholder  = stringResource(R.string.reg2_ph_prenom),
+                isError      = firstNameError,
                 errorMessage = stringResource(R.string.profile_field_required),
-                leadingIcon = Icons.Outlined.Person
+                leadingIcon  = Icons.Outlined.Person
             )
 
             // ── Last Name ────────────────────────────────────────────────
             ProfileInputField(
-                label = stringResource(R.string.reg2_nom_label),
-                value = lastName,
+                label        = stringResource(R.string.reg2_nom_label),
+                value        = lastName,
                 onValueChange = { lastName = it; lastNameError = false },
-                placeholder = stringResource(R.string.reg2_ph_nom),
-                isError = lastNameError,
+                placeholder  = stringResource(R.string.reg2_ph_nom),
+                isError      = lastNameError,
                 errorMessage = stringResource(R.string.profile_field_required),
-                leadingIcon = Icons.Outlined.Person
+                leadingIcon  = Icons.Outlined.Person
             )
 
             // ── Phone ────────────────────────────────────────────────────
             ProfileInputField(
-                label = stringResource(R.string.reg2_phone_label),
-                value = phone,
+                label        = stringResource(R.string.reg2_phone_label),
+                value        = phone,
                 onValueChange = { phone = it; phoneError = false },
-                placeholder = stringResource(R.string.reg2_ph_phone),
-                isError = phoneError,
+                placeholder  = stringResource(R.string.reg2_ph_phone),
+                isError      = phoneError,
                 errorMessage = stringResource(R.string.err_phone_invalid),
-                leadingIcon = Icons.Outlined.Phone,
+                leadingIcon  = Icons.Outlined.Phone,
                 keyboardType = KeyboardType.Phone
             )
 
@@ -192,7 +194,12 @@ fun EditProfileScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Outlined.CheckCircle, contentDescription = null, tint = Green500, modifier = Modifier.size(18.dp))
+                        Icon(
+                            Icons.Outlined.CheckCircle,
+                            contentDescription = null,
+                            tint = Green500,
+                            modifier = Modifier.size(18.dp)
+                        )
                         Text(
                             stringResource(R.string.profile_update_success),
                             style = MaterialTheme.typography.bodySmall,
@@ -211,7 +218,11 @@ fun EditProfileScreen(
                     if (validate()) {
                         viewModel.updateProfile(
                             profileId, token,
-                            UpdateProfileRequest(firstName.trim(), lastName.trim(), phone.trim())
+                            UpdateProfileRequest(
+                                firstName.trim(),
+                                lastName.trim(),
+                                phone.trim()
+                            )
                         )
                     }
                 },
@@ -229,7 +240,12 @@ fun EditProfileScreen(
                         strokeWidth = 2.dp
                     )
                 } else {
-                    Icon(Icons.Outlined.Save, contentDescription = null, tint = NavyWhite, modifier = Modifier.size(18.dp))
+                    Icon(
+                        Icons.Outlined.Save,
+                        contentDescription = null,
+                        tint = NavyWhite,
+                        modifier = Modifier.size(18.dp)
+                    )
                     Spacer(Modifier.width(8.dp))
                     Text(
                         stringResource(R.string.profile_save_btn),
@@ -272,15 +288,22 @@ fun ProfileInputField(
             placeholder = { Text(placeholder, color = Navy300) },
             isError = isError,
             leadingIcon = leadingIcon?.let {
-                { Icon(it, contentDescription = null, tint = if (isError) Red600 else Navy500, modifier = Modifier.size(18.dp)) }
+                {
+                    Icon(
+                        it,
+                        contentDescription = null,
+                        tint = if (isError) Red600 else Navy500,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             },
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Navy800,
+                focusedBorderColor   = Navy800,
                 unfocusedBorderColor = Navy100,
-                errorBorderColor = Red600,
-                focusedContainerColor = Navy30,
+                errorBorderColor     = Red600,
+                focusedContainerColor   = Navy30,
                 unfocusedContainerColor = Navy30
             ),
             singleLine = true

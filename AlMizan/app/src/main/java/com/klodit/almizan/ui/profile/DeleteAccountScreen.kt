@@ -19,8 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.klodit.almizan.R
+import com.klodit.almizan.data.profile.DeleteUiState   // FIX: was imported from viewmodel.profile
 import com.klodit.almizan.ui.theme.*
-import com.klodit.almizan.viewmodel.profile.DeleteUiState
 import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,12 +29,13 @@ fun DeleteAccountScreen(
     profileId: String,
     token: String,
     onBack: () -> Unit,
-    onDeleted: () -> Unit,   // navigate to login after deletion
+    onDeleted: () -> Unit,
     viewModel: ProfileViewModel = viewModel()
 ) {
-    val deleteState by viewModel.deleteState.collectAsState()
-    var confirmText  by remember { mutableStateOf("") }
-    var showDialog   by remember { mutableStateOf(false) }
+    // FIX: was viewModel.deleteState — correct name is deleteUiState
+    val deleteState by viewModel.deleteUiState.collectAsState()
+    var confirmText by remember { mutableStateOf("") }
+    var showDialog  by remember { mutableStateOf(false) }
 
     val confirmWord = stringResource(R.string.profile_delete_confirm_word)
     val isConfirmed = confirmText.trim().equals(confirmWord, ignoreCase = true)
@@ -82,7 +83,12 @@ fun DeleteAccountScreen(
                     .background(Red50, RoundedCornerShape(24.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Outlined.DeleteForever, contentDescription = null, tint = Red600, modifier = Modifier.size(40.dp))
+                Icon(
+                    Icons.Outlined.DeleteForever,
+                    contentDescription = null,
+                    tint = Red600,
+                    modifier = Modifier.size(40.dp)
+                )
             }
 
             Text(
@@ -105,7 +111,10 @@ fun DeleteAccountScreen(
                 colors = CardDefaults.cardColors(containerColor = RedNotice),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Text(
                         stringResource(R.string.profile_delete_consequences_title),
                         style = MaterialTheme.typography.labelSmall,
@@ -119,9 +128,16 @@ fun DeleteAccountScreen(
                         R.string.profile_delete_con3,
                         R.string.profile_delete_con4
                     ).forEach { resId ->
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
                             Text("•", color = Red600, fontWeight = FontWeight.Bold)
-                            Text(stringResource(resId), style = MaterialTheme.typography.bodySmall, color = Navy800)
+                            Text(
+                                stringResource(resId),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Navy800
+                            )
                         }
                     }
                 }
@@ -152,13 +168,16 @@ fun DeleteAccountScreen(
                 )
             }
 
-            // API error
+            // API error banner
             if (deleteState is DeleteUiState.Error) {
                 Text(
-                    (deleteState as DeleteUiState.Error).message,
+                    text = (deleteState as DeleteUiState.Error).message,
                     color = Red600,
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.background(Red50, RoundedCornerShape(8.dp)).padding(12.dp).fillMaxWidth()
+                    modifier = Modifier
+                        .background(Red50, RoundedCornerShape(8.dp))
+                        .padding(12.dp)
+                        .fillMaxWidth()
                 )
             }
 
@@ -168,7 +187,9 @@ fun DeleteAccountScreen(
             Button(
                 onClick = { showDialog = true },
                 enabled = isConfirmed && deleteState !is DeleteUiState.Loading,
-                modifier = Modifier.fillMaxWidth().height(52.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Red600,
@@ -176,11 +197,25 @@ fun DeleteAccountScreen(
                 )
             ) {
                 if (deleteState is DeleteUiState.Loading) {
-                    CircularProgressIndicator(modifier = Modifier.size(20.dp), color = NavyWhite, strokeWidth = 2.dp)
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = NavyWhite,
+                        strokeWidth = 2.dp
+                    )
                 } else {
-                    Icon(Icons.Outlined.DeleteForever, contentDescription = null, tint = NavyWhite, modifier = Modifier.size(18.dp))
+                    Icon(
+                        Icons.Outlined.DeleteForever,
+                        contentDescription = null,
+                        tint = NavyWhite,
+                        modifier = Modifier.size(18.dp)
+                    )
                     Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.profile_delete_btn), color = NavyWhite, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    Text(
+                        stringResource(R.string.profile_delete_btn),
+                        color = NavyWhite,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp
+                    )
                 }
             }
 
@@ -195,17 +230,38 @@ fun DeleteAccountScreen(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            icon = { Icon(Icons.Outlined.Warning, contentDescription = null, tint = Red600) },
-            title = { Text(stringResource(R.string.profile_delete_dialog_title), color = Red600, fontWeight = FontWeight.Bold) },
-            text = { Text(stringResource(R.string.profile_delete_dialog_body), color = Navy700, style = MaterialTheme.typography.bodyMedium) },
+            icon = {
+                Icon(Icons.Outlined.Warning, contentDescription = null, tint = Red600)
+            },
+            title = {
+                Text(
+                    stringResource(R.string.profile_delete_dialog_title),
+                    color = Red600,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    stringResource(R.string.profile_delete_dialog_body),
+                    color = Navy700,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
             confirmButton = {
                 Button(
-                    onClick = { showDialog = false; viewModel.deleteProfile(profileId, token) },
+                    onClick = {
+                        showDialog = false
+                        viewModel.deleteProfile(profileId, token)
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Red600)
-                ) { Text(stringResource(R.string.profile_delete_btn), color = NavyWhite) }
+                ) {
+                    Text(stringResource(R.string.profile_delete_btn), color = NavyWhite)
+                }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) { Text(stringResource(R.string.profile_cancel), color = Navy500) }
+                TextButton(onClick = { showDialog = false }) {
+                    Text(stringResource(R.string.profile_cancel), color = Navy500)
+                }
             },
             containerColor = NavyWhite,
             shape = RoundedCornerShape(16.dp)

@@ -14,7 +14,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentRoute = MutableStateFlow(BottomNavDestination.Home.route)
     val currentRoute: StateFlow<String> = _currentRoute.asStateFlow()
 
-    // ── User identity ─────────────────────────────────────────────────────
+    // ── User identity ─────────────────────────────────────────────────────────
+    // FIX: userId and profileId were missing — the profile screen needs both
+    private val _userId    = MutableStateFlow("")
+    val userId: StateFlow<String> = _userId.asStateFlow()
+
+    private val _profileId = MutableStateFlow("")
+    val profileId: StateFlow<String> = _profileId.asStateFlow()
+
     private val _userFirstName = MutableStateFlow("")
     val userFirstName: StateFlow<String> = _userFirstName.asStateFlow()
 
@@ -30,10 +37,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _unreadCount = MutableStateFlow(0)
     val unreadCount: StateFlow<Int> = _unreadCount.asStateFlow()
 
-    // ── Language ──────────────────────────────────────────────────────────
+    // ── Language ──────────────────────────────────────────────────────────────
     private val _language = MutableStateFlow(LocaleHelper.currentLanguage(application))
     val language: StateFlow<AppLanguage> = _language.asStateFlow()
 
+    // ── Navigation ────────────────────────────────────────────────────────────
     fun onTabSelected(destination: BottomNavDestination) {
         _currentRoute.value = destination.route
     }
@@ -43,7 +51,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _language.value = lang
     }
 
+    // ── Auth lifecycle ────────────────────────────────────────────────────────
     fun onLogout() {
+        _userId.value        = ""
+        _profileId.value     = ""
         _userFirstName.value = ""
         _userLastName.value  = ""
         _isVerified.value    = false
@@ -63,12 +74,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _tier.value          = tier
     }
 
+
     fun onProfileLoaded(
+        userId     : String,
+        profileId  : String,
         firstName  : String,
         lastName   : String,
         isVerified : Boolean,
         tier       : String
     ) {
+        _userId.value        = userId
+        _profileId.value     = profileId
         _userFirstName.value = firstName
         _userLastName.value  = lastName
         _isVerified.value    = isVerified

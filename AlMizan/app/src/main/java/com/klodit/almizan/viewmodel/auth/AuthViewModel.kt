@@ -72,23 +72,26 @@ class AuthViewModel : ViewModel() {
     fun login(
         email    : String,
         password : String,
-        onSuccess: (token: String) -> Unit,
+        onSuccess: (token: String, userId: String) -> Unit,
         onLocked : () -> Unit = {}
     ) {
         viewModelScope.launch {
             authState = AuthState.Loading
             try {
-                val response        = repository.login(email, password)
-                android.util.Log.d("AUTH_DEBUG", "raw response = $response")
-                android.util.Log.d("AUTH_DEBUG", "resolvedToken = ${response.resolvedToken()}")
-                val token           = response.resolvedToken() ?: ""
+                val (response, token) = repository.login(email, password)
+                android.util.Log.d("AUTH_DEBUG", "cookie token = '$token'")
+                authToken     = token
+                currentUserId = response.user?.userId ?: ""
+                authState     = AuthState.Success(token)
+
+
                 failedLoginAttempts = 0
                 authToken           = token
 
                 currentUserId = decodeUserIdFromJwt(token) ?: response.user?.userId
                 authState           = AuthState.Success(token)
                 android.util.Log.d("AUTH_DEBUG", "Login success — token=$token userId=$currentUserId")
-                onSuccess(token)
+                onSuccess(token, currentUserId ?: "")
             } catch (e: retrofit2.HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
                 when (e.code()) {
@@ -324,6 +327,19 @@ class AuthViewModel : ViewModel() {
                 ?: json.optString("id").takeIf { it.isNotEmpty() }
         } catch (e: Exception) {
             null
+        }
+    }
+
+
+    fun logout(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                repository.logout()
+            } catch (e: Exception) {
+                // ignore errors, clear session anyway
+            }
+            clearSession()
+            onSuccess()
         }
     }
 }

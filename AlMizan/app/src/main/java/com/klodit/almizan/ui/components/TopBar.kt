@@ -17,14 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.klodit.almizan.R
 import com.klodit.almizan.ui.theme.*
-
 @Composable
 fun TopBar(
-    userFirstName: String = "",          // from session / ProfileViewModel
+    userFirstName: String = "",
     userLastName:  String = "",
     isVerified:    Boolean = false,
     tier:          String = "OUVERT",
@@ -32,15 +32,9 @@ fun TopBar(
     onNotificationsClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {}
 ) {
-    val initials = buildString {
-        append(userFirstName.firstOrNull()?.uppercaseChar() ?: "")
-        append(userLastName.firstOrNull()?.uppercaseChar() ?: "")
-    }.ifEmpty { "?" }
-
-    val displayName = when {
-        userFirstName.isNotEmpty() -> userFirstName
-        else -> stringResource(R.string.tab_profile)
-    }
+    val displayName = listOf(userFirstName, userLastName)
+        .filter { it.isNotEmpty() }.joinToString(" ")
+        .ifEmpty { stringResource(R.string.tab_profile) }
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -54,122 +48,76 @@ fun TopBar(
                 .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // ── App brand ───────────────────────────────────────────────
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.app_name),
-                    color = NavyWhite,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 18.sp,
-                    letterSpacing = 1.sp
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+            // ── LEFT: Logo + App name ─────────────────────────────────
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Green500),
+                    contentAlignment = Alignment.Center
                 ) {
-                    // Verified badge
-                    if (isVerified) {
-                        Row(
-                            modifier = Modifier
-                                .background(Green500.copy(alpha = 0.2f), RoundedCornerShape(10.dp))
-                                .padding(horizontal = 6.dp, vertical = 2.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
-                        ) {
-                            Icon(
-                                Icons.Outlined.Verified,
-                                contentDescription = null,
-                                tint = Green400,
-                                modifier = Modifier.size(10.dp)
-                            )
-                            Text(
-                                stringResource(R.string.topbar_verified),
-                                color = Green400,
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 0.3.sp
-                            )
-                        }
-                    }
-                    // Tier badge
+                    Text("M", color = NavyWhite, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
+                }
+                Spacer(Modifier.width(8.dp))
+                Column {
                     Text(
-                        text = tier,
-                        color = NavyWhite.copy(alpha = 0.6f),
-                        fontSize = 9.sp,
-                        letterSpacing = 0.5.sp,
-                        fontWeight = FontWeight.Medium
+                        text = stringResource(R.string.app_name),
+                        color = NavyWhite,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 16.sp,
+                        letterSpacing = 0.5.sp
                     )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        if (isVerified) {
+                            Icon(Icons.Outlined.Verified, null, tint = Green400, modifier = Modifier.size(9.dp))
+                        }
+                        Text(tier, color = NavyWhite.copy(alpha = 0.55f), fontSize = 9.sp, letterSpacing = 0.5.sp)
+                    }
                 }
             }
 
-            // ── Notifications icon ────────────────────────────────────
+            // ── RIGHT: name + notifications + logout ──────────────────
+            Text(
+                text = displayName,
+                color = NavyWhite.copy(alpha = 0.85f),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.widthIn(max = 90.dp)
+            )
+            Spacer(Modifier.width(4.dp))
+
             Box {
-                IconButton(onClick = onNotificationsClick) {
-                    Icon(
-                        Icons.Filled.Notifications,
-                        contentDescription = stringResource(R.string.topbar_notifications),
-                        tint = NavyWhite,
-                        modifier = Modifier.size(22.dp)
-                    )
+                IconButton(onClick = onNotificationsClick, modifier = Modifier.size(36.dp)) {
+                    Icon(Icons.Filled.Notifications, null, tint = NavyWhite, modifier = Modifier.size(20.dp))
                 }
                 if (unreadCount > 0) {
                     Box(
                         modifier = Modifier
-                            .size(16.dp)
+                            .size(14.dp)
                             .align(Alignment.TopEnd)
                             .offset(x = (-2).dp, y = 2.dp)
                             .background(Red600, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = if (unreadCount > 9) "9+" else unreadCount.toString(),
-                            color = NavyWhite,
-                            fontSize = 8.sp,
-                            fontWeight = FontWeight.Bold
+                            if (unreadCount > 9) "9+" else unreadCount.toString(),
+                            color = NavyWhite, fontSize = 7.sp, fontWeight = FontWeight.Bold
                         )
                     }
                 }
             }
 
-            Spacer(Modifier.width(4.dp))
-
-            // ── User avatar with initials ─────────────────────────────
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(Green500),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = initials,
-                    color = NavyWhite,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Spacer(Modifier.width(8.dp))
-
-            // ── User first name ───────────────────────────────────────
-            Text(
-                text = displayName,
-                color = NavyWhite,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1
-            )
-
-            Spacer(Modifier.width(4.dp))
-
-            // ── Logout icon ───────────────────────────────────────────
             IconButton(onClick = onLogoutClick, modifier = Modifier.size(36.dp)) {
-                Icon(
-                    Icons.Outlined.Logout,
-                    contentDescription = stringResource(R.string.topbar_disconnect),
-                    tint = NavyWhite.copy(alpha = 0.75f),
-                    modifier = Modifier.size(18.dp)
-                )
+                Icon(Icons.Outlined.Logout, null, tint = NavyWhite.copy(alpha = 0.75f), modifier = Modifier.size(18.dp))
             }
         }
     }

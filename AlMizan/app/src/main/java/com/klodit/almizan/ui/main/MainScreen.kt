@@ -13,10 +13,12 @@ import com.klodit.almizan.ui.profile.ProfileScreen
 import com.klodit.almizan.ui.search.FilterState
 import com.klodit.almizan.ui.tender.TenderListScreen
 import com.klodit.almizan.viewmodel.MainViewModel
+import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 
 @Composable
 fun MainScreen(
     viewModel              : MainViewModel = viewModel(),
+    profileViewModel           : ProfileViewModel = viewModel(),
     activeFilter           : FilterState   = FilterState(),
     userId                 : String        = "",
     token                  : String        = "",
@@ -41,6 +43,21 @@ fun MainScreen(
         )
         config.setLocale(locale)
         viewModel.getApplication<android.app.Application>().createConfigurationContext(config)
+    }
+    // Observe profile to update TopBar
+    val profileState by profileViewModel.profileUiState.collectAsState()
+    LaunchedEffect(profileState) {
+        if (profileState is com.klodit.almizan.data.profile.ProfileUiState.Success) {
+            val p = (profileState as com.klodit.almizan.data.profile.ProfileUiState.Success).profile
+            viewModel.onProfileLoaded(
+                userId     = p.userId,
+                profileId  = p.id,
+                firstName  = p.firstName,
+                lastName   = p.lastName,
+                isVerified = p.isVerified,
+                tier       = p.tier
+            )
+        }
     }
 
     Scaffold(
@@ -82,6 +99,8 @@ fun MainScreen(
             BottomNavDestination.Profile.route -> ProfileScreen(
                 userId                     = userId,
                 token                      = token,
+                viewModel                  = profileViewModel,
+                innerPadding               = innerPadding,
                 onNavigateToEdit           = onNavigateToEditProfile,
                 onNavigateToChangePassword = onNavigateToChangePassword,
                 onNavigateToDeleteAccount  = onNavigateToDeleteAccount,

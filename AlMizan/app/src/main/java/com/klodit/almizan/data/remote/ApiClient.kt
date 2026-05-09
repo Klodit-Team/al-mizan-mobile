@@ -1,7 +1,6 @@
 package com.klodit.almizan.data.remote
 
-import okhttp3.Dns
-import okhttp3.OkHttpClient
+import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -20,8 +19,22 @@ object ApiClient {
         }
     }
 
+    private val cookieJar = object : CookieJar {
+        private val store = mutableListOf<Cookie>()
+
+        override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+            store.removeAll { it.name == "access_token" }
+            store.addAll(cookies)
+        }
+
+        override fun loadForRequest(url: HttpUrl): List<Cookie> {
+            return store.filter { it.expiresAt > System.currentTimeMillis() }
+        }
+    }
+
     private val httpClient = OkHttpClient.Builder()
         .dns(ipv4Only)
+        .cookieJar(cookieJar)                              // ← added
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         })

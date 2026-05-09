@@ -4,22 +4,27 @@ import retrofit2.http.*
 
 interface ProfileApi {
 
+
+  /*  @GET("users/profiles/user/{userId}")
+    suspend fun getProfileByUserId(
+        @Path("userId") userId: String
+    ): ProfileApiResponse*/
+
     @GET("users/profiles/user/{userId}")
     suspend fun getProfileByUserId(
-        @Path("userId") userId: String,
-        @Header("Authorization") token: String
-    ): ProfileApiResponse
+        @Path("userId") userId: String
+    ): ProfileResponse
 
-    @PATCH("users/profiles/{profileId}")
+    @PATCH("users/profiles/{id}")
     suspend fun updateProfile(
-        @Path("profileId") profileId: String,
-        @Header("Authorization") token: String,
-        @Body request: UpdateProfileRequest
+        @Path("id") profileId : String,
+        @Body       request   : UpdateProfileRequest
+    ): ProfileResponse
+
+    @DELETE("users/profiles/{id}")
+    suspend fun deleteProfile(
+        @Path("id") profileId: String
     ): ProfileApiResponse
 
-    @DELETE("users/profiles/{profileId}")
-    suspend fun deleteProfile(
-        @Path("profileId") profileId: String,
-        @Header("Authorization") token: String
-    ): ProfileApiResponse
+
 }

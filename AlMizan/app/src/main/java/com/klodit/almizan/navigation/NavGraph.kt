@@ -32,6 +32,7 @@ import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 
+// ─── Route constants ──────────────────────────────────────────────────────────
 private object Routes {
     const val LOGIN              = "login"
     const val FORGOT_PASSWORD    = "forgot_password"
@@ -46,6 +47,7 @@ private object Routes {
     const val FILTER             = "filter"
 }
 
+// ─── Profile route constants ──────────────────────────────────────────────────
 object ProfileRoutes {
     const val EDIT_PROFILE    = "profile/edit/{profileId}"
     const val CHANGE_PASSWORD = "profile/change-password"
@@ -55,6 +57,7 @@ object ProfileRoutes {
     fun deleteAccount(profileId: String) = "profile/delete/$profileId"
 }
 
+// ─── Nav graph ────────────────────────────────────────────────────────────────
 @Composable
 fun NavGraph(onAuthSuccess: () -> Unit = {}) {
     val navController      = rememberNavController()
@@ -92,10 +95,8 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
         if (uri != null) authViewModel.uploadDocument(baseContext, uri) {}
     }
 
-
-
-    val currentUserId by remember { derivedStateOf { authViewModel.currentUserId } }
-    val currentToken  by remember { derivedStateOf { authViewModel.authToken } }
+    var currentToken  by remember { mutableStateOf("") }
+    var currentUserId by remember { mutableStateOf("") }
 
     CompositionLocalProvider(
         LocalContext provides localizedContext,
@@ -103,23 +104,26 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
     ) {
         NavHost(navController = navController, startDestination = Routes.LOGIN) {
 
-            // ── Login ──────────────────────────────────────────────────────
+            // ── Login ─────────────────────────────────────────────────────────
             composable(Routes.LOGIN) {
                 LoginScreen(
                     selectedLang     = selectedLang,
                     onLanguageChange = onLanguageChange,
                     authState        = authViewModel.authState,
                     onClearError     = { authViewModel.clearError() },
-                    onLoginClick     = { email, password ->
+                    onLoginClick = { email, password ->
                         authViewModel.login(
                             email     = email,
                             password  = password,
-                            onSuccess = {
+                            onSuccess = { token, userId ->
+                                currentToken  = token
+                                currentUserId = userId
+                                currentUserId = authViewModel.currentUserId ?: ""
                                 navController.navigate(Routes.MAIN) {
                                     popUpTo(Routes.LOGIN) { inclusive = true }
                                 }
                             },
-                            onLocked  = { navController.navigate(Routes.ACCOUNT_LOCKED) }
+                            onLocked = { navController.navigate(Routes.ACCOUNT_LOCKED) }
                         )
                     },
                     onForgotPasswordClick = { navController.navigate(Routes.FORGOT_PASSWORD) },
@@ -128,7 +132,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 )
             }
 
-            // ── Forgot password ────────────────────────────────────────────
+            // ── Forgot password ───────────────────────────────────────────────
             composable(Routes.FORGOT_PASSWORD) {
                 ForgotPasswordScreen(
                     selectedLang     = selectedLang,
@@ -145,7 +149,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 )
             }
 
-            // ── OTP Verification ───────────────────────────────────────────
+            // ── OTP verification ──────────────────────────────────────────────
             composable("verification/{email}") { backStackEntry ->
                 val email = backStackEntry.arguments?.getString("email") ?: ""
                 VerificationScreen(
@@ -165,7 +169,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 )
             }
 
-            // ── Set new password ───────────────────────────────────────────
+            // ── Set new password ──────────────────────────────────────────────
             composable(Routes.SET_NEW_PASSWORD) {
                 SetNewPasswordScreen(
                     selectedLang     = selectedLang,
@@ -181,7 +185,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 )
             }
 
-            // ── Account locked ─────────────────────────────────────────────
+            // ── Account locked ────────────────────────────────────────────────
             composable(Routes.ACCOUNT_LOCKED) {
                 AccountLockedScreen(
                     lockDurationSeconds  = 300 + (authViewModel.failedLoginAttempts - 5) * 60,
@@ -199,7 +203,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 )
             }
 
-            // ── Registration step 1 ────────────────────────────────────────
+            // ── Registration step 1 ───────────────────────────────────────────
             composable(Routes.REGISTRATION_STEP1) {
                 RegistrationStep1Screen(
                     selectedLang     = selectedLang,
@@ -214,7 +218,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 )
             }
 
-            // ── Registration step 2 ────────────────────────────────────────
+            // ── Registration step 2 ───────────────────────────────────────────
             composable(Routes.REGISTRATION_STEP2) {
                 RegistrationStep2Screen(
                     selectedLang     = selectedLang,
@@ -227,7 +231,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 )
             }
 
-            // ── Registration step 3 ────────────────────────────────────────
+            // ── Registration step 3 ───────────────────────────────────────────
             composable(Routes.REGISTRATION_STEP3) {
                 RegistrationStep3Screen(
                     selectedLang       = selectedLang,
@@ -251,13 +255,12 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 )
             }
 
-            // ── Main shell ─────────────────────────────────────────────────
-            // ProfileScreen renders INSIDE MainScreen via the Profile tab.
-            // Only sub-screens (Edit, ChangePassword, Delete) need separate nav routes.
+            // ── Main shell ────────────────────────────────────────────────────
             composable(Routes.MAIN) {
                 android.util.Log.d("AUTH_DEBUG", "currentUserId = ${authViewModel.currentUserId}")
                 android.util.Log.d("AUTH_DEBUG", "authToken = ${authViewModel.authToken}")
                 MainScreen(
+                    profileViewModel  = profileViewModel,
                     activeFilter      = activeFilter,
                     userId            = currentUserId ?: "",
                     token             = currentToken  ?: "",
@@ -280,25 +283,25 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 )
             }
 
-            // ── Filter ─────────────────────────────────────────────────────
+            // ── Filter ────────────────────────────────────────────────────────
             composable(Routes.FILTER) {
                 DetailedFilterScreen(
                     localizedContext = localizedContext,
                     tenders          = tenders,
                     filterState      = activeFilter,
-                    localeTag        = selectedLang.name,
                     onApply          = { newFilter ->
                         activeFilter = newFilter
                         navController.popBackStack()
                     },
-                    onDismiss = { navController.popBackStack() }
+                    onDismiss        = { navController.popBackStack() }
                 )
             }
 
+            // ── Terms & privacy ───────────────────────────────────────────────
             composable(Routes.TERMS)   { }
             composable(Routes.PRIVACY) { }
 
-            // ── Edit profile ───────────────────────────────────────────────
+            // ── Edit profile ──────────────────────────────────────────────────
             composable(
                 ProfileRoutes.EDIT_PROFILE,
                 arguments = listOf(navArgument("profileId") { type = NavType.StringType })
@@ -313,7 +316,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 )
             }
 
-            // ── Change password ────────────────────────────────────────────
+            // ── Change password ───────────────────────────────────────────────
             composable(ProfileRoutes.CHANGE_PASSWORD) {
                 ChangePasswordScreen(
                     token  = currentToken ?: "",
@@ -321,7 +324,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 )
             }
 
-            // ── Delete account ─────────────────────────────────────────────
+            // ── Delete account ────────────────────────────────────────────────
             composable(
                 ProfileRoutes.DELETE_ACCOUNT,
                 arguments = listOf(navArgument("profileId") { type = NavType.StringType })
