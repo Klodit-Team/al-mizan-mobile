@@ -46,10 +46,8 @@ private object Routes {
     const val PRIVACY            = "privacy"
     const val MAIN               = "main"
     const val FILTER             = "filter"
-
-    const val TENDER_DETAIL = "tender/{tenderId}"
-
-
+    const val TENDER_DETAIL      = "tender/{tenderId}"
+    const val OTP_VERIFY         = "otp/{email}"
 }
 
 // ─── Profile route constants ──────────────────────────────────────────────────
@@ -65,7 +63,7 @@ object ProfileRoutes {
 // ─── Nav graph ────────────────────────────────────────────────────────────────
 @Composable
 fun NavGraph(onAuthSuccess: () -> Unit = {}) {
-    val navController      = rememberNavController()
+    val navController                      = rememberNavController()
     val authViewModel: AuthViewModel       = viewModel()
     val tenderViewModel: TenderViewModel   = viewModel()
     val profileViewModel: ProfileViewModel = viewModel()
@@ -94,10 +92,10 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
 
     var pickedUri by remember { mutableStateOf<Uri?>(null) }
     val filePickerLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
+        ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
-        pickedUri = uri
-        if (uri != null) authViewModel.uploadDocument(baseContext, uri) {}
+        pickedUri = uri /*
+        if (uri != null) authViewModel.uploadDocument(baseContext, uri) {}*/
     }
 
     var currentToken  by remember { mutableStateOf("") }
@@ -122,7 +120,6 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                             password  = password,
                             onSuccess = { token, userId ->
                                 currentToken  = token
-                                currentUserId = userId
                                 currentUserId = authViewModel.currentUserId ?: ""
                                 navController.navigate(Routes.MAIN) {
                                     popUpTo(Routes.LOGIN) { inclusive = true }
@@ -154,7 +151,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 )
             }
 
-            // ── OTP verification ──────────────────────────────────────────────
+            // ── OTP verification (forgot password) ────────────────────────────
             composable("verification/{email}") { backStackEntry ->
                 val email = backStackEntry.arguments?.getString("email") ?: ""
                 VerificationScreen(
@@ -244,13 +241,16 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                     onBackClick        = { authViewModel.clearError(); navController.popBackStack() },
                     authState          = authViewModel.authState,
                     uploadState        = authViewModel.uploadState,
-                    onPickFile         = {},
+                    onPickFile = {
+                       // filePickerLauncher.launch(arrayOf("application/pdf", "image/*"))
+
+                    },
                     onClearError       = { authViewModel.clearError() },
                     onClearUploadError = { authViewModel.clearUploadError() },
                     onSubmitClick      = {
                         if (authViewModel.authState is AuthState.Success) {
-                            authViewModel.resetState()
-                            navController.navigate(Routes.LOGIN) {
+                            val email = authViewModel.getRegisteredEmail()
+                            navController.navigate("otp/${Uri.encode(email)}") {
                                 popUpTo(Routes.REGISTRATION_STEP1) { inclusive = true }
                             }
                         } else {
@@ -260,16 +260,43 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 )
             }
 
+            // ── OTP verification (after registration) ─────────────────────────
+            composable(Routes.OTP_VERIFY) { backStackEntry ->
+                val email = Uri.decode(backStackEntry.arguments?.getString("email") ?: "")
+
+                // Auto-send OTP as soon as this screen appears
+                LaunchedEffect(email) {
+                    authViewModel.sendOtp(email) {}
+                }
+
+                VerificationScreen(
+                    selectedLang     = selectedLang,
+                    onLanguageChange = onLanguageChange,
+                    authState        = authViewModel.authState,
+                    onClearError     = { authViewModel.clearError() },
+                    onVerifyClick    = { code ->
+                        authViewModel.verifyOtp(email, code) {
+                            // Account activated → go to login, clear entire back stack
+                            navController.navigate(Routes.LOGIN) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    },
+                    onResendClick = { authViewModel.sendOtp(email) {} },
+                    onLogoutClick = { navController.popBackStack(Routes.LOGIN, false) }
+                )
+            }
+
             // ── Main shell ────────────────────────────────────────────────────
             composable(Routes.MAIN) {
                 android.util.Log.d("AUTH_DEBUG", "currentUserId = ${authViewModel.currentUserId}")
                 android.util.Log.d("AUTH_DEBUG", "authToken = ${authViewModel.authToken}")
                 MainScreen(
-                    profileViewModel  = profileViewModel,
-                    activeFilter      = activeFilter,
-                    userId            = currentUserId ?: "",
-                    token             = currentToken  ?: "",
-                    onNavigateToLogin = {
+                    profileViewModel           = profileViewModel,
+                    activeFilter               = activeFilter,
+                    userId                     = currentUserId,
+                    token                      = currentToken,
+                    onNavigateToLogin          = {
                         authViewModel.clearSession()
                         navController.navigate(Routes.LOGIN) {
                             popUpTo(Routes.MAIN) { inclusive = true }
@@ -278,14 +305,14 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                     onNavigateToTenderDetail   = { tenderId ->
                         navController.navigate("tender/$tenderId")
                     },
-                    onNavigateToFilter = { navController.navigate(Routes.FILTER) },
-                    onNavigateToEditProfile = { profileId ->
+                    onNavigateToFilter         = { navController.navigate(Routes.FILTER) },
+                    onNavigateToEditProfile    = { profileId ->
                         navController.navigate(ProfileRoutes.editProfile(profileId))
                     },
                     onNavigateToChangePassword = {
                         navController.navigate(ProfileRoutes.CHANGE_PASSWORD)
                     },
-                    onNavigateToDeleteAccount = { profileId ->
+                    onNavigateToDeleteAccount  = { profileId ->
                         navController.navigate(ProfileRoutes.deleteAccount(profileId))
                     }
                 )
@@ -301,13 +328,25 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                         activeFilter = newFilter
                         navController.popBackStack()
                     },
-                    onDismiss        = { navController.popBackStack() }
+                    onDismiss = { navController.popBackStack() }
                 )
             }
 
             // ── Terms & privacy ───────────────────────────────────────────────
             composable(Routes.TERMS)   { }
             composable(Routes.PRIVACY) { }
+
+            // ── Tender detail ─────────────────────────────────────────────────
+            composable(
+                route     = Routes.TENDER_DETAIL,
+                arguments = listOf(navArgument("tenderId") { type = NavType.StringType })
+            ) { backStack ->
+                val tenderId = backStack.arguments?.getString("tenderId") ?: return@composable
+                TenderDetailScreen(
+                    tenderId = tenderId,
+                    onBack   = { navController.popBackStack() }
+                )
+            }
 
             // ── Edit profile ──────────────────────────────────────────────────
             composable(
@@ -317,8 +356,8 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 val profileId = backStack.arguments?.getString("profileId") ?: return@composable
                 EditProfileScreen(
                     profileId = profileId,
-                    userId    = currentUserId ?: "",
-                    token     = currentToken  ?: "",
+                    userId    = currentUserId,
+                    token     = currentToken,
                     onBack    = { navController.popBackStack() },
                     viewModel = profileViewModel
                 )
@@ -327,7 +366,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
             // ── Change password ───────────────────────────────────────────────
             composable(ProfileRoutes.CHANGE_PASSWORD) {
                 ChangePasswordScreen(
-                    token  = currentToken ?: "",
+                    token  = currentToken,
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -340,7 +379,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 val profileId = backStack.arguments?.getString("profileId") ?: return@composable
                 DeleteAccountScreen(
                     profileId = profileId,
-                    token     = currentToken ?: "",
+                    token     = currentToken,
                     onBack    = { navController.popBackStack() },
                     onDeleted = {
                         navController.navigate(Routes.LOGIN) {
@@ -350,21 +389,6 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                     viewModel = profileViewModel
                 )
             }
-
-
-            // ── Tender detail ─────────────────────────────────────────────────
-            composable(
-                route     = Destination.TenderDetail.route,
-                arguments = Destination.TenderDetail.arguments
-            ) { backStack ->
-                val tenderId = backStack.arguments?.getString("tenderId") ?: return@composable
-                TenderDetailScreen(
-                    tenderId = tenderId,
-                    onBack   = { navController.popBackStack() }
-                )
-            }
-
-
         }
     }
 }

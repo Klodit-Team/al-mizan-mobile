@@ -528,7 +528,8 @@ fun RegistrationStep3Screen(
                 Spacer(Modifier.height(10.dp))
                 Button(
                     onClick  = onSubmitClick,
-                    enabled  = docState == DocState.DONE && !isSubmitting,
+                    //enabled  = docState == DocState.DONE && !isSubmitting,
+                    enabled = !isSubmitting,
                     modifier = Modifier.fillMaxWidth().height(52.dp),
                     shape    = RoundedCornerShape(10.dp),
                     colors   = ButtonDefaults.buttonColors(

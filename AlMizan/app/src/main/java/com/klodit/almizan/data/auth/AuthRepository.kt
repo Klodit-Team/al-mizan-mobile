@@ -41,5 +41,11 @@ class AuthRepository(private val api: AuthApi) {
         api.logout()
     }
 
+    suspend fun sendOtp(email: String): OtpResponse =
+        api.sendOtp(SendOtpRequest(email))
+
+    suspend fun verifyOtp(email: String, code: String): OtpResponse =
+        api.verifyOtp(VerifyOtpRequest(email, code))
+
 
 }

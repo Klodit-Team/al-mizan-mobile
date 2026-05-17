@@ -61,9 +61,13 @@ class AuthViewModel : ViewModel() {
     var authToken by mutableStateOf<String?>(null)
         private set
 
-
     var currentUserId by mutableStateOf<String?>(null)
         private set
+
+    // ── Registered email (used for OTP flow after registration) ──────────────
+    private var registeredEmail: String = ""
+
+    fun getRegisteredEmail() = registeredEmail
 
     // ── Login ─────────────────────────────────────────────────────────────────
     var failedLoginAttempts by mutableStateOf(0)
@@ -80,16 +84,12 @@ class AuthViewModel : ViewModel() {
             try {
                 val (response, token) = repository.login(email, password)
                 android.util.Log.d("AUTH_DEBUG", "cookie token = '$token'")
-                authToken     = token
-                currentUserId = response.user?.userId ?: ""
-                authState     = AuthState.Success(token)
-
 
                 failedLoginAttempts = 0
                 authToken           = token
-
-                currentUserId = decodeUserIdFromJwt(token) ?: response.user?.userId
+                currentUserId       = decodeUserIdFromJwt(token) ?: response.user?.userId
                 authState           = AuthState.Success(token)
+
                 android.util.Log.d("AUTH_DEBUG", "Login success — token=$token userId=$currentUserId")
                 onSuccess(token, currentUserId ?: "")
             } catch (e: retrofit2.HttpException) {
@@ -162,10 +162,11 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             authState = AuthState.Loading
             try {
-                val response  = repository.register(request)
-                authToken     = response.resolvedToken()
-                currentUserId = response.user_id ?: ""
-                authState     = AuthState.Success(response.message ?: "Inscription réussie")
+                val response      = repository.register(request)
+                registeredEmail   = s2.email          // ← save for OTP screen
+                authToken         = response.resolvedToken()
+                currentUserId     = response.user_id ?: ""
+                authState         = AuthState.Success(response.message ?: "Inscription réussie")
                 onSuccess(response.user_id ?: "")
             } catch (e: retrofit2.HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
@@ -187,21 +188,61 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun clearError() { if (authState is AuthState.Error) authState = AuthState.Idle }
-
-    fun resetState() {
-        authState     = AuthState.Idle
-        step1Data     = null
-        step2Data     = null
+    // ── Send OTP (after registration) ─────────────────────────────────────────
+    fun sendOtp(email: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            authState = AuthState.Loading
+            try {
+                val res = repository.sendOtp(email)
+                if (res.success == true) {
+                    authState = AuthState.Idle
+                    onSuccess()
+                } else {
+                    authState = AuthState.Error(res.message ?: "Échec d'envoi du code OTP")
+                }
+            } catch (e: retrofit2.HttpException) {
+                authState = AuthState.Error(
+                    when (e.code()) {
+                        404  -> "Email introuvable"
+                        429  -> "Trop de tentatives, réessayez plus tard"
+                        502  -> "Service temporairement indisponible"
+                        else -> "Erreur serveur (${e.code()})"
+                    }
+                )
+            } catch (e: java.net.UnknownHostException) {
+                authState = AuthState.Error("Pas de connexion internet")
+            } catch (e: Exception) {
+                authState = AuthState.Error(e.message ?: "Erreur réseau")
+            }
+        }
     }
 
-    fun clearSession() {
-        authToken     = null
-        currentUserId = null
-        authState     = AuthState.Idle
-        step1Data     = null
-        step2Data     = null
-        failedLoginAttempts = 0
+    // ── Verify OTP (activates account) ────────────────────────────────────────
+    fun verifyOtp(email: String, code: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            authState = AuthState.Loading
+            try {
+                val res = repository.verifyOtp(email, code)
+                if (res.success == true) {
+                    authState = AuthState.Idle
+                    onSuccess()
+                } else {
+                    authState = AuthState.Error(res.message ?: "Code OTP invalide")
+                }
+            } catch (e: retrofit2.HttpException) {
+                authState = AuthState.Error(
+                    when (e.code()) {
+                        401  -> "Code invalide ou expiré"
+                        429  -> "Trop de tentatives"
+                        else -> "Erreur serveur (${e.code()})"
+                    }
+                )
+            } catch (e: java.net.UnknownHostException) {
+                authState = AuthState.Error("Pas de connexion internet")
+            } catch (e: Exception) {
+                authState = AuthState.Error(e.message ?: "Erreur")
+            }
+        }
     }
 
     // ── Forgot password ───────────────────────────────────────────────────────
@@ -228,7 +269,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // ── Verify OTP token ─────────────────────────────────────────────────────
+    // ── Verify forgot-password token ──────────────────────────────────────────
     fun verifyToken(token: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             authState = AuthState.Loading
@@ -310,18 +351,42 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    // ── State helpers ─────────────────────────────────────────────────────────
+    fun clearError()       { if (authState is AuthState.Error) authState = AuthState.Idle }
     fun clearUploadError() { if (uploadState is AuthState.Error) uploadState = AuthState.Idle }
 
-    // ── JWT userId decoder ──────────────────────────
+    fun resetState() {
+        authState = AuthState.Idle
+        step1Data = null
+        step2Data = null
+    }
 
+    fun clearSession() {
+        authToken           = null
+        currentUserId       = null
+        authState           = AuthState.Idle
+        step1Data           = null
+        step2Data           = null
+        registeredEmail     = ""
+        failedLoginAttempts = 0
+    }
+
+    // ── Logout ────────────────────────────────────────────────────────────────
+    fun logout(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try { repository.logout() } catch (e: Exception) { /* ignore, clear anyway */ }
+            clearSession()
+            onSuccess()
+        }
+    }
+
+    // ── JWT userId decoder ────────────────────────────────────────────────────
     private fun decodeUserIdFromJwt(token: String): String? {
         return try {
             val payload = token.split(".").getOrNull(1) ?: return null
-            // JWT uses base64url (no padding) — add padding manually
             val padded  = payload + "=".repeat((4 - payload.length % 4) % 4)
             val decoded = android.util.Base64.decode(padded, android.util.Base64.URL_SAFE)
             val json    = org.json.JSONObject(String(decoded))
-            // Try common claim names
             json.optString("sub").takeIf { it.isNotEmpty() }
                 ?: json.optString("userId").takeIf { it.isNotEmpty() }
                 ?: json.optString("id").takeIf { it.isNotEmpty() }
@@ -329,19 +394,4 @@ class AuthViewModel : ViewModel() {
             null
         }
     }
-
-
-    fun logout(onSuccess: () -> Unit) {
-        viewModelScope.launch {
-            try {
-                repository.logout()
-            } catch (e: Exception) {
-                // ignore errors, clear session anyway
-            }
-            clearSession()
-            onSuccess()
-        }
-    }
-
-
 }
