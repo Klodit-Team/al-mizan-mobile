@@ -25,12 +25,13 @@ import com.klodit.almizan.ui.search.DetailedFilterScreen
 import com.klodit.almizan.ui.search.FilterState
 import com.klodit.almizan.ui.theme.AppLanguage
 import com.klodit.almizan.util.LocaleHelper
-import com.klodit.almizan.viewmodel.TenderViewModel
+import com.klodit.almizan.viewmodel.tender.TenderViewModel
 import com.klodit.almizan.viewmodel.auth.AuthState
 import com.klodit.almizan.viewmodel.auth.AuthViewModel
 import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import com.klodit.almizan.ui.tender.TenderDetailScreen
 
 // ─── Route constants ──────────────────────────────────────────────────────────
 private object Routes {
@@ -45,6 +46,10 @@ private object Routes {
     const val PRIVACY            = "privacy"
     const val MAIN               = "main"
     const val FILTER             = "filter"
+
+    const val TENDER_DETAIL = "tender/{tenderId}"
+
+
 }
 
 // ─── Profile route constants ──────────────────────────────────────────────────
@@ -270,6 +275,9 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                             popUpTo(Routes.MAIN) { inclusive = true }
                         }
                     },
+                    onNavigateToTenderDetail   = { tenderId ->
+                        navController.navigate("tender/$tenderId")
+                    },
                     onNavigateToFilter = { navController.navigate(Routes.FILTER) },
                     onNavigateToEditProfile = { profileId ->
                         navController.navigate(ProfileRoutes.editProfile(profileId))
@@ -342,6 +350,21 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                     viewModel = profileViewModel
                 )
             }
+
+
+            // ── Tender detail ─────────────────────────────────────────────────
+            composable(
+                route     = Destination.TenderDetail.route,
+                arguments = Destination.TenderDetail.arguments
+            ) { backStack ->
+                val tenderId = backStack.arguments?.getString("tenderId") ?: return@composable
+                TenderDetailScreen(
+                    tenderId = tenderId,
+                    onBack   = { navController.popBackStack() }
+                )
+            }
+
+
         }
     }
 }

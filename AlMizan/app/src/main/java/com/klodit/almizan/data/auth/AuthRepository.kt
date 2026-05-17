@@ -40,4 +40,6 @@ class AuthRepository(private val api: AuthApi) {
     suspend fun logout() {
         api.logout()
     }
+
+
 }

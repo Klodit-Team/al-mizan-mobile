@@ -27,34 +27,33 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.klodit.almizan.model.tender.Tender
 import com.klodit.almizan.ui.search.FilterState
 import com.klodit.almizan.ui.theme.*
-import com.klodit.almizan.viewmodel.TenderViewModel
+import com.klodit.almizan.viewmodel.tender.TenderViewModel
 
 // ─── Date helper ──────────────────────────────────────────────────────────────
-// Safely extracts "yyyy-MM-dd" from any ISO string e.g. "2025-01-15T10:30:00Z"
-// Returns null if the string is null or shorter than 10 chars
 private fun String?.toDateOnly(): String? =
     if (this != null && this.length >= 10) this.take(10) else null
 
+// ─── Screen ───────────────────────────────────────────────────────────────────
 @Composable
 fun TenderListScreen(
-    innerPadding       : PaddingValues,
-    localizedContext   : Context,
-    activeFilter       : FilterState = FilterState(),
-    onNavigateToFilter : () -> Unit,
-    viewModel          : TenderViewModel = viewModel()
+    innerPadding         : PaddingValues,
+    localizedContext     : Context,
+    activeFilter         : FilterState    = FilterState(),
+    onNavigateToFilter   : () -> Unit,
+    onNavigateToDetail   : (String) -> Unit,
+    viewModel            : TenderViewModel = viewModel()
 ) {
     val tenders   by viewModel.tenders.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error     by viewModel.error.collectAsState()
 
     val filterTabs = listOf("All", "PUBLIE", "ANNULE")
-    var selectedTab by remember { mutableStateOf("All") }
-    var searchQuery by remember { mutableStateOf("") }
+    var selectedTab  by remember { mutableStateOf("All") }
+    var searchQuery  by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) { viewModel.fetchTenders() }
 
-    // ── Debug: log what dates your tenders actually have ──────────────────────
-    // Remove this block once the filter is confirmed working
+    // ── Debug log ─────────────────────────────────────────────────────────────
     LaunchedEffect(tenders) {
         if (tenders.isNotEmpty()) {
             Log.d("TENDER_DATE_DEBUG", "=== Sample tender dates ===")
@@ -76,17 +75,14 @@ fun TenderListScreen(
     val visible = remember(tenders, selectedTab, searchQuery, activeFilter) {
         tenders.filter { t ->
 
-            // ── Quick tab ─────────────────────────────────────────────────────
             val matchesTab = selectedTab == "All" || t.statut == selectedTab
 
-            // ── Text search ───────────────────────────────────────────────────
             val matchesSearch = searchQuery.isBlank() ||
                     t.objet.contains(searchQuery, ignoreCase = true) ||
                     t.reference.contains(searchQuery, ignoreCase = true) ||
                     t.wilaya.contains(searchQuery, ignoreCase = true) ||
                     t.secteurActivite.contains(searchQuery, ignoreCase = true)
 
-            // ── Chip filters ──────────────────────────────────────────────────
             val matchesSector = activeFilter.selectedSectors.isEmpty() ||
                     t.secteurActivite in activeFilter.selectedSectors
             val matchesStatus = activeFilter.selectedStatuses.isEmpty() ||
@@ -94,38 +90,24 @@ fun TenderListScreen(
             val matchesWilaya = activeFilter.selectedWilayas.isEmpty() ||
                     t.wilaya in activeFilter.selectedWilayas
 
-            // ── Date range ────────────────────────────────────────────────────
-            // We compare submission
-            // If a tender has NO datePublication we let it pass — we don't hide
-            // tenders just because the API omitted their date.
-            // ── Date range ────────────────────────────────────────────────────────────
             val matchesDate = run {
                 val fromFilter = activeFilter.dateFrom
                 val toFilter   = activeFilter.dateTo
-
-                // No date filter set → always pass
                 if (fromFilter == null && toFilter == null) return@run true
-
-                // Use dateLimiteSoumission (deadline shown on card)
-                val deadlineDate = t.dateLimiteSoumission.toDateOnly()
-
-                // No deadline date → exclude when a filter is active
-                if (deadlineDate == null) return@run false
-
+                val deadlineDate = t.dateLimiteSoumission.toDateOnly() ?: return@run false
                 val afterFrom = fromFilter == null || deadlineDate >= fromFilter
                 val beforeTo  = toFilter   == null || deadlineDate <= toFilter
-
                 afterFrom && beforeTo
             }
+
             matchesTab && matchesSearch &&
-                    matchesSector && matchesStatus && matchesWilaya &&
-                    matchesDate
+                    matchesSector && matchesStatus && matchesWilaya && matchesDate
         }
     }
 
-    // ── Badge on the filter button ────────────────────────────────────────────
     val filterIsActive = activeFilter != FilterState()
 
+    // ── Layout ────────────────────────────────────────────────────────────────
     LazyColumn(
         modifier       = Modifier
             .fillMaxSize()
@@ -162,7 +144,6 @@ fun TenderListScreen(
                         .height(52.dp)
                 )
 
-                // ── Filter button ─────────────────────────────────────────────
                 BadgedBox(
                     badge = { if (filterIsActive) Badge(containerColor = Green500) }
                 ) {
@@ -271,14 +252,15 @@ fun TenderListScreen(
         // ── Tender cards ──────────────────────────────────────────────────────
         items(visible, key = { it.id }) { tender ->
             TenderCard(
-                tender   = tender,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                tender             = tender,
+                onNavigateToDetail = onNavigateToDetail,
+                modifier           = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
             )
         }
     }
 }
 
-// ─── Active filter summary bar ────────────────────────────────────────────────
+// ─── Active filter summary ────────────────────────────────────────────────────
 @Composable
 private fun ActiveFilterSummary(filter: FilterState, modifier: Modifier = Modifier) {
     val parts = buildList {
@@ -340,7 +322,11 @@ private fun TenderFilterChip(label: String, selected: Boolean, onClick: () -> Un
 
 // ─── Tender card ──────────────────────────────────────────────────────────────
 @Composable
-fun TenderCard(tender: Tender, modifier: Modifier = Modifier) {
+fun TenderCard(
+    tender             : Tender,
+    onNavigateToDetail : (String) -> Unit,
+    modifier           : Modifier = Modifier
+) {
     val statusColor = when (tender.statut) {
         "PUBLIE" -> Green500
         "ANNULE" -> Navy500
@@ -355,6 +341,8 @@ fun TenderCard(tender: Tender, modifier: Modifier = Modifier) {
         colors = CardDefaults.cardColors(containerColor = NavyWhite)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+
+            // ── Header row ────────────────────────────────────────────────────
             Row(
                 modifier          = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -366,7 +354,12 @@ fun TenderCard(tender: Tender, modifier: Modifier = Modifier) {
                         .clip(RoundedCornerShape(8.dp))
                         .background(Navy50)
                 ) {
-                    Icon(Icons.Outlined.AccountBalance, null, tint = Navy800, modifier = Modifier.size(20.dp))
+                    Icon(
+                        Icons.Outlined.AccountBalance,
+                        null,
+                        tint     = Navy800,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
                 Spacer(Modifier.width(10.dp))
                 Text(
@@ -385,17 +378,34 @@ fun TenderCard(tender: Tender, modifier: Modifier = Modifier) {
                         .background(statusColor.copy(alpha = 0.12f))
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
-                    Text(tender.statut, color = statusColor, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text       = tender.statut,
+                        color      = statusColor,
+                        fontSize   = 11.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
 
+            // ── Title + reference ─────────────────────────────────────────────
             Spacer(Modifier.height(10.dp))
-            Text(tender.objet, color = Navy900, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(
+                text       = tender.objet,
+                color      = Navy900,
+                fontWeight = FontWeight.SemiBold,
+                fontSize   = 15.sp,
+                maxLines   = 2,
+                overflow   = TextOverflow.Ellipsis
+            )
             Spacer(Modifier.height(4.dp))
             Text(tender.reference, color = Navy500, fontSize = 12.sp)
-            Spacer(Modifier.height(10.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            // ── Meta row ──────────────────────────────────────────────────────
+            Spacer(Modifier.height(10.dp))
+            Row(
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Outlined.LocationOn, null, tint = Navy500, modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(3.dp))
@@ -410,17 +420,19 @@ fun TenderCard(tender: Tender, modifier: Modifier = Modifier) {
                 }
             }
 
+            // ── Lots count ────────────────────────────────────────────────────
             if (tender.lots.isNotEmpty()) {
                 Spacer(Modifier.height(6.dp))
                 Text("${tender.lots.size} lot(s)", color = Navy500, fontSize = 12.sp)
             }
 
+            // ── Divider + button ──────────────────────────────────────────────
             Spacer(Modifier.height(14.dp))
             HorizontalDivider(color = Grey100)
             Spacer(Modifier.height(12.dp))
 
             Button(
-                onClick        = { /* TODO: navigate to tender detail */ },
+                onClick        = { onNavigateToDetail(tender.id) },
                 colors         = ButtonDefaults.buttonColors(containerColor = statusColor),
                 shape          = RoundedCornerShape(10.dp),
                 contentPadding = PaddingValues(vertical = 10.dp),
@@ -430,7 +442,12 @@ fun TenderCard(tender: Tender, modifier: Modifier = Modifier) {
             ) {
                 Icon(Icons.Outlined.Visibility, null, tint = NavyWhite, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("View Details", color = NavyWhite, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    text       = "View Details",
+                    color      = NavyWhite,
+                    fontSize   = 13.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
     }

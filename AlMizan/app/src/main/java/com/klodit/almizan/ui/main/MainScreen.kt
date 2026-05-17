@@ -17,16 +17,17 @@ import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 
 @Composable
 fun MainScreen(
-    viewModel              : MainViewModel = viewModel(),
+    viewModel                  : MainViewModel    = viewModel(),
     profileViewModel           : ProfileViewModel = viewModel(),
-    activeFilter           : FilterState   = FilterState(),
-    userId                 : String        = "",
-    token                  : String        = "",
-    onNavigateToLogin      : () -> Unit    = {},
-    onNavigateToFilter     : () -> Unit    = {},
-    onNavigateToEditProfile: (profileId: String) -> Unit = {},
-    onNavigateToChangePassword: () -> Unit = {},
-    onNavigateToDeleteAccount : (profileId: String) -> Unit = {}
+    activeFilter               : FilterState      = FilterState(),
+    userId                     : String           = "",
+    token                      : String           = "",
+    onNavigateToLogin          : () -> Unit       = {},
+    onNavigateToFilter         : () -> Unit       = {},
+    onNavigateToTenderDetail   : (String) -> Unit = {},
+    onNavigateToEditProfile    : (String) -> Unit = {},
+    onNavigateToChangePassword : () -> Unit       = {},
+    onNavigateToDeleteAccount  : (String) -> Unit = {}
 ) {
     val currentRoute  by viewModel.currentRoute.collectAsState()
     val userFirstName by viewModel.userFirstName.collectAsState()
@@ -44,7 +45,7 @@ fun MainScreen(
         config.setLocale(locale)
         viewModel.getApplication<android.app.Application>().createConfigurationContext(config)
     }
-    // Observe profile to update TopBar
+
     val profileState by profileViewModel.profileUiState.collectAsState()
     LaunchedEffect(profileState) {
         if (profileState is com.klodit.almizan.data.profile.ProfileUiState.Success) {
@@ -69,7 +70,7 @@ fun MainScreen(
                 isVerified           = isVerified,
                 tier                 = tier,
                 unreadCount          = unreadCount,
-                onNotificationsClick = { },
+                onNotificationsClick = {},
                 onLogoutClick        = {
                     viewModel.onLogout()
                     onNavigateToLogin()
@@ -85,16 +86,17 @@ fun MainScreen(
         }
     ) { innerPadding ->
         when (currentRoute) {
-            BottomNavDestination.Home.route    -> HomeScreen(innerPadding)
+            BottomNavDestination.Home.route -> HomeScreen(innerPadding)
 
             BottomNavDestination.Tenders.route -> TenderListScreen(
-                innerPadding       = innerPadding,
-                localizedContext   = localizedContext,
-                activeFilter       = activeFilter,
-                onNavigateToFilter = onNavigateToFilter
+                innerPadding           = innerPadding,
+                localizedContext       = localizedContext,
+                activeFilter           = activeFilter,
+                onNavigateToFilter     = onNavigateToFilter,
+                onNavigateToDetail     = onNavigateToTenderDetail
             )
 
-            BottomNavDestination.MyBids.route  -> MyBidsScreen(innerPadding)
+            BottomNavDestination.MyBids.route -> MyBidsScreen(innerPadding)
 
             BottomNavDestination.Profile.route -> ProfileScreen(
                 userId                     = userId,
