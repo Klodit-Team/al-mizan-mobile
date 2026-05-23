@@ -20,21 +20,48 @@ object ApiClient {
     }
 
     private val cookieJar = object : CookieJar {
-        private val store = mutableListOf<Cookie>()
+        @Volatile
+        private var accessTokenCookie: Cookie? = null
 
         override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-            store.removeAll { it.name == "access_token" }
-            store.addAll(cookies)
+            cookies.firstOrNull { it.name == "access_token" }?.let { cookie ->
+                accessTokenCookie = cookie
+            }
         }
 
         override fun loadForRequest(url: HttpUrl): List<Cookie> {
-            return store.filter { it.expiresAt > System.currentTimeMillis() }
+            val cookie = accessTokenCookie
+            return if (cookie != null && cookie.expiresAt > System.currentTimeMillis()) {
+                listOf(cookie)
+            } else {
+                emptyList()
+            }
         }
+    }
+
+    private fun getAccessToken(url: HttpUrl): String? {
+        val cookie = cookieJar.loadForRequest(url).firstOrNull { it.name == "access_token" }
+        return cookie?.value
     }
 
     private val httpClient = OkHttpClient.Builder()
         .dns(ipv4Only)
-        .cookieJar(cookieJar)                              // ← added
+        .cookieJar(cookieJar)
+        .addInterceptor { chain ->
+            val request = chain.request()
+            val builder = request.newBuilder()
+                .header("X-Internal-Service", "api-gateway")
+
+            val hasAuthorization = !request.header("Authorization").isNullOrBlank()
+            if (!hasAuthorization) {
+                val token = getAccessToken(request.url)
+                if (!token.isNullOrBlank()) {
+                    builder.header("Authorization", "Bearer $token")
+                }
+            }
+
+            chain.proceed(builder.build())
+        }
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         })

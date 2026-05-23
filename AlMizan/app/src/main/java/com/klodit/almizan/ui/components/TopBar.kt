@@ -1,7 +1,5 @@
 package com.klodit.almizan.ui.components
 
-
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -22,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.klodit.almizan.R
 import com.klodit.almizan.ui.theme.*
+
 @Composable
 fun TopBar(
     userFirstName: String = "",

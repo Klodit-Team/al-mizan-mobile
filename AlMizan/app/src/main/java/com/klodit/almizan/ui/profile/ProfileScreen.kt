@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.klodit.almizan.R
-import com.klodit.almizan.data.profile.ProfileUiState      // FIX: was missing entirely
+import com.klodit.almizan.data.profile.ProfileUiState
 import com.klodit.almizan.ui.theme.*
-import com.klodit.almizan.viewmodel.profile.ProfileViewModel
+import com.klodit.almizan.viewmodel.ProfileViewModel
 
 @Composable
 fun ProfileScreen(
@@ -39,13 +39,14 @@ fun ProfileScreen(
     innerPadding: PaddingValues = PaddingValues(),
     onNavigateToEdit: (profileId: String) -> Unit,
     onNavigateToChangePassword: () -> Unit,
+    onNavigateToSettings: () -> Unit,
     onNavigateToDeleteAccount: (profileId: String) -> Unit,
     onLogout: () -> Unit,
     viewModel: ProfileViewModel = viewModel()
 ) {
     val context = LocalContext.current
 
-    val profileState     by viewModel.profileUiState.collectAsState()
+    val profileState by viewModel.profileUiState.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(userId) {
@@ -191,24 +192,24 @@ fun ProfileScreen(
                         // ── Organisation Info Card ─────────────────────────
                         ProfileSectionCard(title = stringResource(R.string.profile_section_org)) {
                             InfoRow(
-                                icon  = Icons.Outlined.Business,
+                                icon = Icons.Outlined.Business,
                                 label = stringResource(R.string.reg1_field_org_name),
                                 value = profile.organizationName.ifEmpty { "—" }
                             )
                             InfoRow(
-                                icon  = Icons.Outlined.Badge,
+                                icon = Icons.Outlined.Badge,
                                 label = stringResource(R.string.reg1_field_nif),
                                 value = profile.nif.ifEmpty { "—" }
                             )
                             InfoRow(
-                                icon  = Icons.Outlined.Numbers,
+                                icon = Icons.Outlined.Numbers,
                                 label = stringResource(R.string.reg1_field_nis),
                                 value = profile.nis.ifEmpty { "—" }
                             )
                             InfoRow(
-                                icon   = Icons.Outlined.Article,
-                                label  = stringResource(R.string.reg1_field_rc),
-                                value  = profile.rc.ifEmpty { "—" },
+                                icon = Icons.Outlined.Article,
+                                label = stringResource(R.string.reg1_field_rc),
+                                value = profile.rc.ifEmpty { "—" },
                                 isLast = true
                             )
                         }
@@ -218,14 +219,14 @@ fun ProfileScreen(
                         // ── Personal Info Card ─────────────────────────────
                         ProfileSectionCard(title = stringResource(R.string.profile_section_personal)) {
                             InfoRow(
-                                icon  = Icons.Outlined.Person,
+                                icon = Icons.Outlined.Person,
                                 label = stringResource(R.string.profile_field_fullname),
                                 value = "${profile.firstName} ${profile.lastName}"
                             )
                             InfoRow(
-                                icon   = Icons.Outlined.Phone,
-                                label  = stringResource(R.string.reg2_phone_label),
-                                value  = profile.phone.ifEmpty { "—" },
+                                icon = Icons.Outlined.Phone,
+                                label = stringResource(R.string.reg2_phone_label),
+                                value = profile.phone.ifEmpty { "—" },
                                 isLast = true
                             )
                         }
@@ -235,7 +236,7 @@ fun ProfileScreen(
                         // ── Account Actions Card ───────────────────────────
                         ProfileSectionCard(title = stringResource(R.string.profile_section_account)) {
                             ProfileMenuItem(
-                                icon  = Icons.Outlined.Edit,
+                                icon = Icons.Outlined.Edit,
                                 label = stringResource(R.string.profile_edit_profile),
                                 onClick = { onNavigateToEdit(profile.id) }
                             )
@@ -245,9 +246,19 @@ fun ProfileScreen(
                                 modifier = Modifier.padding(start = 52.dp)
                             )
                             ProfileMenuItem(
-                                icon   = Icons.Outlined.Lock,
-                                label  = stringResource(R.string.profile_change_password),
-                                onClick = onNavigateToChangePassword,
+                                icon = Icons.Outlined.Lock,
+                                label = stringResource(R.string.profile_change_password),
+                                onClick = onNavigateToChangePassword
+                            )
+                            HorizontalDivider(
+                                color = Navy100,
+                                thickness = 0.5.dp,
+                                modifier = Modifier.padding(start = 52.dp)
+                            )
+                            ProfileMenuItem(
+                                icon = Icons.Outlined.Settings,
+                                label = stringResource(R.string.profile_nav_settings),
+                                onClick = onNavigateToSettings,
                                 isLast = true
                             )
                         }
@@ -256,14 +267,14 @@ fun ProfileScreen(
 
                         // ── Danger Zone Card ───────────────────────────────
                         ProfileSectionCard(
-                            title      = stringResource(R.string.profile_section_danger),
+                            title = stringResource(R.string.profile_section_danger),
                             titleColor = Red600
                         ) {
                             ProfileMenuItem(
-                                icon  = Icons.Outlined.Logout,
+                                icon = Icons.Outlined.Logout,
                                 label = stringResource(R.string.topbar_disconnect),
                                 onClick = { showLogoutDialog = true },
-                                tint  = Navy700
+                                tint = Navy700
                             )
                             HorizontalDivider(
                                 color = Red50,
@@ -271,10 +282,10 @@ fun ProfileScreen(
                                 modifier = Modifier.padding(start = 52.dp)
                             )
                             ProfileMenuItem(
-                                icon   = Icons.Outlined.DeleteForever,
-                                label  = stringResource(R.string.profile_delete_account),
+                                icon = Icons.Outlined.DeleteForever,
+                                label = stringResource(R.string.profile_delete_account),
                                 onClick = { onNavigateToDeleteAccount(profile.id) },
-                                tint   = Red600,
+                                tint = Red600,
                                 isLast = true
                             )
                         }

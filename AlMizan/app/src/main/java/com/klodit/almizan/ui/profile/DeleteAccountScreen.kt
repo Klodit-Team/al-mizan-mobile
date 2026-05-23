@@ -21,7 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.klodit.almizan.R
 import com.klodit.almizan.data.profile.DeleteUiState   // FIX: was imported from viewmodel.profile
 import com.klodit.almizan.ui.theme.*
-import com.klodit.almizan.viewmodel.profile.ProfileViewModel
+import com.klodit.almizan.viewmodel.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,0 +1,9 @@
+{
+    "explorer.decorations.colors": false,
+    "explorer.decorations.badges": false,
+    "problems.decorations.enabled": false,
+    "editor.errorForeground": "#00000000",
+    "editor.warningForeground": "#00000000",
+    "kotlin.languageServer.enabled": false,
+    "kotlin.diagnostics.enabled": false
+}
