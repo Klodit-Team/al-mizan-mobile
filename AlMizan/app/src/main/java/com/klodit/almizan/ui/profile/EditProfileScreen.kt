@@ -24,7 +24,7 @@ import com.klodit.almizan.data.profile.ProfileUiState      // FIX: correct packa
 import com.klodit.almizan.data.profile.UpdateProfileRequest
 import com.klodit.almizan.data.profile.UpdateUiState       // FIX: correct package
 import com.klodit.almizan.ui.theme.*
-import com.klodit.almizan.viewmodel.ProfileViewModel
+import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

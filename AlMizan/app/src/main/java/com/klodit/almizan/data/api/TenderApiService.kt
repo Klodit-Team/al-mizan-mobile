@@ -18,10 +18,17 @@ data class TenderDto(
     val reference: String?,
     val objet: String?,
     val typeProcedure: String?,
+    val montantEstime: Double?,
+    val datePublication: String?,
     val dateLimiteSoumission: String?,
+    val dateLimiteRetraitCdc: String?,
     val statut: String?,
-    val organisationName: String?,
+    val serviceContractantId: String?,
     val wilaya: String?,
+    val secteurActivite: String?,
+    val createdAt: String?,
+    val updatedAt: String?,
+    val organisationName: String?,
     val lots: List<TenderLotDto>?
 )
 
@@ -43,7 +50,7 @@ interface TenderApiService {
     suspend fun getAppelsOffres(): Response<ApiResponse<List<TenderDto>>>
 
     @GET("appels-offres/{id}")
-    suspend fun getTenderById(@Path("id") id: String): Response<ApiResponse<TenderDto>>
+    suspend fun getTenderById(@Path("id") id: String): Response<TenderDto>
 
     @GET("appels-offres/attributions")
     suspend fun getAttributions(): Response<ApiResponse<List<AttributionDto>>>

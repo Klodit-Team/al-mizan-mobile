@@ -28,7 +28,7 @@ import com.klodit.almizan.util.LocaleHelper
 import com.klodit.almizan.viewmodel.tender.TenderViewModel
 import com.klodit.almizan.viewmodel.auth.AuthState
 import com.klodit.almizan.viewmodel.auth.AuthViewModel
-import com.klodit.almizan.viewmodel.ProfileViewModel
+import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import com.klodit.almizan.ui.tender.TenderDetailScreen

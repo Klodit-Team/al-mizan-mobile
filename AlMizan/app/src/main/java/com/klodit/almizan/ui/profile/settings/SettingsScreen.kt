@@ -21,7 +21,7 @@ import com.klodit.almizan.R
 import com.klodit.almizan.ui.theme.*
 import java.time.format.DateTimeFormatter
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.klodit.almizan.viewmodel.ProfileViewModel
+import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 
 // ─────────────────────────────────────────────
 //  SETTINGS SCREEN

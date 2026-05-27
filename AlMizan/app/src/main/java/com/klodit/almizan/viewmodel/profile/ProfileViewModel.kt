@@ -1,4 +1,4 @@
-package com.klodit.almizan.viewmodel
+package com.klodit.almizan.viewmodel.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -21,30 +21,30 @@ sealed class TenderDetailState {
 private fun TenderDto.toUiModel(): Tender {
     val mappedLots = (lots ?: emptyList()).map { lot ->
         TenderLot(
-            id = lot.id,
-            aoId = id,
-            numero = lot.numero ?: "",
-            designation = lot.designation ?: "",
+            id            = lot.id,
+            aoId          = id,
+            numero        = lot.numero ?: "",
+            designation   = lot.designation ?: "",
             montantEstime = lot.montantEstime?.toString(),
-            statut = lot.statut
+            statut        = lot.statut
         )
     }
 
     return Tender(
-        id = id,
-        reference = reference ?: "",
-        objet = objet ?: "",
-        typeProcedure = typeProcedure ?: "",
-        montantEstime = null,
-        datePublication = null,
+        id                   = id,
+        reference            = reference ?: "",
+        objet                = objet ?: "",
+        typeProcedure        = typeProcedure ?: "",
+        montantEstime        = montantEstime?.toString(),
+        datePublication      = datePublication,
         dateLimiteSoumission = dateLimiteSoumission,
-        dateLimiteRetraitCdc = null,
-        statut = statut ?: "",
-        serviceContractantId = "",
-        wilaya = wilaya ?: "",
-        secteurActivite = "",
-        createdAt = "",
-        lots = mappedLots
+        dateLimiteRetraitCdc = dateLimiteRetraitCdc,
+        statut               = statut ?: "",
+        serviceContractantId = serviceContractantId ?: "",
+        wilaya               = wilaya ?: "",
+        secteurActivite      = secteurActivite ?: "",
+        createdAt            = createdAt ?: "",
+        lots                 = mappedLots
     )
 }
 

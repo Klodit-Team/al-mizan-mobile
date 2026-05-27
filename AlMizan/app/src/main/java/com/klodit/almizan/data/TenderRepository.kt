@@ -40,10 +40,10 @@ object TenderRepository {
     suspend fun getTenderById(id: String): Result<TenderDto> {
         return try {
             val response = api.getTenderById(id)
-            if (response.isSuccessful && response.body()?.data != null) {
-                Result.success(response.body()!!.data!!)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
             } else {
-                Result.failure(Exception("Erreur lors de la récupération de l'appel d'offre"))
+                Result.failure(Exception("Erreur lors de la récupération de l'appel d'offre (${response.code()})"))
             }
         } catch (e: Exception) {
             Result.failure(e)

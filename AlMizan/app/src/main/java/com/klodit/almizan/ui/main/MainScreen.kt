@@ -22,7 +22,7 @@ import com.klodit.almizan.ui.search.FilterState
 import com.klodit.almizan.ui.soumissions.MyBidsScreen
 import com.klodit.almizan.ui.tender.TenderListScreen
 import com.klodit.almizan.viewmodel.MainViewModel
-import com.klodit.almizan.viewmodel.ProfileViewModel
+import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 
 @Composable
 fun MainScreen(
