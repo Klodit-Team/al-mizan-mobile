@@ -684,5 +684,10 @@
     <string name="home_pillar3_desc">Analyses avancées et détection de tendances pour optimiser les dépenses publiques et identifier les opportunités.</string>
 
 
+    <!-- ══ NOTIFICATIONS — add to values-fr/strings.xml ══ -->
+    <string name="notif_title">Notifications</string>
+    <string name="notif_mark_all_read">Tout marquer comme lu</string>
+    <string name="notif_empty">Aucune notification</string>
+
 
 </resources>

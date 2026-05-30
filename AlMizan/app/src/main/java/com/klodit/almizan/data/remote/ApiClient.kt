@@ -1,5 +1,6 @@
 package com.klodit.almizan.data.remote
 
+import com.klodit.almizan.data.api.NotificationApiService
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -76,5 +77,9 @@ object ApiClient {
             .client(httpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    val notificationApi: NotificationApiService by lazy {
+        retrofit.create(NotificationApiService::class.java)
     }
 }

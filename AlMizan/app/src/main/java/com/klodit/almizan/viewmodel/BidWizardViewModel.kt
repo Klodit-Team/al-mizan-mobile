@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.klodit.almizan.R
-import com.klodit.almizan.data.TenderRepository
+import com.klodit.almizan.data.repository.TenderRepository
 import com.klodit.almizan.data.repository.SoumissionRepository
 import com.klodit.almizan.model.*
 import kotlinx.coroutines.flow.MutableStateFlow

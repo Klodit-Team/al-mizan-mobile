@@ -685,5 +685,9 @@
     <string name="home_pillar3_title">تحليل بالذكاء الاصطناعي</string>
     <string name="home_pillar3_desc">تحليلات متقدمة وكشف عن الاتجاهات لتحسين الإنفاق العام وتحديد الفرص.</string>
 
+    <!-- ══ NOTIFICATIONS — add to values-ar/strings.xml ══ -->
+    <string name="notif_title">الإشعارات</string>
+    <string name="notif_mark_all_read">تحديد الكل كمقروء</string>
+    <string name="notif_empty">لا توجد إشعارات</string>
 
 </resources>

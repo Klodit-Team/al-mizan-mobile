@@ -2,7 +2,7 @@ package com.klodit.almizan.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.klodit.almizan.data.TenderRepository
+import com.klodit.almizan.data.repository.TenderRepository
 import com.klodit.almizan.data.api.AttributionDto
 import com.klodit.almizan.data.api.TenderDto
 import com.klodit.almizan.data.api.RecoursRecord

@@ -654,4 +654,9 @@
     <string name="home_pillar3_desc">Advanced analytics and pattern detection to optimise public spending and identify market trends.</string>
 
 
+    <!-- ══ NOTIFICATIONS — add to values/strings.xml ══ -->
+    <string name="notif_title">Notifications</string>
+    <string name="notif_mark_all_read">Mark all read</string>
+    <string name="notif_empty">No notifications yet</string>
+
 </resources>

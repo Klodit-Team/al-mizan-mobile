@@ -198,4 +198,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun closeSettings() {
         _showSettings.value = false
     }
+
+    private val _showNotifications = MutableStateFlow(false)
+    val showNotifications: StateFlow<Boolean> = _showNotifications.asStateFlow()
+
+    fun openNotifications()  { _showNotifications.value = true  }
+    fun closeNotifications() { _showNotifications.value = false }
+
+
+
 }

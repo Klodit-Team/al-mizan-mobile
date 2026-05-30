@@ -3,7 +3,7 @@ package com.klodit.almizan.viewmodel.tender
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.klodit.almizan.data.TenderRepository
+import com.klodit.almizan.data.repository.TenderRepository
 import com.klodit.almizan.data.api.TenderDto
 import com.klodit.almizan.model.tender.Tender
 import com.klodit.almizan.model.tender.TenderLot

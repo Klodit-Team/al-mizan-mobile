@@ -1,8 +1,10 @@
 package com.klodit.almizan.navigation
 
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -62,6 +64,7 @@ object ProfileRoutes {
 }
 
 // ─── Nav graph ────────────────────────────────────────────────────────────────
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavGraph(onAuthSuccess: () -> Unit = {}) {
     val navController                      = rememberNavController()
@@ -119,6 +122,8 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                             email     = email,
                             password  = password,
                             onSuccess = { token, userId ->
+                                android.util.Log.d("NAV_DEBUG", "onSuccess called — token=$token userId=$userId")
+                                android.util.Log.d("NAV_DEBUG", "authViewModel instance = ${authViewModel.hashCode()}")
 
                                 navController.navigate(Routes.MAIN) {
                                     popUpTo(Routes.LOGIN) { inclusive = true }
@@ -288,8 +293,13 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
 
             // ── Main shell ────────────────────────────────────────────────────
             composable(Routes.MAIN) {
-                val currentToken  = authViewModel.authToken ?: ""
-                val currentUserId = authViewModel.currentUserId ?: ""
+                //val currentToken  = authViewModel.authToken ?: ""
+                //val currentUserId = authViewModel.currentUserId ?: ""
+                val currentToken  by remember { derivedStateOf { authViewModel.authToken ?: "" } }
+                val currentUserId by remember { derivedStateOf { authViewModel.currentUserId ?: "" } }
+                android.util.Log.d("NAV_DEBUG", "MAIN composed — token=$currentToken userId=$currentUserId")
+                android.util.Log.d("NAV_DEBUG", "authViewModel instance = ${authViewModel.hashCode()}")
+
                 android.util.Log.d("AUTH_DEBUG", "currentUserId = ${authViewModel.currentUserId}")
                 android.util.Log.d("AUTH_DEBUG", "authToken = ${authViewModel.authToken}")
                 MainScreen(

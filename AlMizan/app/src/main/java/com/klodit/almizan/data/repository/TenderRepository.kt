@@ -1,4 +1,4 @@
-package com.klodit.almizan.data
+package com.klodit.almizan.data.repository
 
 import com.klodit.almizan.data.api.AttributionDto
 import com.klodit.almizan.data.api.TenderApiService
@@ -12,8 +12,8 @@ object TenderRepository {
         return try {
             val response = api.getAppelsOffres()
             if (response.isSuccessful && response.body()?.data != null) {
-                val activeTenders = response.body()!!.data!!.filter { 
-                    it.statut?.uppercase() != "BROUILLON" 
+                val activeTenders = response.body()!!.data!!.filter {
+                    it.statut?.uppercase() != "BROUILLON"
                 }
                 Result.success(activeTenders)
             } else {

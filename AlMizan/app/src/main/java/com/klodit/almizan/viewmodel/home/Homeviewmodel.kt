@@ -3,7 +3,7 @@ package com.klodit.almizan.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.klodit.almizan.data.TenderRepository
+import com.klodit.almizan.data.repository.TenderRepository
 import com.klodit.almizan.model.tender.Tender
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

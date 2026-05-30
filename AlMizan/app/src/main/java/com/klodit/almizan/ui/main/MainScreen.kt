@@ -1,5 +1,7 @@
 package com.klodit.almizan.ui.main
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,6 +18,7 @@ import com.klodit.almizan.ui.components.AlMizanBottomBar
 import com.klodit.almizan.ui.components.BottomNavDestination
 import com.klodit.almizan.ui.components.TopBar
 import com.klodit.almizan.ui.home.HomeScreen
+import com.klodit.almizan.ui.notifications.NotificationScreen
 import com.klodit.almizan.ui.profile.ProfileScreen
 import com.klodit.almizan.ui.profile.settings.SettingsScreen
 import com.klodit.almizan.ui.search.FilterState
@@ -24,11 +27,14 @@ import com.klodit.almizan.ui.tender.TenderListScreen
 import com.klodit.almizan.viewmodel.MainViewModel
 import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 import com.klodit.almizan.ui.theme.AppLanguage
+import com.klodit.almizan.viewmodel.notification.NotificationViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen(
     viewModel: MainViewModel = viewModel(),
     profileViewModel: ProfileViewModel = viewModel(),
+    notificationViewModel: NotificationViewModel = viewModel(),
     activeFilter: FilterState = FilterState(),
     userId: String = "",
     token: String = "",
@@ -58,6 +64,7 @@ fun MainScreen(
     val showFileAppeal by viewModel.showFileAppeal.collectAsState()
     val currentAppealSubmissionId by viewModel.currentAppealSubmissionId.collectAsState()
     val showSettings by viewModel.showSettings.collectAsState()
+    val showNotifications by viewModel.showNotifications.collectAsState()
 
     /*
     val localizedContext = remember(language) {
@@ -83,8 +90,18 @@ fun MainScreen(
     }
 
 
-    LaunchedEffect(userId) {
+   /* LaunchedEffect(userId) {
         if (userId.isNotEmpty()) {
+            profileViewModel.fetchProfileByUserId(userId, token)
+        }
+    }*/
+
+
+    LaunchedEffect(userId, currentRoute) {
+        if (userId.isNotEmpty() &&
+            (profileViewModel.profileUiState.value !is com.klodit.almizan.data.profile.ProfileUiState.Success
+                    || currentRoute == BottomNavDestination.Profile.route)
+        ) {
             profileViewModel.fetchProfileByUserId(userId, token)
         }
     }
@@ -156,6 +173,14 @@ fun MainScreen(
         return
     }
 
+    if (showNotifications) {
+        NotificationScreen(
+            onBack = { viewModel.closeNotifications() },
+            viewModel = notificationViewModel
+        )
+        return
+    }
+
     Scaffold(
         containerColor = Color(0xFFF5F7FA),
         topBar = {
@@ -167,7 +192,7 @@ fun MainScreen(
                 unreadCount = unreadCount,
                 selectedLang = selectedLang,
                 onLanguageChange = onLanguageChange,
-                onNotificationsClick = {},
+                onNotificationsClick = { viewModel.openNotifications() },
                 onLogoutClick = {
                     viewModel.onLogout()
                     onNavigateToLogin()
@@ -183,7 +208,13 @@ fun MainScreen(
         }
     ) { innerPadding ->
         when (currentRoute) {
-            BottomNavDestination.Home.route -> HomeScreen(innerPadding)
+            BottomNavDestination.Home.route -> HomeScreen(
+                innerPadding           = innerPadding,
+                onNavigateToDetail     = onNavigateToTenderDetail,   // ← "View Details" now navigates
+                onNavigateToTenderList = {                           // ← "View All" now switches tab
+                    viewModel.onTabSelected(BottomNavDestination.Tenders)
+                }
+            )
 
             BottomNavDestination.Tenders.route -> TenderListScreen(
                 innerPadding = innerPadding,
