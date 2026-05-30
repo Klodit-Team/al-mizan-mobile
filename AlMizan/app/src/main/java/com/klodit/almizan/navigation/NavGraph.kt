@@ -31,6 +31,7 @@ import com.klodit.almizan.viewmodel.auth.AuthViewModel
 import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import com.klodit.almizan.ui.tender.TenderDetailScreen
 
 // ─── Route constants ──────────────────────────────────────────────────────────
@@ -98,8 +99,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
         if (uri != null) authViewModel.uploadDocument(baseContext, uri) {}*/
     }
 
-    var currentToken  by remember { mutableStateOf("") }
-    var currentUserId by remember { mutableStateOf("") }
+
 
     CompositionLocalProvider(
         LocalContext provides localizedContext,
@@ -119,8 +119,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                             email     = email,
                             password  = password,
                             onSuccess = { token, userId ->
-                                currentToken  = token
-                                currentUserId = authViewModel.currentUserId ?: ""
+
                                 navController.navigate(Routes.MAIN) {
                                     popUpTo(Routes.LOGIN) { inclusive = true }
                                 }
@@ -242,7 +241,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                     authState          = authViewModel.authState,
                     uploadState        = authViewModel.uploadState,
                     onPickFile = {
-                       // filePickerLauncher.launch(arrayOf("application/pdf", "image/*"))
+                        // filePickerLauncher.launch(arrayOf("application/pdf", "image/*"))
 
                     },
                     onClearError       = { authViewModel.clearError() },
@@ -289,6 +288,8 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
 
             // ── Main shell ────────────────────────────────────────────────────
             composable(Routes.MAIN) {
+                val currentToken  = authViewModel.authToken ?: ""
+                val currentUserId = authViewModel.currentUserId ?: ""
                 android.util.Log.d("AUTH_DEBUG", "currentUserId = ${authViewModel.currentUserId}")
                 android.util.Log.d("AUTH_DEBUG", "authToken = ${authViewModel.authToken}")
                 MainScreen(
@@ -302,6 +303,8 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                             popUpTo(Routes.MAIN) { inclusive = true }
                         }
                     },
+                    selectedLang = selectedLang,
+                    onLanguageChange = onLanguageChange,
                     onNavigateToTenderDetail   = { tenderId ->
                         navController.navigate("tender/$tenderId")
                     },
@@ -353,6 +356,8 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 ProfileRoutes.EDIT_PROFILE,
                 arguments = listOf(navArgument("profileId") { type = NavType.StringType })
             ) { backStack ->
+                val currentToken  = authViewModel.authToken ?: ""
+                val currentUserId = authViewModel.currentUserId ?: ""
                 val profileId = backStack.arguments?.getString("profileId") ?: return@composable
                 EditProfileScreen(
                     profileId = profileId,
@@ -365,7 +370,10 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
 
             // ── Change password ───────────────────────────────────────────────
             composable(ProfileRoutes.CHANGE_PASSWORD) {
+                val currentToken  = authViewModel.authToken ?: ""
+
                 ChangePasswordScreen(
+
                     token  = currentToken,
                     onBack = { navController.popBackStack() }
                 )
@@ -376,6 +384,8 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 ProfileRoutes.DELETE_ACCOUNT,
                 arguments = listOf(navArgument("profileId") { type = NavType.StringType })
             ) { backStack ->
+                val currentToken  = authViewModel.authToken ?: ""
+                val currentUserId = authViewModel.currentUserId ?: ""
                 val profileId = backStack.arguments?.getString("profileId") ?: return@composable
                 DeleteAccountScreen(
                     profileId = profileId,

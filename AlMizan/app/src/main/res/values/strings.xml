@@ -150,7 +150,7 @@
     <string name="topbar_verified">Vérifié</string>
     <string name="topbar_tier">OUVERT</string>
     <string name="topbar_disconnect">Déconnexion</string>
-    <string name="topbar_notifications">Notifications</string>
+    <string name="topbar_notifications">Notifications</string><string name="topbar_change_language">Langue</string>
 
     <!-- Advanced Filter -->
     <string name="filter_title">Filtres avancés</string>
@@ -284,6 +284,7 @@
     <string name="wizard_save_exit">Enregistrer &amp; Quitter</string>
     <string name="wizard_overall_progress">PROGRESSION GLOBALE</string>
     <string name="wizard_progress">%1$d%% terminé</string>
+
 
     <!-- Bottom Buttons -->
     <string name="wizard_confirm_continue">Confirmer &amp; Continuer</string>
@@ -643,4 +644,45 @@
     <string name="wizard_step_label_caution">Caution</string>
     <string name="wizard_step_label_review">Revue</string>
     <string name="wizard_error_unknown">Erreur inconnue</string>
+
+    <!-- ── HOME SCREEN ── -->
+    <string name="home_hero_prefix">Le Portail Souverain\ndes </string>
+    <string name="home_hero_highlight">Marchés Publics</string>
+    <string name="home_hero_suffix"> en Algérie</string>
+    <string name="home_hero_subtitle">Accédez à l\'ensemble des opportunités d\'affaires publiques en Algérie sur une plateforme sécurisée, transparente et centralisée.</string>
+    <string name="home_search_placeholder">Rechercher un marché…</string>
+    <string name="home_filter_sector">Secteur</string>
+    <string name="home_filter_wilaya">Wilaya</string>
+    <string name="home_search_btn">Rechercher →</string>
+    <string name="home_stat_active_tenders">APPELS ACTIFS</string>
+    <string name="home_stat_awarded">ATTRIBUÉS</string>
+    <string name="home_stat_operators">OPÉRATEURS</string>
+    <string name="home_explore_title">Explorer la plateforme</string>
+    <string name="home_shortcut_stats_title">Statistiques</string>
+    <string name="home_shortcut_stats_sub">Voir les insights</string>
+    <string name="home_shortcut_legal_title">Cadre légal</string>
+    <string name="home_shortcut_legal_sub">Loi 23-12 &amp; conditions</string>
+    <string name="home_shortcut_help_title">Aide</string>
+    <string name="home_shortcut_help_sub">Assistance 24/7</string>
+    <string name="home_latest_tenders">Derniers appels d\'offres</string>
+    <string name="home_view_all">Voir tout →</string>
+    <string name="home_view_details">Voir les détails</string>
+    <string name="home_deadline_unknown">Date inconnue</string>
+    <string name="home_deadline_today">Aujourd\'hui</string>
+    <string name="home_deadline_tomorrow">Demain</string>
+    <string name="home_deadline_days">Dans %1$d jours</string>
+    <string name="home_lots_count">%1$d lot(s)</string>
+    <string name="home_empty_tenders">Aucun appel d\'offres disponible</string>
+    <string name="home_retry">Réessayer</string>
+    <string name="home_pillars_title">Les Piliers d\'Al-Mizan</string>
+    <string name="home_pillars_subtitle">Une infrastructure souveraine pour une commande publique transparente et efficace en Algérie.</string>
+    <string name="home_pillar1_title">Transparence totale</string>
+    <string name="home_pillar1_desc">Chaque étape du processus d\'achat est suivie et visible par les parties autorisées, garantissant une concurrence équitable.</string>
+    <string name="home_pillar2_title">Sécurité E2EE</string>
+    <string name="home_pillar2_desc">Les offres chiffrées de bout en bout et l\'hébergement souverain protègent les informations commerciales sensibles.</string>
+    <string name="home_pillar3_title">Analyse par IA</string>
+    <string name="home_pillar3_desc">Analyses avancées et détection de tendances pour optimiser les dépenses publiques et identifier les opportunités.</string>
+
+
+
 </resources>

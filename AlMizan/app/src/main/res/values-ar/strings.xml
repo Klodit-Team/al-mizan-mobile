@@ -152,6 +152,7 @@
     <string name="topbar_tier">مفتوح</string>
     <string name="topbar_disconnect">تسجيل الخروج</string>
     <string name="topbar_notifications">الإشعارات</string>
+    <string name="topbar_change_language">اللغة</string>
 
 
     <!-- Advanced Filter -->
@@ -645,4 +646,44 @@
     <string name="wizard_step_label_caution">كفالة</string>
     <string name="wizard_step_label_review">مراجعة</string>
     <string name="wizard_error_unknown">خطأ غير معروف</string>
+
+    <!-- ── HOME SCREEN ── -->
+    <string name="home_hero_prefix">البوابة السيادية\nلـ</string>
+    <string name="home_hero_highlight">الصفقات العمومية</string>
+    <string name="home_hero_suffix"> في الجزائر</string>
+    <string name="home_hero_subtitle">تصفح جميع فرص الأعمال العمومية في الجزائر عبر منصة آمنة وشفافة ومركزية.</string>
+    <string name="home_search_placeholder">البحث عن صفقة…</string>
+    <string name="home_filter_sector">القطاع</string>
+    <string name="home_filter_wilaya">الولاية</string>
+    <string name="home_search_btn">← بحث</string>
+    <string name="home_stat_active_tenders">مناقصات نشطة</string>
+    <string name="home_stat_awarded">مُرسَاة</string>
+    <string name="home_stat_operators">مشغّلون</string>
+    <string name="home_explore_title">استكشف المنصة</string>
+    <string name="home_shortcut_stats_title">إحصائيات</string>
+    <string name="home_shortcut_stats_sub">عرض التحليلات</string>
+    <string name="home_shortcut_legal_title">الإطار القانوني</string>
+    <string name="home_shortcut_legal_sub">القانون 23-12 والشروط</string>
+    <string name="home_shortcut_help_title">المساعدة</string>
+    <string name="home_shortcut_help_sub">دعم على مدار الساعة</string>
+    <string name="home_latest_tenders">آخر المناقصات</string>
+    <string name="home_view_all">← عرض الكل</string>
+    <string name="home_view_details">عرض التفاصيل</string>
+    <string name="home_deadline_unknown">تاريخ غير معروف</string>
+    <string name="home_deadline_today">اليوم</string>
+    <string name="home_deadline_tomorrow">غداً</string>
+    <string name="home_deadline_days">خلال %1$d يوم</string>
+    <string name="home_lots_count">%1$d حصة</string>
+    <string name="home_empty_tenders">لا توجد مناقصات متاحة</string>
+    <string name="home_retry">إعادة المحاولة</string>
+    <string name="home_pillars_title">ركائز الميزان</string>
+    <string name="home_pillars_subtitle">بنية تحتية سيادية للمشتريات العمومية الشفافة والفعّالة في الجزائر.</string>
+    <string name="home_pillar1_title">شفافية كاملة</string>
+    <string name="home_pillar1_desc">كل خطوة في عملية الشراء مُتابَعة ومرئية للأطراف المعتمدة، لضمان منافسة عادلة.</string>
+    <string name="home_pillar2_title">أمان E2EE</string>
+    <string name="home_pillar2_desc">العروض المشفرة من طرف إلى طرف والاستضافة السيادية تحمي المعلومات التجارية الحساسة.</string>
+    <string name="home_pillar3_title">تحليل بالذكاء الاصطناعي</string>
+    <string name="home_pillar3_desc">تحليلات متقدمة وكشف عن الاتجاهات لتحسين الإنفاق العام وتحديد الفرص.</string>
+
+
 </resources>

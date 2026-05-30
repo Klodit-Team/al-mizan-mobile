@@ -1,6 +1,7 @@
 package com.klodit.almizan.ui.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,17 +15,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.klodit.almizan.R
 import com.klodit.almizan.model.tender.Tender
 import com.klodit.almizan.ui.theme.*
 import com.klodit.almizan.viewmodel.HomeStats
@@ -37,26 +41,31 @@ import java.time.temporal.ChronoUnit
 
 @Composable
 fun HomeScreen(
-    innerPadding: PaddingValues,
-    onTenderClick: (String) -> Unit = {},
-    onViewAllClick: () -> Unit = {},
-    viewModel: HomeViewModel = viewModel()
+    innerPadding          : PaddingValues,
+    onNavigateToDetail    : (String) -> Unit = {},
+    onNavigateToTenderList: () -> Unit       = {},
+    viewModel             : HomeViewModel    = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    var searchQuery    by remember { mutableStateOf("") }
-    var selectedSecteur by remember { mutableStateOf("Secteur") }
-    var selectedWilaya  by remember { mutableStateOf("Wilaya") }
+    var searchQuery     by remember { mutableStateOf("") }
+    var selectedSecteur by remember { mutableStateOf("") }
+    var selectedWilaya  by remember { mutableStateOf("") }
+
+    val secteurLabel = stringResource(R.string.home_filter_sector)
+    val wilayaLabel  = stringResource(R.string.home_filter_wilaya)
+    LaunchedEffect(Unit) {
+        if (selectedSecteur.isEmpty()) selectedSecteur = secteurLabel
+        if (selectedWilaya.isEmpty())  selectedWilaya  = wilayaLabel
+    }
 
     LazyColumn(
-        modifier = Modifier
+        modifier       = Modifier
             .fillMaxSize()
-            .background(Navy50)
+            .background(Grey50)
             .padding(innerPadding),
-        verticalArrangement = Arrangement.spacedBy(0.dp)
+        contentPadding = PaddingValues(bottom = 24.dp)
     ) {
-
-        // ── Hero ──────────────────────────────────────────────────────────
         item {
             HeroSection(
                 searchQuery     = searchQuery,
@@ -65,11 +74,10 @@ fun HomeScreen(
                 onSecteurChange = { selectedSecteur = it },
                 selectedWilaya  = selectedWilaya,
                 onWilayaChange  = { selectedWilaya = it },
-                onSearch        = onViewAllClick
+                onSearch        = onNavigateToTenderList
             )
         }
 
-        // ── Stats bar ─────────────────────────────────────────────────────
         item {
             when (uiState) {
                 is HomeUiState.Loading ->
@@ -81,40 +89,35 @@ fun HomeScreen(
             }
         }
 
-        // ── Explore platform ──────────────────────────────────────────────
         item {
             Spacer(Modifier.height(24.dp))
             ExplorePlatformSection()
         }
 
-        // ── Latest tenders header ─────────────────────────────────────────
         item {
             Spacer(Modifier.height(24.dp))
             Row(
-                modifier = Modifier
+                modifier              = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment     = Alignment.CenterVertically
             ) {
                 Text(
-                    "Latest Tenders",
-                    fontSize   = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color      = Navy900
+                    stringResource(R.string.home_latest_tenders),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Navy900
                 )
-                TextButton(onClick = onViewAllClick) {
+                TextButton(onClick = onNavigateToTenderList) {
                     Text(
-                        "View All →",
-                        color      = Green500,
-                        fontSize   = 13.sp,
-                        fontWeight = FontWeight.Medium
+                        stringResource(R.string.home_view_all),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Green500
                     )
                 }
             }
         }
 
-        // ── Tender cards ──────────────────────────────────────────────────
         when (uiState) {
             is HomeUiState.Loading -> {
                 items(3) { TenderCardSkeleton() }
@@ -125,7 +128,11 @@ fun HomeScreen(
                     item { EmptyTendersPlaceholder() }
                 } else {
                     items(tenders, key = { it.id }) { tender ->
-                        TenderCard(tender = tender, onClick = { onTenderClick(tender.id) })
+                        HomeTenderCard(
+                            tender   = tender,
+                            onClick  = { onNavigateToDetail(tender.id) },
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        )
                     }
                 }
             }
@@ -139,11 +146,9 @@ fun HomeScreen(
             }
         }
 
-        // ── Pillars ───────────────────────────────────────────────────────
         item {
             Spacer(Modifier.height(32.dp))
             PillarsSection()
-            Spacer(Modifier.height(32.dp))
         }
     }
 }
@@ -152,129 +157,144 @@ fun HomeScreen(
 
 @Composable
 private fun HeroSection(
-    searchQuery: String,
-    onSearchChange: (String) -> Unit,
-    selectedSecteur: String,
-    onSecteurChange: (String) -> Unit,
-    selectedWilaya: String,
-    onWilayaChange: (String) -> Unit,
-    onSearch: () -> Unit
+    searchQuery     : String,
+    onSearchChange  : (String) -> Unit,
+    selectedSecteur : String,
+    onSecteurChange : (String) -> Unit,
+    selectedWilaya  : String,
+    onWilayaChange  : (String) -> Unit,
+    onSearch        : () -> Unit
 ) {
-    Box(
-        modifier = Modifier
+    Column(
+        modifier            = Modifier
             .fillMaxWidth()
-            .background(Navy800)
+            .background(NavyWhite)
+            .padding(horizontal = 20.dp, vertical = 28.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 32.dp)
+        Text(
+            buildAnnotatedString {
+                withStyle(SpanStyle(color = Navy900)) {
+                    append(stringResource(R.string.home_hero_prefix))
+                }
+                withStyle(SpanStyle(color = Green500)) {
+                    append(stringResource(R.string.home_hero_highlight))
+                }
+                withStyle(SpanStyle(color = Navy900)) {
+                    append(stringResource(R.string.home_hero_suffix))
+                }
+            },
+            style     = MaterialTheme.typography.headlineMedium,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(Modifier.height(10.dp))
+
+        Text(
+            stringResource(R.string.home_hero_subtitle),
+            style     = MaterialTheme.typography.bodyMedium,
+            color     = Navy600,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(Modifier.height(20.dp))
+
+        OutlinedTextField(
+            value         = searchQuery,
+            onValueChange = onSearchChange,
+            placeholder   = {
+                Text(
+                    stringResource(R.string.home_search_placeholder),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Navy400
+                )
+            },
+            leadingIcon = {
+                Icon(Icons.Outlined.Search, contentDescription = null, tint = Navy400)
+            },
+            modifier   = Modifier.fillMaxWidth(),
+            shape      = RoundedCornerShape(12.dp),
+            singleLine = true,
+            colors     = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = Grey50,
+                focusedContainerColor   = Grey50,
+                unfocusedBorderColor    = Navy100,
+                focusedBorderColor      = Green500,
+                cursorColor             = Green500
+            )
+        )
+
+        Spacer(Modifier.height(10.dp))
+
+        Row(
+            modifier              = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            DropdownChip(
+                label    = selectedSecteur,
+                modifier = Modifier.weight(1f),
+                onClick  = { /* open secteur picker */ }
+            )
+            DropdownChip(
+                label    = selectedWilaya,
+                modifier = Modifier.weight(1f),
+                onClick  = { /* open wilaya picker */ }
+            )
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        Button(
+            onClick  = onSearch,
+            modifier = Modifier.fillMaxWidth(),
+            shape    = RoundedCornerShape(12.dp),
+            colors   = ButtonDefaults.buttonColors(containerColor = Green500)
         ) {
             Text(
-                buildAnnotatedString {
-                    withStyle(SpanStyle(color = NavyWhite)) { append("Le Portail Souverain\ndes ") }
-                    withStyle(SpanStyle(color = Green500))  { append("Marchés Publics") }
-                    withStyle(SpanStyle(color = NavyWhite)) { append(" en\nAlgérie") }
-                },
-                fontSize   = 26.sp,
-                fontWeight = FontWeight.Bold,
-                lineHeight = 34.sp
+                stringResource(R.string.home_search_btn),
+                style    = MaterialTheme.typography.labelLarge,
+                color    = NavyWhite,
+                modifier = Modifier.padding(vertical = 4.dp)
             )
-
-            Spacer(Modifier.height(12.dp))
-
-            Text(
-                "Accédez à l'ensemble des opportunités d'affaires publiques en Algérie sur une plateforme sécurisée, transparente et centralisée.",
-                fontSize   = 13.sp,
-                color      = Navy300,
-                lineHeight = 20.sp
-            )
-
-            Spacer(Modifier.height(24.dp))
-
-            Card(
-                modifier  = Modifier.fillMaxWidth(),
-                shape     = RoundedCornerShape(12.dp),
-                colors    = CardDefaults.cardColors(containerColor = NavyWhite),
-                elevation = CardDefaults.cardElevation(0.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-
-                    OutlinedTextField(
-                        value         = searchQuery,
-                        onValueChange = onSearchChange,
-                        placeholder   = {
-                            Text("Rechercher un marché...", color = Navy400, fontSize = 14.sp)
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Outlined.Search, contentDescription = null, tint = Navy400)
-                        },
-                        modifier    = Modifier.fillMaxWidth(),
-                        shape       = RoundedCornerShape(8.dp),
-                        singleLine  = true,
-                        colors      = OutlinedTextFieldDefaults.colors(
-                            unfocusedBorderColor = Navy100,
-                            focusedBorderColor   = Green500,
-                            cursorColor          = Green500
-                        )
-                    )
-
-                    Spacer(Modifier.height(12.dp))
-
-                    Row(
-                        modifier              = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        DropdownChip(
-                            label    = selectedSecteur,
-                            modifier = Modifier.weight(1f),
-                            onClick  = { /* open secteur bottom sheet */ }
-                        )
-                        DropdownChip(
-                            label    = selectedWilaya,
-                            modifier = Modifier.weight(1f),
-                            onClick  = { /* open wilaya bottom sheet */ }
-                        )
-                    }
-
-                    Spacer(Modifier.height(12.dp))
-
-                    Button(
-                        onClick  = onSearch,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape    = RoundedCornerShape(8.dp),
-                        colors   = ButtonDefaults.buttonColors(containerColor = Green500)
-                    ) {
-                        Text(
-                            "Rechercher →",
-                            color      = NavyWhite,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize   = 15.sp,
-                            modifier   = Modifier.padding(vertical = 4.dp)
-                        )
-                    }
-                }
-            }
         }
     }
 }
 
 @Composable
 private fun DropdownChip(
-    label: String,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    label    : String,
+    modifier : Modifier = Modifier,
+    onClick  : () -> Unit
 ) {
-    OutlinedButton(
-        onClick          = onClick,
-        modifier         = modifier.height(48.dp),
-        shape            = RoundedCornerShape(8.dp),
-        contentPadding   = PaddingValues(horizontal = 12.dp),
-        colors           = ButtonDefaults.outlinedButtonColors(contentColor = Navy700),
-        border           = ButtonDefaults.outlinedButtonBorder
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier         = modifier
+            .height(48.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Grey50)
+            .border(1.dp, Navy100, RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp)
     ) {
-        Text(label, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-        Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null, modifier = Modifier.size(16.dp))
+        Row(
+            modifier          = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                label,
+                style    = MaterialTheme.typography.bodyMedium,
+                color    = Navy700,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                Icons.Outlined.KeyboardArrowDown,
+                contentDescription = null,
+                tint               = Navy500,
+                modifier           = Modifier.size(18.dp)
+            )
+        }
     }
 }
 
@@ -282,45 +302,46 @@ private fun DropdownChip(
 
 @Composable
 private fun StatsBar(stats: HomeStats?, isLoading: Boolean) {
-    Box(
-        modifier = Modifier
+    Row(
+        modifier              = Modifier
             .fillMaxWidth()
             .background(Green500)
-            .padding(vertical = 20.dp, horizontal = 16.dp)
+            .padding(vertical = 18.dp, horizontal = 8.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment     = Alignment.CenterVertically
     ) {
-        Row(
-            modifier              = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment     = Alignment.CenterVertically
-        ) {
-            StatItem(
-                value     = if (isLoading) "…" else "${stats?.activeTenders ?: 0}",
-                label     = "ACTIVE TENDERS",
-                icon      = Icons.Outlined.Description
-            )
-            StatDivider()
-            StatItem(
-                value     = if (isLoading) "…" else "${stats?.awarded ?: 0}",
-                label     = "AWARDED",
-                icon      = Icons.Outlined.CheckCircle
-            )
-            StatDivider()
-            StatItem(
-                value     = if (isLoading) "…" else "${stats?.total ?: 0}",
-                label     = "TOTAL AOs",
-                icon      = Icons.Outlined.Groups
-            )
-        }
+        StatItem(
+            value = if (isLoading) "—" else formatStatNumber(stats?.activeTenders ?: 0),
+            label = stringResource(R.string.home_stat_active_tenders),
+            icon  = Icons.Outlined.Description
+        )
+        StatDivider()
+        StatItem(
+            value = if (isLoading) "—" else formatStatNumber(stats?.awarded ?: 0),
+            label = stringResource(R.string.home_stat_awarded),
+            icon  = Icons.Outlined.CheckCircle
+        )
+        StatDivider()
+        StatItem(
+            value = if (isLoading) "—" else formatStatNumber(stats?.total ?: 0),
+            label = stringResource(R.string.home_stat_operators),
+            icon  = Icons.Outlined.Groups
+        )
     }
 }
 
+private fun formatStatNumber(n: Int): String =
+    if (n >= 1000) "${n / 1000},${(n % 1000).toString().padStart(3, '0')}" else "$n"
+
 @Composable
 private fun StatItem(value: String, label: String, icon: ImageVector) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, contentDescription = null, tint = NavyWhite, modifier = Modifier.size(20.dp))
-        Spacer(Modifier.height(4.dp))
-        Text(value, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = NavyWhite)
-        Text(label, fontSize = 10.sp, color = Color(0xCCFFFFFF), letterSpacing = 0.5.sp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Icon(icon, contentDescription = null, tint = NavyWhite, modifier = Modifier.size(22.dp))
+        Text(value, style = MaterialTheme.typography.headlineSmall, color = NavyWhite, fontWeight = FontWeight.Bold)
+        Text(label, style = MaterialTheme.typography.labelMedium, color = NavyWhite.copy(alpha = 0.85f))
     }
 }
 
@@ -328,32 +349,31 @@ private fun StatItem(value: String, label: String, icon: ImageVector) {
 private fun StatDivider() {
     Box(
         modifier = Modifier
-            .height(40.dp)
+            .height(44.dp)
             .width(1.dp)
-            .background(Color(0x33FFFFFF))
+            .background(NavyWhite.copy(alpha = 0.25f))
     )
 }
 
 // ─── Explore Platform ─────────────────────────────────────────────────────────
 
-private data class PlatformShortcut(val icon: ImageVector, val title: String, val subtitle: String)
+private data class PlatformShortcut(val icon: ImageVector, val titleRes: Int, val subtitleRes: Int)
 
 @Composable
 private fun ExplorePlatformSection() {
     val shortcuts = listOf(
-        PlatformShortcut(Icons.Outlined.BarChart,      "Market Stats",  "View insights"),
-        PlatformShortcut(Icons.Outlined.Gavel,         "Legal Info",    "Law 23-12 & terms"),
-        PlatformShortcut(Icons.Outlined.SupportAgent,  "Help Center",   "24/7 assistance")
+        PlatformShortcut(Icons.Outlined.BarChart,     R.string.home_shortcut_stats_title,  R.string.home_shortcut_stats_sub),
+        PlatformShortcut(Icons.Outlined.Gavel,        R.string.home_shortcut_legal_title,  R.string.home_shortcut_legal_sub),
+        PlatformShortcut(Icons.Outlined.SupportAgent, R.string.home_shortcut_help_title,   R.string.home_shortcut_help_sub)
     )
 
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Text(
-            "Explore Platform",
-            fontSize   = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color      = Navy900
+            stringResource(R.string.home_explore_title),
+            style = MaterialTheme.typography.headlineSmall,
+            color = Navy900
         )
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(14.dp))
         Row(
             modifier              = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -368,43 +388,38 @@ private fun ExplorePlatformSection() {
 @Composable
 private fun ShortcutCard(shortcut: PlatformShortcut, modifier: Modifier = Modifier) {
     Card(
-        modifier  = modifier.clickable { },
-        shape     = RoundedCornerShape(12.dp),
-        colors    = CardDefaults.cardColors(containerColor = NavyWhite),
-        elevation = CardDefaults.cardElevation(2.dp)
+        modifier  = modifier
+            .shadow(2.dp, RoundedCornerShape(14.dp))
+            .clickable { },
+        shape     = RoundedCornerShape(14.dp),
+        colors    = CardDefaults.cardColors(containerColor = NavyWhite)
     ) {
         Column(
-            modifier             = Modifier
+            modifier            = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            horizontalAlignment  = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
-                modifier        = Modifier
+                modifier         = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
                     .background(Green50),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    shortcut.icon,
-                    contentDescription = null,
-                    tint               = Green600,
-                    modifier           = Modifier.size(22.dp)
-                )
+                Icon(shortcut.icon, contentDescription = null, tint = Green600, modifier = Modifier.size(22.dp))
             }
             Spacer(Modifier.height(8.dp))
             Text(
-                shortcut.title,
-                fontSize   = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                color      = Navy900,
-                maxLines   = 1,
-                overflow   = TextOverflow.Ellipsis
+                stringResource(shortcut.titleRes),
+                style    = MaterialTheme.typography.titleSmall,
+                color    = Navy900,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
-                shortcut.subtitle,
-                fontSize = 10.sp,
+                stringResource(shortcut.subtitleRes),
+                style    = MaterialTheme.typography.bodySmall,
                 color    = Navy500,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -413,11 +428,14 @@ private fun ShortcutCard(shortcut: PlatformShortcut, modifier: Modifier = Modifi
     }
 }
 
-// ─── Tender Card ──────────────────────────────────────────────────────────────
+// ─── Home Tender Card ─────────────────────────────────────────────────────────
 
 @Composable
-fun TenderCard(tender: Tender, onClick: () -> Unit) {
-    // Compute days left from dateLimiteSoumission
+fun HomeTenderCard(
+    tender   : Tender,
+    onClick  : () -> Unit,
+    modifier : Modifier = Modifier
+) {
     val daysLeft = remember(tender.dateLimiteSoumission) {
         try {
             val deadline = OffsetDateTime.parse(tender.dateLimiteSoumission)
@@ -426,10 +444,10 @@ fun TenderCard(tender: Tender, onClick: () -> Unit) {
     }
 
     val deadlineLabel = when {
-        daysLeft < 0  -> "Date inconnue"
-        daysLeft == 0 -> "Aujourd'hui"
-        daysLeft == 1 -> "Demain"
-        else          -> "Dans $daysLeft jours"
+        daysLeft < 0  -> stringResource(R.string.home_deadline_unknown)
+        daysLeft == 0 -> stringResource(R.string.home_deadline_today)
+        daysLeft == 1 -> stringResource(R.string.home_deadline_tomorrow)
+        else          -> stringResource(R.string.home_deadline_days, daysLeft)
     }
 
     val deadlineColor = when {
@@ -438,128 +456,107 @@ fun TenderCard(tender: Tender, onClick: () -> Unit) {
         else              -> Green600
     }
 
-    // Derive scope from typeProcedure or wilaya — use wilaya as display location
-    val scopeLabel = tender.typeProcedure
-        .replace("_", " ")
-        .split(" ")
-        .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
-
-    val scopeColor = when (tender.typeProcedure.uppercase()) {
-        "AO_OUVERT"    -> Blue800
-        "AO_RESTREINT" -> Color(0xFF6A1B9A)
-        "CONCOURS"     -> Color(0xFF00838F)
-        "GRE_A_GRE"   -> Orange400
-        else           -> Navy700
-    }
-    val scopeBg = when (tender.typeProcedure.uppercase()) {
-        "AO_OUVERT"    -> Blue50
-        "AO_RESTREINT" -> Color(0xFFF3E5F5)
-        "CONCOURS"     -> Color(0xFFE0F7FA)
-        "GRE_A_GRE"   -> Color(0xFFFFF8E1)
-        else           -> Navy50
-    }
-
-    // Format publication date
-    val dateLabel = remember(tender.datePublication) {
-        try {
-            val dt = OffsetDateTime.parse(tender.datePublication)
-            "${dt.dayOfMonth.toString().padStart(2,'0')}/${dt.monthValue.toString().padStart(2,'0')}/${dt.year}"
-        } catch (e: Exception) {
-            tender.createdAt.take(10).replace("-", "/").let {
-                if (it.length == 10) "${it.substring(8)}/${it.substring(5,7)}/${it.substring(0,4)}" else "—"
-            }
-        }
+    val statusColor = when (tender.statut.uppercase()) {
+        "PUBLIE"                -> Green500
+        "EN_COURS"              -> Green600
+        "OUVERTURE_PLIS"        -> Blue700
+        "EVALUATION"            -> Orange400
+        "ATTRIBUE"              -> Blue800
+        "ANNULE", "CLOTURE"     -> Navy500
+        else                    -> Navy500
     }
 
     Card(
-        modifier  = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
-            .clickable(onClick = onClick),
-        shape     = RoundedCornerShape(12.dp),
-        colors    = CardDefaults.cardColors(containerColor = NavyWhite),
-        elevation = CardDefaults.cardElevation(2.dp)
+            .shadow(2.dp, RoundedCornerShape(16.dp)),
+        shape  = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = NavyWhite)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
-            // Top row: type badge + date
-            Row(
-                modifier              = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment     = Alignment.CenterVertically
-            ) {
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(scopeBg)
-                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                    contentAlignment = Alignment.Center,
+                    modifier         = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Navy50)
                 ) {
-                    Text(scopeLabel, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = scopeColor)
+                    Icon(Icons.Outlined.AccountBalance, null, tint = Navy800, modifier = Modifier.size(20.dp))
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.CalendarToday, contentDescription = null, modifier = Modifier.size(12.dp), tint = Navy400)
-                    Spacer(Modifier.width(4.dp))
-                    Text(dateLabel, fontSize = 11.sp, color = Navy400)
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    tender.secteurActivite,
+                    style    = MaterialTheme.typography.titleSmall,
+                    color    = Navy700,
+                    modifier = Modifier.weight(1f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier         = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(statusColor.copy(alpha = 0.12f))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        tender.statut,
+                        style      = MaterialTheme.typography.labelSmall,
+                        color      = statusColor,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
 
-            Spacer(Modifier.height(8.dp))
-
-            // Wilaya + secteur
-            Text(
-                "${tender.wilaya.uppercase()} · ${tender.secteurActivite}",
-                fontSize     = 10.sp,
-                fontWeight   = FontWeight.Medium,
-                color        = Navy500,
-                letterSpacing = 0.3.sp,
-                maxLines     = 1,
-                overflow     = TextOverflow.Ellipsis
-            )
-
-            Spacer(Modifier.height(4.dp))
-
-            // Object / title
-            Text(
-                tender.objet,
-                fontSize   = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                color      = Navy900,
-                lineHeight = 20.sp,
-                maxLines   = 3,
-                overflow   = TextOverflow.Ellipsis
-            )
-
-            // Reference tag
-            Spacer(Modifier.height(6.dp))
-            Text(
-                tender.reference,
-                fontSize = 11.sp,
-                color    = Navy400
-            )
-
-            Spacer(Modifier.height(12.dp))
-            HorizontalDivider(color = Grey100)
             Spacer(Modifier.height(10.dp))
+            Text(tender.objet, style = MaterialTheme.typography.titleMedium, color = Navy900, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Spacer(Modifier.height(4.dp))
+            Text(tender.reference, style = MaterialTheme.typography.bodySmall, color = Navy500)
 
-            // Deadline row
-            Row(
-                modifier              = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment     = Alignment.CenterVertically
+            Spacer(Modifier.height(10.dp))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Outlined.LocationOn, null, tint = Navy500, modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(3.dp))
+                    Text(tender.wilaya, style = MaterialTheme.typography.bodySmall, color = Navy500)
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Outlined.Schedule, null, tint = deadlineColor, modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(3.dp))
+                    Text(deadlineLabel, style = MaterialTheme.typography.bodySmall, color = deadlineColor, fontWeight = FontWeight.Medium)
+                }
+            }
+
+            if (tender.lots.isNotEmpty()) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    stringResource(R.string.home_lots_count, tender.lots.size),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Navy500
+                )
+            }
+
+            Spacer(Modifier.height(14.dp))
+            HorizontalDivider(color = Grey100)
+            Spacer(Modifier.height(12.dp))
+
+            Button(
+                onClick        = onClick,
+                colors         = ButtonDefaults.buttonColors(containerColor = statusColor),
+                shape          = RoundedCornerShape(10.dp),
+                contentPadding = PaddingValues(vertical = 10.dp),
+                modifier       = Modifier.fillMaxWidth().height(40.dp)
             ) {
-                Column {
-                    Text("DEADLINE", fontSize = 9.sp, color = Navy500, letterSpacing = 0.5.sp)
-                    Text(deadlineLabel, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = deadlineColor)
-                }
-                OutlinedButton(
-                    onClick          = onClick,
-                    shape            = RoundedCornerShape(8.dp),
-                    contentPadding   = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-                    colors           = ButtonDefaults.outlinedButtonColors(contentColor = Green600),
-                    border           = ButtonDefaults.outlinedButtonBorder
-                ) {
-                    Text("View Details", fontSize = 12.sp, fontWeight = FontWeight.Medium)
-                }
+                Icon(Icons.Outlined.Visibility, null, tint = NavyWhite, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    stringResource(R.string.home_view_details),
+                    style      = MaterialTheme.typography.labelLarge,
+                    color      = NavyWhite,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
     }
@@ -570,31 +567,28 @@ fun TenderCard(tender: Tender, onClick: () -> Unit) {
 @Composable
 private fun TenderCardSkeleton() {
     Card(
-        modifier  = Modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
-        shape     = RoundedCornerShape(12.dp),
-        colors    = CardDefaults.cardColors(containerColor = NavyWhite),
-        elevation = CardDefaults.cardElevation(2.dp)
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .shadow(2.dp, RoundedCornerShape(16.dp)),
+        shape  = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = NavyWhite)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 SkeletonBox(80.dp, 18.dp)
-                SkeletonBox(70.dp, 14.dp)
+                SkeletonBox(70.dp, 18.dp)
             }
-            Spacer(Modifier.height(10.dp))
-            SkeletonBox(150.dp, 12.dp)
-            Spacer(Modifier.height(8.dp))
-            SkeletonBox(300.dp, 14.dp)
-            Spacer(Modifier.height(6.dp))
-            SkeletonBox(200.dp, 14.dp)
             Spacer(Modifier.height(12.dp))
+            SkeletonBox(220.dp, 15.dp)
+            Spacer(Modifier.height(6.dp))
+            SkeletonBox(160.dp, 15.dp)
+            Spacer(Modifier.height(6.dp))
+            SkeletonBox(100.dp, 12.dp)
+            Spacer(Modifier.height(14.dp))
             HorizontalDivider(color = Grey100)
-            Spacer(Modifier.height(10.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                SkeletonBox(80.dp, 32.dp)
-                SkeletonBox(110.dp, 32.dp)
-            }
+            Spacer(Modifier.height(12.dp))
+            SkeletonBox(400.dp, 40.dp)
         }
     }
 }
@@ -605,12 +599,12 @@ private fun SkeletonBox(width: androidx.compose.ui.unit.Dp, height: androidx.com
         modifier = Modifier
             .width(width)
             .height(height)
-            .clip(RoundedCornerShape(4.dp))
+            .clip(RoundedCornerShape(6.dp))
             .background(Grey200)
     )
 }
 
-// ─── Empty / Error states ─────────────────────────────────────────────────────
+// ─── Empty / Error ────────────────────────────────────────────────────────────
 
 @Composable
 private fun EmptyTendersPlaceholder() {
@@ -620,31 +614,36 @@ private fun EmptyTendersPlaceholder() {
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(Icons.Outlined.SearchOff, contentDescription = null, tint = Navy300, modifier = Modifier.size(48.dp))
+        Icon(Icons.Outlined.SearchOff, null, tint = Navy300, modifier = Modifier.size(48.dp))
         Spacer(Modifier.height(12.dp))
-        Text("Aucun appel d'offres disponible", color = Navy500, fontSize = 14.sp)
+        Text(
+            stringResource(R.string.home_empty_tenders),
+            style = MaterialTheme.typography.bodyMedium,
+            color = Navy500
+        )
     }
 }
 
 @Composable
 private fun ErrorCard(message: String, onRetry: () -> Unit) {
     Card(
-        modifier  = Modifier
+        modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
-        shape     = RoundedCornerShape(12.dp),
-        colors    = CardDefaults.cardColors(containerColor = RedNotice),
-        elevation = CardDefaults.cardElevation(0.dp)
+        shape  = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = RedNotice)
     ) {
-        Row(
-            modifier          = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(Icons.Outlined.ErrorOutline, contentDescription = null, tint = Red600, modifier = Modifier.size(20.dp))
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.ErrorOutline, null, tint = Red600, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(10.dp))
-            Text(message, color = Red600, fontSize = 13.sp, modifier = Modifier.weight(1f))
+            Text(message, style = MaterialTheme.typography.bodyMedium, color = Red600, modifier = Modifier.weight(1f))
             TextButton(onClick = onRetry) {
-                Text("Retry", color = Red600, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.home_retry),
+                    style      = MaterialTheme.typography.titleSmall,
+                    color      = Red600,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
@@ -652,47 +651,40 @@ private fun ErrorCard(message: String, onRetry: () -> Unit) {
 
 // ─── Pillars Section ──────────────────────────────────────────────────────────
 
-private data class Pillar(val icon: ImageVector, val title: String, val description: String)
+private data class Pillar(val icon: ImageVector, val titleRes: Int, val descRes: Int)
 
 @Composable
 private fun PillarsSection() {
     val pillars = listOf(
-        Pillar(
-            Icons.Outlined.Visibility,
-            "Total Transparency",
-            "Each step of the procurement process is tracked and visible to authorized parties, ensuring fair competition."
-        ),
-        Pillar(
-            Icons.Outlined.Lock,
-            "E2EE Security",
-            "End-to-end encrypted bids and sovereign data hosting protect sensitive commercial information."
-        ),
-        Pillar(
-            Icons.Outlined.AutoGraph,
-            "AI-Driven Analysis",
-            "Advanced analytics and pattern detection to optimize public spending and identify market trends."
-        )
+        Pillar(Icons.Outlined.Visibility, R.string.home_pillar1_title, R.string.home_pillar1_desc),
+        Pillar(Icons.Outlined.Lock,       R.string.home_pillar2_title, R.string.home_pillar2_desc),
+        Pillar(Icons.Outlined.AutoGraph,  R.string.home_pillar3_title, R.string.home_pillar3_desc)
     )
 
     Column(
         modifier            = Modifier
             .fillMaxWidth()
-            .background(Navy800)
+            .background(Navy900)
             .padding(horizontal = 24.dp, vertical = 36.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("The Pillars of Al-Mizan", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = NavyWhite)
+        Text(
+            stringResource(R.string.home_pillars_title),
+            style     = MaterialTheme.typography.headlineSmall,
+            color     = NavyWhite,
+            textAlign = TextAlign.Center
+        )
         Spacer(Modifier.height(8.dp))
         Text(
-            "Providing a sovereign infrastructure for transparent and efficient public procurement in Algeria.",
-            fontSize  = 13.sp,
+            stringResource(R.string.home_pillars_subtitle),
+            style     = MaterialTheme.typography.bodyMedium,
             color     = Navy300,
-            lineHeight = 20.sp,
+            textAlign = TextAlign.Center,
             modifier  = Modifier.padding(horizontal = 8.dp)
         )
         Spacer(Modifier.height(32.dp))
         pillars.forEach { pillar ->
-            PillarItem(pillar = pillar)
+            PillarItem(pillar)
             Spacer(Modifier.height(28.dp))
         }
     }
@@ -702,23 +694,28 @@ private fun PillarsSection() {
 private fun PillarItem(pillar: Pillar) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
-            modifier        = Modifier
+            modifier         = Modifier
                 .size(64.dp)
                 .clip(CircleShape)
-                .background(Navy900),
+                .background(Navy800),
             contentAlignment = Alignment.Center
         ) {
-            Icon(pillar.icon, contentDescription = null, tint = Green500, modifier = Modifier.size(30.dp))
+            Icon(pillar.icon, null, tint = Green500, modifier = Modifier.size(30.dp))
         }
         Spacer(Modifier.height(12.dp))
-        Text(pillar.title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = NavyWhite)
+        Text(
+            stringResource(pillar.titleRes),
+            style     = MaterialTheme.typography.headlineSmall.copy(fontSize = 16.sp),
+            color     = NavyWhite,
+            textAlign = TextAlign.Center
+        )
         Spacer(Modifier.height(8.dp))
         Text(
-            pillar.description,
-            fontSize   = 13.sp,
-            color      = Navy300,
-            lineHeight = 20.sp,
-            modifier   = Modifier.padding(horizontal = 16.dp)
+            stringResource(pillar.descRes),
+            style     = MaterialTheme.typography.bodyMedium,
+            color     = Navy300,
+            textAlign = TextAlign.Center,
+            modifier  = Modifier.padding(horizontal = 16.dp)
         )
     }
 }

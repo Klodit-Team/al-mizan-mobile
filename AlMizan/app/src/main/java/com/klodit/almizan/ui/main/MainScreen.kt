@@ -23,6 +23,7 @@ import com.klodit.almizan.ui.soumissions.MyBidsScreen
 import com.klodit.almizan.ui.tender.TenderListScreen
 import com.klodit.almizan.viewmodel.MainViewModel
 import com.klodit.almizan.viewmodel.profile.ProfileViewModel
+import com.klodit.almizan.ui.theme.AppLanguage
 
 @Composable
 fun MainScreen(
@@ -32,6 +33,8 @@ fun MainScreen(
     userId: String = "",
     token: String = "",
     onNavigateToLogin: () -> Unit = {},
+    selectedLang: AppLanguage,
+    onLanguageChange: (AppLanguage) -> Unit,
     onNavigateToFilter: () -> Unit = {},
     onNavigateToTenderDetail: (String) -> Unit = {},
     onNavigateToEditProfile: (String) -> Unit = {},
@@ -44,7 +47,7 @@ fun MainScreen(
     val isVerified by viewModel.isVerified.collectAsState()
     val tier by viewModel.tier.collectAsState()
     val unreadCount by viewModel.unreadCount.collectAsState()
-    val language by viewModel.language.collectAsState()
+    //val language by viewModel.language.collectAsState()
 
     val showBidWizard by viewModel.showBidWizard.collectAsState()
     val currentBidAppelOffreId by viewModel.currentBidAppelOffreId.collectAsState()
@@ -56,6 +59,7 @@ fun MainScreen(
     val currentAppealSubmissionId by viewModel.currentAppealSubmissionId.collectAsState()
     val showSettings by viewModel.showSettings.collectAsState()
 
+    /*
     val localizedContext = remember(language) {
         val locale = java.util.Locale(language.locale)
         val config = android.content.res.Configuration(
@@ -63,6 +67,26 @@ fun MainScreen(
         )
         config.setLocale(locale)
         viewModel.getApplication<android.app.Application>().createConfigurationContext(config)
+    }*/
+    val localizedContext = remember(selectedLang) {
+        val locale = java.util.Locale(selectedLang.locale)
+
+        val config = android.content.res.Configuration(
+            viewModel.getApplication<android.app.Application>()
+                .resources.configuration
+        )
+
+        config.setLocale(locale)
+
+        viewModel.getApplication<android.app.Application>()
+            .createConfigurationContext(config)
+    }
+
+
+    LaunchedEffect(userId) {
+        if (userId.isNotEmpty()) {
+            profileViewModel.fetchProfileByUserId(userId, token)
+        }
     }
 
     val profileState by profileViewModel.profileUiState.collectAsState()
@@ -141,6 +165,8 @@ fun MainScreen(
                 isVerified = isVerified,
                 tier = tier,
                 unreadCount = unreadCount,
+                selectedLang = selectedLang,
+                onLanguageChange = onLanguageChange,
                 onNotificationsClick = {},
                 onLogoutClick = {
                     viewModel.onLogout()

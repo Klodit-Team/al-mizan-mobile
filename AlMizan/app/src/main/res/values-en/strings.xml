@@ -153,6 +153,7 @@
     <string name="topbar_tier">OPEN</string>
     <string name="topbar_disconnect">Disconnect</string>
     <string name="topbar_notifications">Notifications</string>
+    <string name="topbar_change_language">Language</string>
 
     <!-- Advanced Filter -->
     <string name="filter_title">Advanced Filters</string>
@@ -613,4 +614,44 @@
     <string name="wizard_step_label_caution">Bond</string>
     <string name="wizard_step_label_review">Review</string>
     <string name="wizard_error_unknown">Unknown error</string>
+
+    <!-- ── HOME SCREEN ── -->
+    <string name="home_hero_prefix">The Sovereign Portal\nfor </string>
+    <string name="home_hero_highlight">Public Procurement</string>
+    <string name="home_hero_suffix"> in Algeria</string>
+    <string name="home_hero_subtitle">Access all public business opportunities in Algeria on a secure, transparent, and centralised platform.</string>
+    <string name="home_search_placeholder">Search for a tender…</string>
+    <string name="home_filter_sector">Sector</string>
+    <string name="home_filter_wilaya">Wilaya</string>
+    <string name="home_search_btn">Search →</string>
+    <string name="home_stat_active_tenders">ACTIVE TENDERS</string>
+    <string name="home_stat_awarded">AWARDED</string>
+    <string name="home_stat_operators">OPERATORS</string>
+    <string name="home_explore_title">Explore Platform</string>
+    <string name="home_shortcut_stats_title">Market Stats</string>
+    <string name="home_shortcut_stats_sub">View insights</string>
+    <string name="home_shortcut_legal_title">Legal Info</string>
+    <string name="home_shortcut_legal_sub">Law 23-12 &amp; terms</string>
+    <string name="home_shortcut_help_title">Help Center</string>
+    <string name="home_shortcut_help_sub">24/7 assistance</string>
+    <string name="home_latest_tenders">Latest Tenders</string>
+    <string name="home_view_all">View All →</string>
+    <string name="home_view_details">View Details</string>
+    <string name="home_deadline_unknown">Unknown date</string>
+    <string name="home_deadline_today">Today</string>
+    <string name="home_deadline_tomorrow">Tomorrow</string>
+    <string name="home_deadline_days">In %1$d days</string>
+    <string name="home_lots_count">%1$d lot(s)</string>
+    <string name="home_empty_tenders">No tenders available</string>
+    <string name="home_retry">Retry</string>
+    <string name="home_pillars_title">The Pillars of Al-Mizan</string>
+    <string name="home_pillars_subtitle">A sovereign infrastructure for transparent and efficient public procurement in Algeria.</string>
+    <string name="home_pillar1_title">Total Transparency</string>
+    <string name="home_pillar1_desc">Each step of the procurement process is tracked and visible to authorised parties, ensuring fair competition.</string>
+    <string name="home_pillar2_title">E2EE Security</string>
+    <string name="home_pillar2_desc">End-to-end encrypted bids and sovereign data hosting protect sensitive commercial information.</string>
+    <string name="home_pillar3_title">AI-Driven Analysis</string>
+    <string name="home_pillar3_desc">Advanced analytics and pattern detection to optimise public spending and identify market trends.</string>
+
+
 </resources>
