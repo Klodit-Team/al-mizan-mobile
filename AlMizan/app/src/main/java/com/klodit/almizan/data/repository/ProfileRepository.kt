@@ -1,7 +1,10 @@
 // app/src/main/java/com/klodit/almizan/data/repository/ProfileRepository.kt
 package com.klodit.almizan.data.repository
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.klodit.almizan.data.api.ProfileApiService
+import com.klodit.almizan.data.auth.ChangePasswordRequest
 import com.klodit.almizan.data.profile.ProfileApiResponse
 import com.klodit.almizan.data.profile.ProfileResponse
 import com.klodit.almizan.data.profile.UpdateProfileRequest
@@ -29,8 +32,15 @@ class ProfileRepository {
         val userId = meRes.body()?.user?.userId
             ?: throw IllegalStateException("Failed to resolve userId from /auth/me")
 
-        val opsRes = try { api.getOperateurs() } catch (e: Exception) { null }
+        val opsRes = try { api.getOperateurs() } catch (e: Exception) {
+            android.util.Log.e("PROFILE_REPO", "getOperateurs exception: $e")
+            null }
+        android.util.Log.d("PROFILE_REPO", "getOperateurs HTTP code = ${opsRes?.code()}")
+        android.util.Log.d("PROFILE_REPO", "getOperateurs error body = ${opsRes?.errorBody()?.string()}")
+        android.util.Log.d("PROFILE_REPO", "getOperateurs raw body = ${opsRes?.body()}")
         val operateurs = opsRes?.body() ?: emptyList()
+
+
         val operateur = operateurs.find { it.userId == userId || it.user_id == userId }
             ?: operateurs.firstOrNull()
 
@@ -47,11 +57,22 @@ class ProfileRepository {
             val userId = meRes.body()?.user?.userId ?: throw Exception("No user ID")
             val email = meRes.body()?.user?.email ?: "user@entreprise.dz"
 
+            android.util.Log.d("PROFILE_REPO", "userId from /me = $userId")
+
             // Graceful fallback if profile or operator doesn't exist for test accounts
             val profileDto = try { api.getProfile(userId).body() } catch (e: Exception) { null }
-            val operateurs = try { api.getOperateurs().body() ?: emptyList() } catch (e: Exception) { emptyList() }
+            val operateurs = try { api.getOperateurs().body() ?: emptyList() } catch (e: Exception) {
+                android.util.Log.e("PROFILE_REPO", "getOperateurs failed: $e")
+                emptyList() }
+
+
+            android.util.Log.d("PROFILE_REPO", "operateurs count = ${operateurs.size}")
+            operateurs.forEach {
+                android.util.Log.d("PROFILE_REPO", "  op.userId=${it.userId} op.user_id=${it.user_id} org=${it.organisation?.denomination}")
+            }
 
             val opDto = operateurs.find { it.userId == userId || it.user_id == userId } ?: operateurs.firstOrNull()
+            android.util.Log.d("PROFILE_REPO", "matched opDto = $opDto")
             val orgDto = opDto?.organisation
 
             opDto?.id?.let { cachedOperateurId = it }
@@ -91,6 +112,7 @@ class ProfileRepository {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getSessions(): Result<List<Session>> = withContext(Dispatchers.IO) {
         try {
             val response = api.getSessions()
@@ -110,6 +132,7 @@ class ProfileRepository {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getUserSecurity(): Result<UserSecurity> = withContext(Dispatchers.IO) {
         try {
             val sessions = getSessions().getOrDefault(emptyList())
@@ -120,6 +143,7 @@ class ProfileRepository {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getAuditLogs(): Result<List<AuditLog>> = withContext(Dispatchers.IO) {
         try {
             val response = api.getAuditLogs()
@@ -138,6 +162,7 @@ class ProfileRepository {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getDocuments(): Result<List<DocumentUiModel>> = withContext(Dispatchers.IO) {
         try {
             val response = api.getDocuments()
@@ -178,17 +203,25 @@ class ProfileRepository {
         }
     }
 
+
     suspend fun deleteProfile(profileId: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val response = api.deleteProfile(profileId)
-            val body: ProfileApiResponse? = response.body()
-            val status = body?.status ?: response.code()
-            if (response.isSuccessful && status in 200..299) {
-                Result.success(Unit)
+            android.util.Log.d("PROFILE_REPO", "deleteProfile HTTP ${response.code()}")
+            android.util.Log.d("PROFILE_REPO", "deleteProfile body = ${response.body()}")
+            android.util.Log.d("PROFILE_REPO", "deleteProfile errorBody = ${response.errorBody()?.string()}")
+
+            if (response.isSuccessful) {
+                // API returns { deleted: true } — body may be null on some 200s too
+                val deleted = response.body()?.deleted ?: true
+                if (deleted) Result.success(Unit)
+                else Result.failure(Exception("Le serveur a refusé la suppression"))
             } else {
-                Result.failure(Exception(body?.message ?: "Erreur suppression compte"))
+                val errorMsg = response.errorBody()?.string() ?: "Erreur suppression compte (${response.code()})"
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
+            android.util.Log.e("PROFILE_REPO", "deleteProfile exception: $e")
             Result.failure(e)
         }
     }
@@ -197,7 +230,38 @@ class ProfileRepository {
         LocalDateTime.parse(isoString?.replace("Z", ""), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     } catch (e: Exception) { null }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun parseLocalDate(dateString: String?): LocalDate? = try {
         LocalDate.parse(dateString?.substringBefore("T"), DateTimeFormatter.ISO_LOCAL_DATE)
     } catch (e: Exception) { null }
+
+
+    suspend fun changePassword(
+        currentPassword: String,
+        newPassword: String
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val response = api.changePassword(
+                ChangePasswordRequest(
+                    currentPassword = currentPassword,
+                    newPassword = newPassword,
+                    confirmeNewPassword = newPassword
+                )
+            )
+            android.util.Log.d("PROFILE_REPO", "changePassword HTTP ${response.code()}")
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Erreur changement mot de passe (${response.code()})"
+                // 401 = current password wrong
+                val friendly = if (response.code() == 401)
+                    "Mot de passe actuel incorrect"
+                else errorMsg
+                Result.failure(Exception(friendly))
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("PROFILE_REPO", "changePassword exception: $e")
+            Result.failure(e)
+        }
+    }
 }

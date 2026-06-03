@@ -36,9 +36,10 @@ import com.klodit.almizan.ui.auth.authFieldColors
 import com.klodit.almizan.ui.theme.AppLanguage
 import com.klodit.almizan.ui.theme.Grey200
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationStep1Screen(
-    onContinueClick : (orgName: String, nif: String, nis: String, rc: String) -> Unit = { _, _, _, _ -> },
+    onContinueClick: (orgName: String, nif: String, nis: String, rc: String, type: String, role: String, wilaya: String, commune: String, adresse: String) -> Unit = { _, _, _, _, _, _, _, _, _ -> },
     onBackClick     : () -> Unit = {},
     onInfoClick     : () -> Unit = {},
     onTermsClick    : () -> Unit = {},
@@ -52,14 +53,27 @@ fun RegistrationStep1Screen(
     var nif           by remember { mutableStateOf("") }
     var nis           by remember { mutableStateOf("") }
     var rc            by remember { mutableStateOf("") }
+    var wilaya  by remember { mutableStateOf("") }
+    var commune by remember { mutableStateOf("") }
+    var adresse by remember { mutableStateOf("") }
     var agreedToTerms by remember { mutableStateOf(false) }
 
     val canContinue = orgName.isNotBlank() && nif.length == 15 && nis.isNotBlank()
-            && rc.isNotBlank() && agreedToTerms
+            && rc.isNotBlank() && wilaya.isNotBlank() && agreedToTerms
 
     val screenWidth   = LocalConfiguration.current.screenWidthDp.dp
     val cardWidth     = if (screenWidth < 500.dp) screenWidth * 0.90f else 420.dp
     val overlapAmount = 32.dp
+
+    // Add state
+    var selectedType by remember { mutableStateOf("MINISTERE") }
+    var selectedRole by remember { mutableStateOf("SERVICE_CONTRACTANT") }
+
+    var typeExpanded by remember { mutableStateOf(false) }
+    var roleExpanded by remember { mutableStateOf(false) }
+
+    val typeOptions = listOf("EPA","EPIC","MINISTERE","ENTREPRISE_PRIVEE","ENTREPRISE_PUBLIQUE","GROUPEMENT")
+    val roleOptions = listOf("SERVICE_CONTRACTANT","OPERATEUR_ECONOMIQUE")
 
     Column(modifier = Modifier.fillMaxSize().background(cs.background)) {
 
@@ -209,7 +223,115 @@ fun RegistrationStep1Screen(
                     colors     = authFieldColors()
                 )
 
+
+
+                Spacer(Modifier.height(16.dp))
+
+                // Wilaya
+                AuthFieldLabel("Wilaya")
+                Spacer(Modifier.height(6.dp))
+                OutlinedTextField(
+                    value         = wilaya,
+                    onValueChange = { wilaya = it },
+                    placeholder   = { Text("Ex: Alger", color = cs.onSurfaceVariant, fontSize = 13.sp) },
+                    modifier   = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape      = RoundedCornerShape(8.dp),
+                    colors     = authFieldColors()
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+            // Commune
+                AuthFieldLabel("Commune")
+                Spacer(Modifier.height(6.dp))
+                OutlinedTextField(
+                    value         = commune,
+                    onValueChange = { commune = it },
+                    placeholder   = { Text("Ex: Sidi M'Hamed", color = cs.onSurfaceVariant, fontSize = 13.sp) },
+                    modifier   = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape      = RoundedCornerShape(8.dp),
+                    colors     = authFieldColors()
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+// Adresse
+                AuthFieldLabel("Adresse")
+                Spacer(Modifier.height(6.dp))
+                OutlinedTextField(
+                    value         = adresse,
+                    onValueChange = { adresse = it },
+                    placeholder   = { Text("Ex: Rue Didouche Mourad", color = cs.onSurfaceVariant, fontSize = 13.sp) },
+                    modifier   = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape      = RoundedCornerShape(8.dp),
+                    colors     = authFieldColors()
+                )
+
                 Spacer(Modifier.height(24.dp))
+
+                // Type dropdown
+                AuthFieldLabel("Type d'organisation")
+                Spacer(Modifier.height(6.dp))
+                ExposedDropdownMenuBox(
+                    expanded = typeExpanded,
+                    onExpandedChange = { typeExpanded = !typeExpanded }
+                ) {
+                    OutlinedTextField(
+                        value = selectedType,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeExpanded) },
+                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = authFieldColors()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = typeExpanded,
+                        onDismissRequest = { typeExpanded = false }
+                    ) {
+                        typeOptions.forEach { option ->
+                            DropdownMenuItem(
+                                text = { Text(option, fontSize = 13.sp) },
+                                onClick = { selectedType = option; typeExpanded = false }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+// Role dropdown
+                AuthFieldLabel("Rôle")
+                Spacer(Modifier.height(6.dp))
+                ExposedDropdownMenuBox(
+                    expanded = roleExpanded,
+                    onExpandedChange = { roleExpanded = !roleExpanded }
+                ) {
+                    OutlinedTextField(
+                        value = selectedRole,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = roleExpanded) },
+                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = authFieldColors()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = roleExpanded,
+                        onDismissRequest = { roleExpanded = false }
+                    ) {
+                        roleOptions.forEach { option ->
+                            DropdownMenuItem(
+                                text = { Text(option, fontSize = 13.sp) },
+                                onClick = { selectedRole = option; roleExpanded = false }
+                            )
+                        }
+                    }
+                }
+
 
                 // secure notice
                 Row(
@@ -295,7 +417,7 @@ fun RegistrationStep1Screen(
             }
             Spacer(Modifier.height(10.dp))
             Button(
-                onClick  = { onContinueClick(orgName, nif, nis, rc) },
+                onClick = { onContinueClick(orgName, nif, nis, rc, selectedType, selectedRole, wilaya, commune, adresse) },
                 enabled  = canContinue,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape    = RoundedCornerShape(10.dp),

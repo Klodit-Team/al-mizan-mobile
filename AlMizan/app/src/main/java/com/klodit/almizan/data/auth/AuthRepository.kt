@@ -30,7 +30,11 @@ class AuthRepository(private val api: AuthApi) {
         api.verifyToken(VerifyTokenRequest(token))
 
     suspend fun resetPassword(token: String, newPassword: String): MessageResponse =
-        api.resetPassword(ResetPasswordRequest(token, newPassword))
+        api.resetPassword(ResetPasswordRequest(
+            token               = token,
+            newPassword         = newPassword,
+            confirmeNewPassword = newPassword
+        ))
 
 
     suspend fun uploadDocument(token: String, file: MultipartBody.Part): ResponseBody =

@@ -17,12 +17,16 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
-
 data class RegStep1Data(
     val orgName : String,
     val nif     : String,
     val nis     : String,
-    val rc      : String
+    val rc      : String,
+    val type    : String,
+    val role    : String,
+    val wilaya  : String,   //
+    val commune : String,   //
+    val adresse : String    //
 )
 
 data class RegStep2Data(
@@ -57,22 +61,19 @@ class AuthViewModel : ViewModel() {
     var step2Data: RegStep2Data? by mutableStateOf(null)
         private set
 
-    // ── Session state (populated after login/register) ────────────────────────
     var authToken by mutableStateOf<String?>(null)
         private set
 
     var currentUserId by mutableStateOf<String?>(null)
         private set
 
-    // ── Registered email (used for OTP flow after registration) ──────────────
     private var registeredEmail: String = ""
-
     fun getRegisteredEmail() = registeredEmail
 
-    // ── Login ─────────────────────────────────────────────────────────────────
     var failedLoginAttempts by mutableStateOf(0)
         private set
 
+    // ── Login ─────────────────────────────────────────────────────────────────
     fun login(
         email    : String,
         password : String,
@@ -90,7 +91,6 @@ class AuthViewModel : ViewModel() {
                 currentUserId       = decodeUserIdFromJwt(token) ?: response.user?.userId
                 authState           = AuthState.Success(token)
 
-                android.util.Log.d("AUTH_DEBUG", "Login success — token=$token userId=$currentUserId")
                 onSuccess(token, currentUserId ?: "")
             } catch (e: retrofit2.HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
@@ -122,8 +122,18 @@ class AuthViewModel : ViewModel() {
     fun resetFailedAttempts() { failedLoginAttempts = 0 }
 
     // ── Registration step helpers ─────────────────────────────────────────────
-    fun saveStep1(orgName: String, nif: String, nis: String, rc: String) {
-        step1Data = RegStep1Data(orgName, nif, nis, rc)
+    fun saveStep1(
+        orgName : String,
+        nif     : String,
+        nis     : String,
+        rc      : String,
+        type    : String,
+        role    : String,
+        wilaya  : String,   // ← NEW
+        commune : String,   // ← NEW
+        adresse : String    // ← NEW
+    ) {
+        step1Data = RegStep1Data(orgName, nif, nis, rc, type, role, wilaya, commune, adresse)
     }
 
     fun saveStep2(phone: String, email: String, password: String, nom: String, prenom: String) {
@@ -141,8 +151,12 @@ class AuthViewModel : ViewModel() {
         val request = RegisterRequest(
             email             = s2.email,
             password          = s2.password,
-            role              = "SERVICE_CONTRACTANT",
-            langue            = selectedLang.locale,
+            role              = s1.role,           // ← from step1 selection
+            //langue            = selectedLang.locale,
+            langue  = when (selectedLang) {
+                AppLanguage.ARABIC  -> "ar"
+                else                -> "fr"
+            },
             nom               = s2.nom,
             prenom            = s2.prenom,
             telephone         = s2.phone,
@@ -150,29 +164,36 @@ class AuthViewModel : ViewModel() {
             nif               = s1.nif,
             nis               = s1.nis,
             registre_commerce = s1.rc,
-            adresse           = "string",
-            wilaya            = "string",
-            commune           = "string",
-            type              = "EPA",
-            code_service      = "string",
-            secteur_activite  = "string",
-            ordonnateur       = "string"
+            adresse           = s1.adresse,                // ← empty, not "string"
+            wilaya            = s1.wilaya,
+            commune           = s1.commune,
+            type              = s1.type,           // ← from step1 selection
+            // SC-specific fields — only send when role matches
+            code_service     = if (s1.role == "SERVICE_CONTRACTANT") "SC-000" else null,
+            secteur_activite = if (s1.role == "SERVICE_CONTRACTANT") "Non renseigné" else null,
+            ordonnateur      = if (s1.role == "SERVICE_CONTRACTANT") "Non renseigné" else null,
+            // OE-specific fields
+            qualifications   = if (s1.role == "OPERATEUR_ECONOMIQUE") "" else null,
+            categories       = if (s1.role == "OPERATEUR_ECONOMIQUE") "" else null
         )
 
         viewModelScope.launch {
             authState = AuthState.Loading
             try {
-                val response      = repository.register(request)
-                registeredEmail   = s2.email          // ← save for OTP screen
-                authToken         = response.resolvedToken()
-                currentUserId     = response.user_id ?: ""
-                authState         = AuthState.Success(response.message ?: "Inscription réussie")
+                android.util.Log.d("REGISTER_DEBUG", com.google.gson.Gson().toJson(request))
+                val response    = repository.register(request)
+                registeredEmail = s2.email
+                authToken       = response.resolvedToken()
+                currentUserId   = response.user_id ?: ""
+                authState       = AuthState.Success(response.message ?: "Inscription réussie")
                 onSuccess(response.user_id ?: "")
+                android.util.Log.d("REGISTER_DEBUG", com.google.gson.Gson().toJson(request))
             } catch (e: retrofit2.HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
                 android.util.Log.e("AUTH_DEBUG", "HTTP ${e.code()}: $errorBody")
                 authState = AuthState.Error(
                     when (e.code()) {
+                        400  -> "Champs manquants ou invalides"   // ← added 400 case
                         409  -> "Un compte avec cet email existe déjà"
                         422  -> "Données invalides: $errorBody"
                         429  -> "Trop de tentatives, réessayez plus tard"
@@ -188,7 +209,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // ── Send OTP (after registration) ─────────────────────────────────────────
+    // ── Send OTP ──────────────────────────────────────────────────────────────
     fun sendOtp(email: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             authState = AuthState.Loading
@@ -203,8 +224,10 @@ class AuthViewModel : ViewModel() {
             } catch (e: retrofit2.HttpException) {
                 authState = AuthState.Error(
                     when (e.code()) {
+                        400  -> "Email invalide"
                         404  -> "Email introuvable"
                         429  -> "Trop de tentatives, réessayez plus tard"
+                        500  -> "Erreur serveur lors de l'envoi"
                         502  -> "Service temporairement indisponible"
                         else -> "Erreur serveur (${e.code()})"
                     }
@@ -217,7 +240,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // ── Verify OTP (activates account) ────────────────────────────────────────
+    // ── Verify OTP ────────────────────────────────────────────────────────────
     fun verifyOtp(email: String, code: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             authState = AuthState.Loading
@@ -232,6 +255,7 @@ class AuthViewModel : ViewModel() {
             } catch (e: retrofit2.HttpException) {
                 authState = AuthState.Error(
                     when (e.code()) {
+                        400  -> "Code incorrect, expiré ou déjà utilisé"  // ← matches spec
                         401  -> "Code invalide ou expiré"
                         429  -> "Trop de tentatives"
                         else -> "Erreur serveur (${e.code()})"
@@ -256,6 +280,7 @@ class AuthViewModel : ViewModel() {
             } catch (e: retrofit2.HttpException) {
                 authState = AuthState.Error(
                     when (e.code()) {
+                        400  -> "Format d'email invalide"   // ← matches spec
                         404  -> "Aucun compte trouvé avec cet email"
                         429  -> "Trop de tentatives, réessayez plus tard"
                         else -> "Erreur serveur (${e.code()})"
@@ -280,7 +305,7 @@ class AuthViewModel : ViewModel() {
             } catch (e: retrofit2.HttpException) {
                 authState = AuthState.Error(
                     when (e.code()) {
-                        401  -> "Code invalide ou expiré"
+                        400  -> "Code invalide ou expiré"   // ← spec returns 400, not 401
                         429  -> "Trop de tentatives"
                         else -> "Erreur serveur (${e.code()})"
                     }
@@ -304,8 +329,8 @@ class AuthViewModel : ViewModel() {
             } catch (e: retrofit2.HttpException) {
                 authState = AuthState.Error(
                     when (e.code()) {
-                        401  -> "Code invalide ou expiré"
-                        422  -> "Mot de passe trop faible"
+                        400  -> "Code invalide ou critères non respectés"  // ← spec returns 400
+                        429  -> "Trop de tentatives"
                         else -> "Erreur serveur (${e.code()})"
                     }
                 )
@@ -392,6 +417,44 @@ class AuthViewModel : ViewModel() {
                 ?: json.optString("id").takeIf { it.isNotEmpty() }
         } catch (e: Exception) {
             null
+        }
+    }
+
+    fun verifyOtpAndLogin(
+        email    : String,
+        code     : String,
+        onSuccess: (token: String, userId: String) -> Unit
+    ) {
+        viewModelScope.launch {
+            authState = AuthState.Loading
+            try {
+                // Step 1: verify OTP
+                val res = repository.verifyOtp(email, code)
+                if (res.success != true) {
+                    authState = AuthState.Error(res.message ?: "Code OTP invalide")
+                    return@launch
+                }
+                // Step 2: auto-login with saved credentials
+                val password = step2Data?.password ?: run {
+                    authState = AuthState.Error("Session expirée, reconnectez-vous")
+                    return@launch
+                }
+                val (loginResponse, token) = repository.login(email, password)
+                authToken     = token
+                currentUserId = decodeUserIdFromJwt(token) ?: loginResponse.user?.userId
+                authState     = AuthState.Success(token)
+                onSuccess(token, currentUserId ?: "")
+            } catch (e: retrofit2.HttpException) {
+                authState = AuthState.Error(
+                    when (e.code()) {
+                        400  -> "Code incorrect, expiré ou déjà utilisé"
+                        401  -> "Identifiants invalides"
+                        else -> "Erreur serveur (${e.code()})"
+                    }
+                )
+            } catch (e: Exception) {
+                authState = AuthState.Error(e.message ?: "Erreur")
+            }
         }
     }
 }

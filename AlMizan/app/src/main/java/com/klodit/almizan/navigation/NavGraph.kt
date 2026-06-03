@@ -217,8 +217,8 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                     onBackClick      = { navController.popBackStack() },
                     onTermsClick     = { navController.navigate(Routes.TERMS) },
                     onPrivacyClick   = { navController.navigate(Routes.PRIVACY) },
-                    onContinueClick  = { orgName, nif, nis, rc ->
-                        authViewModel.saveStep1(orgName, nif, nis, rc)
+                    onContinueClick  = { orgName, nif, nis, rc, type, role, wilaya, commune, adresse ->
+                        authViewModel.saveStep1(orgName, nif, nis, rc, type, role, wilaya, commune, adresse)
                         navController.navigate(Routes.REGISTRATION_STEP2)
                     }
                 )
@@ -268,7 +268,6 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
             composable(Routes.OTP_VERIFY) { backStackEntry ->
                 val email = Uri.decode(backStackEntry.arguments?.getString("email") ?: "")
 
-                // Auto-send OTP as soon as this screen appears
                 LaunchedEffect(email) {
                     authViewModel.sendOtp(email) {}
                 }
@@ -279,18 +278,20 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                     authState        = authViewModel.authState,
                     onClearError     = { authViewModel.clearError() },
                     onVerifyClick    = { code ->
-                        authViewModel.verifyOtp(email, code) {
-                            // Account activated → go to login, clear entire back stack
-                            navController.navigate(Routes.LOGIN) {
-                                popUpTo(0) { inclusive = true }
+                        authViewModel.verifyOtpAndLogin(
+                            email    = email,
+                            code     = code,
+                            onSuccess = { _, _ ->
+                                navController.navigate(Routes.MAIN) {
+                                    popUpTo(0) { inclusive = true }
+                                }
                             }
-                        }
+                        )
                     },
                     onResendClick = { authViewModel.sendOtp(email) {} },
                     onLogoutClick = { navController.popBackStack(Routes.LOGIN, false) }
                 )
             }
-
             // ── Main shell ────────────────────────────────────────────────────
             composable(Routes.MAIN) {
                 //val currentToken  = authViewModel.authToken ?: ""

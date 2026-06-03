@@ -5,9 +5,9 @@ import com.google.gson.annotations.SerializedName
 // ── API envelope ─────────────────────────────────────────────────────────────
 
 data class ProfileApiResponse(
-    val status  : Int            = 0,
-    val message : String         = "",
-    val data    : ProfileResponse? = null
+    val deleted: Boolean? = null,   // matches { "deleted": true }
+    val message: String? = null,
+    val status: Int? = null
 )
 
 // ── Raw API payload ───────────────────────────────────────────────────────────

@@ -38,10 +38,10 @@ interface AuthApi {
     @POST("auth/logout")
     suspend fun logout(): MessageResponse
 
-    @POST("otp/send")
+    @POST("auth/otp/send")          // ← was "otp/send"
     suspend fun sendOtp(@Body request: SendOtpRequest): OtpResponse
 
-    @POST("otp/verify")
+    @POST("auth/otp/verify")        // ← was "otp/verify"
     suspend fun verifyOtp(@Body request: VerifyOtpRequest): OtpResponse
 
 

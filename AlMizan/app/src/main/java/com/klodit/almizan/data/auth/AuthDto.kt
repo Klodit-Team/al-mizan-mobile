@@ -3,7 +3,7 @@ package com.klodit.almizan.data.auth
 data class RegisterRequest(
     val email             : String,
     val password          : String,
-    val role              : String = "SERVICE_CONTRACTANT",
+    val role              : String,          // ← no default; pass explicitly
     val langue            : String = "fr",
     val nom               : String,
     val prenom            : String,
@@ -12,14 +12,20 @@ data class RegisterRequest(
     val nif               : String,
     val nis               : String,
     val registre_commerce : String,
-    val adresse           : String = "string",
-    val wilaya            : String = "string",
-    val commune           : String = "string",
-    val type              : String = "EPA",
-    val code_service      : String = "string",
-    val secteur_activite  : String = "string",
-    val ordonnateur       : String = "string"
+    val adresse           : String = "",
+    val wilaya            : String = "",
+    val commune           : String = "",
+    val type              : String,          // ← no default; pass from Step 1
+    // SERVICE_CONTRACTANT fields (nullable for OE)
+    val code_service      : String? = null,
+    val secteur_activite  : String? = null,
+    val ordonnateur       : String? = null,
+    // OPERATEUR_ECONOMIQUE fields (nullable for SC)
+    val qualifications    : String? = null,
+    val categories        : String? = null
 )
+
+
 
 data class RegisterResponse(
     val message : String? = null,
@@ -61,13 +67,21 @@ data class VerifyTokenRequest(
     val token: String   // the 6-digit code the user receives
 )
 
-// ── Reset password ────────────────────────────────────────────────────────────
+// ── Reset password ──────────────────────────────────────────────────────────────
 data class ResetPasswordRequest(
-    val token       : String,  // same 6-digit code
-    val new_password: String
+    val token                : String,
+    val newPassword          : String,
+    val confirmeNewPassword  : String
 )
 
 // ── Generic response (message only) ──────────────────────────────────────────
 data class MessageResponse(
     val message: String? = null
 )
+
+data class ChangePasswordRequest(
+    val currentPassword: String,
+    val newPassword: String,
+    val confirmeNewPassword: String
+)
+

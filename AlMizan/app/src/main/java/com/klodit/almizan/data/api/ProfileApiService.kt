@@ -1,6 +1,8 @@
 // app/src/main/java/com/klodit/almizan/data/api/ProfileApiService.kt
 package com.klodit.almizan.data.api
 
+import com.klodit.almizan.data.auth.ChangePasswordRequest
+import com.klodit.almizan.data.auth.MessageResponse
 import com.klodit.almizan.data.profile.ProfileApiResponse
 import com.klodit.almizan.data.profile.ProfileResponse
 import com.klodit.almizan.data.profile.UpdateProfileRequest
@@ -9,6 +11,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
+import retrofit2.http.POST
 import retrofit2.http.Path
 
 // --- DTOs ---
@@ -102,6 +105,10 @@ interface ProfileApiService {
         @Body request: UpdateProfileRequest
     ): Response<ProfileResponse>
 
-    @DELETE("users/profiles/{id}")
+    @DELETE("api/v1/profiles/{id}")
     suspend fun deleteProfile(@Path("id") profileId: String): Response<ProfileApiResponse>
+
+    @POST("auth/change-password")
+    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<MessageResponse>
+
 }
