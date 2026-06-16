@@ -101,3 +101,19 @@ sealed class DeleteUiState {
     data class Success(val message: String)  : DeleteUiState()
     data class Error(val message: String)    : DeleteUiState()
 }
+
+data class ServiceContractantProfileDto(
+    val userInfo: ScUserInfo?,
+    val organizationInfo: ScOrgInfo?,
+    val serviceInfo: ScServiceInfo?
+)
+data class ScUserInfo(
+    val firstName: String?, val lastName: String?,
+    val email: String?, val phone: String?, val preferredLanguage: String?
+)
+data class ScOrgInfo(
+    val denomination: String?, val nif: String?, val nis: String?,
+    val rc: String?, val address: String?, val wilaya: String?,
+    val organizationType: String?, val verificationStatus: String?
+)
+data class ScServiceInfo(val serviceCode: String?, val activitySector: String?, val ordonnateur: String?)

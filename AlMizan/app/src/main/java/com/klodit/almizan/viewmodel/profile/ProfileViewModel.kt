@@ -111,20 +111,17 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
+    // deleteProfile
     fun deleteProfile(profileId: String, token: String) {
         viewModelScope.launch {
             _deleteUiState.value = DeleteUiState.Loading
-            repository.deleteProfile(profileId)
-                .onSuccess {
-                    _deleteUiState.value = DeleteUiState.Success("Compte supprime avec succes")
-                }
-                .onFailure { e ->
-                    _deleteUiState.value = DeleteUiState.Error(
-                        e.localizedMessage ?: "Erreur reseau"
-                    )
-                }
+            repository.deleteProfile(profileId, token)  // ← passe token ici
+                .onSuccess { _deleteUiState.value = DeleteUiState.Success("Compte supprimé") }
+                .onFailure { e -> _deleteUiState.value = DeleteUiState.Error(e.message ?: "Erreur") }
         }
     }
+
+
 
     fun resetUpdateState() { _updateUiState.value = UpdateUiState.Idle }
     fun resetDeleteState() { _deleteUiState.value = DeleteUiState.Idle }

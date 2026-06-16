@@ -60,10 +60,27 @@ class ProfileRepository {
             android.util.Log.d("PROFILE_REPO", "userId from /me = $userId")
 
             // Graceful fallback if profile or operator doesn't exist for test accounts
-            val profileDto = try { api.getProfile(userId).body() } catch (e: Exception) { null }
-            val operateurs = try { api.getOperateurs().body() ?: emptyList() } catch (e: Exception) {
-                android.util.Log.e("PROFILE_REPO", "getOperateurs failed: $e")
-                emptyList() }
+            val profileDto = try {
+                val res = api.getProfile(userId)
+                android.util.Log.d("PROFILE_REPO", "getProfile HTTP ${res.code()}")
+                android.util.Log.d("PROFILE_REPO", "getProfile body = ${res.body()}")
+                android.util.Log.d("PROFILE_REPO", "getProfile errorBody = ${res.errorBody()?.string()}")
+                res.body()
+            } catch (e: Exception) {
+                android.util.Log.e("PROFILE_REPO", "getProfile exception: $e")
+                null
+            }
+
+            val operateurs = try {
+                val res = api.getOperateurs()
+                android.util.Log.d("PROFILE_REPO", "getOperateurs HTTP ${res.code()}")
+                android.util.Log.d("PROFILE_REPO", "getOperateurs body = ${res.body()}")
+                android.util.Log.d("PROFILE_REPO", "getOperateurs errorBody = ${res.errorBody()?.string()}")
+                res.body() ?: emptyList()
+            } catch (e: Exception) {
+                android.util.Log.e("PROFILE_REPO", "getOperateurs exception: $e")
+                emptyList()
+            }
 
 
             android.util.Log.d("PROFILE_REPO", "operateurs count = ${operateurs.size}")
@@ -86,16 +103,23 @@ class ProfileRepository {
                 langue = Langue.fromValue(profileDto?.langue ?: "fr")
             )
 
+            val scProfile = try {
+                api.getServiceContractantProfile(userId).body()
+            } catch (e: Exception) {
+                android.util.Log.e("PROFILE_REPO", "getScProfile failed: $e")
+                null
+            }
+
             val organisation = Organisation(
-                denomination = orgDto?.denomination ?: "Entreprise Test (Mock)",
-                nif = orgDto?.nif ?: "000000000000000",
-                nis = orgDto?.nis ?: "00000000000000",
-                registre_commerce = orgDto?.registre_commerce ?: "RC-0000",
-                adresse = orgDto?.adresse ?: "Alger",
-                wilaya = orgDto?.wilaya ?: "Alger",
-                commune = orgDto?.commune ?: "Alger Centre",
-                type = OrganisationType.fromValue(orgDto?.type ?: "sarl"),
-                is_verified = orgDto?.is_verified ?: false
+                denomination      = scProfile?.organizationInfo?.denomination ?: orgDto?.denomination ?: "—",
+                nif               = scProfile?.organizationInfo?.nif ?: orgDto?.nif ?: "—",
+                nis               = scProfile?.organizationInfo?.nis ?: orgDto?.nis ?: "—",
+                registre_commerce = scProfile?.organizationInfo?.rc ?: orgDto?.registre_commerce ?: "—",
+                adresse           = scProfile?.organizationInfo?.address ?: orgDto?.adresse ?: "—",
+                wilaya            = scProfile?.organizationInfo?.wilaya ?: orgDto?.wilaya ?: "—",
+                commune           = orgDto?.commune ?: "—",
+                type              = OrganisationType.fromValue(scProfile?.organizationInfo?.organizationType ?: orgDto?.type ?: ""),
+                is_verified       = scProfile?.organizationInfo?.verificationStatus?.lowercase() == "verified" || orgDto?.is_verified ?: false
             )
 
             val operateur = OperateurEconomique(
@@ -203,7 +227,7 @@ class ProfileRepository {
         }
     }
 
-
+/*
     suspend fun deleteProfile(profileId: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val response = api.deleteProfile(profileId)
@@ -223,6 +247,22 @@ class ProfileRepository {
         } catch (e: Exception) {
             android.util.Log.e("PROFILE_REPO", "deleteProfile exception: $e")
             Result.failure(e)
+        }
+    }*/
+
+    suspend fun deleteProfile(profileId: String, token: String): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val response = api.deleteProfile("Bearer $token", profileId)
+            android.util.Log.d("DELETE_DEBUG", "HTTP ${response.code()}")
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Erreur (${response.code()})"
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("DELETE_DEBUG", "exception: ${e::class.simpleName} — ${e.message}")
+            Result.failure(Exception(e.message ?: "Erreur suppression"))
         }
     }
 

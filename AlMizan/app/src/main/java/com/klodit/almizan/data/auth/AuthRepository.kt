@@ -13,13 +13,19 @@ class AuthRepository(private val api: AuthApi) {
     suspend fun login(email: String, password: String): Pair<LoginResponse, String> {
         val response = api.loginRaw(LoginRequest(email, password))
 
+        // Log tous les headers set-cookie
+        response.headers().values("set-cookie").forEach {
+            android.util.Log.d("AUTH_DEBUG", "set-cookie header: $it")
+        }
+
         val cookie = response.headers().values("set-cookie")
-            .firstOrNull { header -> header.startsWith("access_token=") }
+            .firstOrNull { it.contains("access_token=") }  // ← contains au lieu de startsWith
         val token = cookie
-            ?.removePrefix("access_token=")
+            ?.substringAfter("access_token=")
             ?.substringBefore(";")
             ?: ""
 
+        android.util.Log.d("AUTH_DEBUG", "extracted token = '${token.take(30)}'")
         return Pair(response.body()!!, token)
     }
 

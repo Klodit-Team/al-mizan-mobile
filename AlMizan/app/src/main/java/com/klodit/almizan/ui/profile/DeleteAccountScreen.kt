@@ -38,7 +38,7 @@ fun DeleteAccountScreen(
     LaunchedEffect(deleteState) {
         if (deleteState is DeleteUiState.Success) onDeleted()
     }
-
+    android.util.Log.d("DELETE_DEBUG", "token passed to screen = '${token.take(30)}'")
     Scaffold(
         topBar = {
             TopAppBar(

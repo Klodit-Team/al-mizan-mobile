@@ -5,11 +5,13 @@ import com.klodit.almizan.data.auth.ChangePasswordRequest
 import com.klodit.almizan.data.auth.MessageResponse
 import com.klodit.almizan.data.profile.ProfileApiResponse
 import com.klodit.almizan.data.profile.ProfileResponse
+import com.klodit.almizan.data.profile.ServiceContractantProfileDto
 import com.klodit.almizan.data.profile.UpdateProfileRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -87,7 +89,7 @@ interface ProfileApiService {
     @GET("users/profiles/user/{userId}")
     suspend fun getProfile(@Path("userId") userId: String): Response<ProfileDto>
 
-    @GET("users/operateurs-economiques?page=1&limit=200")
+    @GET("users/operateurs-economiques?page=1&limit=100")
     suspend fun getOperateurs(): Response<List<OperateurDto>>
 
     @GET("auth/sessions")
@@ -105,10 +107,17 @@ interface ProfileApiService {
         @Body request: UpdateProfileRequest
     ): Response<ProfileResponse>
 
-    @DELETE("api/v1/profiles/{id}")
-    suspend fun deleteProfile(@Path("id") profileId: String): Response<ProfileApiResponse>
-
+    @DELETE("users/profiles/{id}")
+    suspend fun deleteProfile(
+        @Header("Authorization") authorization: String,
+        @Path("id") profileId: String
+    ): Response<ProfileApiResponse>
     @POST("auth/change-password")
     suspend fun changePassword(@Body request: ChangePasswordRequest): Response<MessageResponse>
+
+    @GET("users/services-contractants/profile")
+    suspend fun getServiceContractantProfile(
+        @Header("x-user-id") userId: String
+    ): Response<ServiceContractantProfileDto>
 
 }
