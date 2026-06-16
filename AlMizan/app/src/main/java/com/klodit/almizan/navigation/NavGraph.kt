@@ -344,6 +344,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 android.util.Log.d("AUTH_DEBUG", "currentUserId = ${authViewModel.currentUserId}")
                 android.util.Log.d("AUTH_DEBUG", "authToken = ${authViewModel.authToken}")
                 MainScreen(
+                    allTenders = tenders,
                     profileViewModel           = profileViewModel,
                     activeFilter               = activeFilter,
                     userId                     = currentUserId,

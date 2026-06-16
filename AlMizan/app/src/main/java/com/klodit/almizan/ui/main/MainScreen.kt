@@ -28,6 +28,7 @@ import com.klodit.almizan.viewmodel.MainViewModel
 import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 import com.klodit.almizan.ui.theme.AppLanguage
 import com.klodit.almizan.viewmodel.notification.NotificationViewModel
+import com.klodit.almizan.ui.home.HomeSearchParams
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -38,6 +39,7 @@ fun MainScreen(
     activeFilter: FilterState = FilterState(),
     userId: String = "",
     token: String = "",
+    allTenders: List<com.klodit.almizan.model.tender.Tender> = emptyList(),
     onNavigateToLogin: () -> Unit = {},
     selectedLang: AppLanguage,
     onLanguageChange: (AppLanguage) -> Unit,
@@ -66,6 +68,12 @@ fun MainScreen(
     val showSettings by viewModel.showSettings.collectAsState()
     val showNotifications by viewModel.showNotifications.collectAsState()
 
+    // ── Search query state for HomeScreen → TenderListScreen ────────────────
+
+    var tenderSearchQuery by remember { mutableStateOf("") }
+    var tenderSearchSector by remember { mutableStateOf("") }
+    var tenderSearchWilaya by remember { mutableStateOf("") }
+
     /*
     val localizedContext = remember(language) {
         val locale = java.util.Locale(language.locale)
@@ -90,11 +98,11 @@ fun MainScreen(
     }
 
 
-   /* LaunchedEffect(userId) {
-        if (userId.isNotEmpty()) {
-            profileViewModel.fetchProfileByUserId(userId, token)
-        }
-    }*/
+    /* LaunchedEffect(userId) {
+         if (userId.isNotEmpty()) {
+             profileViewModel.fetchProfileByUserId(userId, token)
+         }
+     }*/
 
 
     LaunchedEffect(userId, currentRoute) {
@@ -209,19 +217,32 @@ fun MainScreen(
     ) { innerPadding ->
         when (currentRoute) {
             BottomNavDestination.Home.route -> HomeScreen(
-                innerPadding           = innerPadding,
-                onNavigateToDetail     = onNavigateToTenderDetail,   // ← "View Details" now navigates
-                onNavigateToTenderList = {                           // ← "View All" now switches tab
+                innerPadding            = innerPadding,
+                onNavigateToDetail      = onNavigateToTenderDetail,
+                onNavigateToTenderList  = {
+                    // Clear search when using "View All" button
+                    tenderSearchQuery = ""
                     viewModel.onTabSelected(BottomNavDestination.Tenders)
-                }
+                },
+                onSearchTenders         = { params ->
+                    tenderSearchQuery  = params.query
+                    tenderSearchSector = params.sector
+                    tenderSearchWilaya = params.wilaya
+                    viewModel.onTabSelected(BottomNavDestination.Tenders)
+                },
+                allTenders = allTenders,
+
             )
 
             BottomNavDestination.Tenders.route -> TenderListScreen(
-                innerPadding = innerPadding,
-                localizedContext = localizedContext,
-                activeFilter = activeFilter,
-                onNavigateToFilter = onNavigateToFilter,
-                onNavigateToDetail = onNavigateToTenderDetail
+                innerPadding         = innerPadding,
+                localizedContext     = localizedContext,
+                activeFilter         = activeFilter,
+                initialSearchQuery   = tenderSearchQuery,
+                initialSector        = tenderSearchSector,
+                initialWilaya        = tenderSearchWilaya,
+                onNavigateToFilter   = onNavigateToFilter,
+                onNavigateToDetail   = onNavigateToTenderDetail
             )
 
             BottomNavDestination.MyBids.route -> Box(

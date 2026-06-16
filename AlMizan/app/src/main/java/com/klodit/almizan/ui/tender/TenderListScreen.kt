@@ -39,6 +39,9 @@ fun TenderListScreen(
     innerPadding         : PaddingValues,
     localizedContext     : Context,
     activeFilter         : FilterState    = FilterState(),
+    initialSearchQuery   : String         = "",
+    initialSector        : String         = "",
+    initialWilaya        : String         = "",
     onNavigateToFilter   : () -> Unit,
     onNavigateToDetail   : (String) -> Unit,
     viewModel            : TenderViewModel = viewModel()
@@ -49,7 +52,9 @@ fun TenderListScreen(
 
     val filterTabs = listOf("All", "PUBLIE", "ANNULE")
     var selectedTab  by remember { mutableStateOf("All") }
-    var searchQuery  by remember { mutableStateOf("") }
+    var searchQuery  by remember { mutableStateOf(initialSearchQuery) }
+    var selectedSector by remember { mutableStateOf(initialSector) }
+    var selectedWilaya by remember { mutableStateOf(initialWilaya) }
 
     LaunchedEffect(Unit) { viewModel.fetchTenders() }
 
@@ -72,7 +77,7 @@ fun TenderListScreen(
     }
 
     // ── Filtering ─────────────────────────────────────────────────────────────
-    val visible = remember(tenders, selectedTab, searchQuery, activeFilter) {
+    val visible = remember(tenders, selectedTab, searchQuery, selectedSector, selectedWilaya, activeFilter) {
         tenders.filter { t ->
 
             val matchesTab = selectedTab == "All" || t.statut == selectedTab
@@ -83,6 +88,13 @@ fun TenderListScreen(
                     t.wilaya.contains(searchQuery, ignoreCase = true) ||
                     t.secteurActivite.contains(searchQuery, ignoreCase = true)
 
+            // Home page quick filters (sector from dropdown, wilaya from input)
+            val matchesQuickSector = selectedSector.isBlank() ||
+                    t.secteurActivite.equals(selectedSector, ignoreCase = true)
+            val matchesQuickWilaya = selectedWilaya.isBlank() ||
+                    t.wilaya.contains(selectedWilaya, ignoreCase = true)
+
+            // Advanced filters (from detailed filter)
             val matchesSector = activeFilter.selectedSectors.isEmpty() ||
                     t.secteurActivite in activeFilter.selectedSectors
             val matchesStatus = activeFilter.selectedStatuses.isEmpty() ||
@@ -100,7 +112,7 @@ fun TenderListScreen(
                 afterFrom && beforeTo
             }
 
-            matchesTab && matchesSearch &&
+            matchesTab && matchesSearch && matchesQuickSector && matchesQuickWilaya &&
                     matchesSector && matchesStatus && matchesWilaya && matchesDate
         }
     }

@@ -8,7 +8,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,9 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,32 +43,46 @@ import com.klodit.almizan.viewmodel.HomeViewModel
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
+// ─── Color Palette (Grey-based, no blue) ──────────────────────────────────────
+private val NavyDark    = Color(0xFF364150)
+private val SlateGrey   = Color(0xFF475569)
+private val BorderGrey  = Color(0xFFE2E8F0)
+private val GreyBg      = Color(0xFFF8FAFC)
+
 // ─── Entry point ──────────────────────────────────────────────────────────────
+
+// ─── Data class for home search ───────────────────────────────────────────────
+data class HomeSearchParams(
+    val query: String = "",
+    val sector: String = "",
+    val wilaya: String = ""
+)
 
 @Composable
 fun HomeScreen(
-    innerPadding          : PaddingValues,
-    onNavigateToDetail    : (String) -> Unit = {},
-    onNavigateToTenderList: () -> Unit       = {},
-    viewModel             : HomeViewModel    = viewModel()
+    innerPadding           : PaddingValues,
+    onNavigateToDetail     : (String) -> Unit = {},
+    onNavigateToTenderList : () -> Unit       = {},
+    onSearchTenders        : (HomeSearchParams) -> Unit = {},
+    //allTenders             : List<Tender>     = emptyList(),
+    allTenders: List<com.klodit.almizan.model.tender.Tender> = emptyList(),
+    viewModel              : HomeViewModel    = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    var searchQuery     by remember { mutableStateOf("") }
-    var selectedSecteur by remember { mutableStateOf("") }
-    var selectedWilaya  by remember { mutableStateOf("") }
+    var searchQuery  by remember { mutableStateOf("") }
+    var selectedSector by remember { mutableStateOf("") }
+    var selectedWilaya by remember { mutableStateOf("") }
 
-    val secteurLabel = stringResource(R.string.home_filter_sector)
-    val wilayaLabel  = stringResource(R.string.home_filter_wilaya)
-    LaunchedEffect(Unit) {
-        if (selectedSecteur.isEmpty()) selectedSecteur = secteurLabel
-        if (selectedWilaya.isEmpty())  selectedWilaya  = wilayaLabel
+    // Derive available sectors from tenders
+    val availableSectors = remember(allTenders) {
+        allTenders.map { it.secteurActivite }.distinct().sorted()
     }
 
     LazyColumn(
         modifier       = Modifier
             .fillMaxSize()
-            .background(Grey50)
+            .background(Navy50)
             .padding(innerPadding),
         contentPadding = PaddingValues(bottom = 24.dp)
     ) {
@@ -70,11 +90,20 @@ fun HomeScreen(
             HeroSection(
                 searchQuery     = searchQuery,
                 onSearchChange  = { searchQuery = it },
-                selectedSecteur = selectedSecteur,
-                onSecteurChange = { selectedSecteur = it },
+                selectedSector  = selectedSector,
+                onSectorChange  = { selectedSector = it },
+                availableSectors = availableSectors,
                 selectedWilaya  = selectedWilaya,
                 onWilayaChange  = { selectedWilaya = it },
-                onSearch        = onNavigateToTenderList
+                onSearch        = {
+                    onSearchTenders(
+                        HomeSearchParams(
+                            query = searchQuery,
+                            sector = selectedSector,
+                            wilaya = selectedWilaya
+                        )
+                    )
+                }
             )
         }
 
@@ -157,14 +186,17 @@ fun HomeScreen(
 
 @Composable
 private fun HeroSection(
-    searchQuery     : String,
-    onSearchChange  : (String) -> Unit,
-    selectedSecteur : String,
-    onSecteurChange : (String) -> Unit,
-    selectedWilaya  : String,
-    onWilayaChange  : (String) -> Unit,
-    onSearch        : () -> Unit
+    searchQuery      : String,
+    onSearchChange   : (String) -> Unit,
+    selectedSector   : String,
+    onSectorChange   : (String) -> Unit,
+    availableSectors : List<String> = emptyList(),
+    selectedWilaya   : String,
+    onWilayaChange   : (String) -> Unit,
+    onSearch         : () -> Unit
 ) {
+    var showSectorDropdown by remember { mutableStateOf(false) }
+
     Column(
         modifier            = Modifier
             .fillMaxWidth()
@@ -199,100 +231,146 @@ private fun HeroSection(
 
         Spacer(Modifier.height(20.dp))
 
+        // ── Search input ──────────────────────────────────────────────────────
         OutlinedTextField(
             value         = searchQuery,
             onValueChange = onSearchChange,
             placeholder   = {
                 Text(
                     stringResource(R.string.home_search_placeholder),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Navy400
+                    color = Navy500,
+                    fontSize = 14.sp
                 )
             },
             leadingIcon = {
-                Icon(Icons.Outlined.Search, contentDescription = null, tint = Navy400)
+                Icon(Icons.Default.Search, contentDescription = null, tint = Navy500)
             },
             modifier   = Modifier.fillMaxWidth(),
             shape      = RoundedCornerShape(12.dp),
             singleLine = true,
             colors     = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Grey50,
-                focusedContainerColor   = Grey50,
-                unfocusedBorderColor    = Navy100,
-                focusedBorderColor      = Green500,
-                cursorColor             = Green500
+                unfocusedContainerColor = NavyWhite,
+                focusedContainerColor   = NavyWhite,
+                unfocusedBorderColor    = BorderGrey,
+                focusedBorderColor      = Navy800,
+                cursorColor             = Navy800
             )
         )
 
-        Spacer(Modifier.height(10.dp))
-
-        Row(
-            modifier              = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            DropdownChip(
-                label    = selectedSecteur,
-                modifier = Modifier.weight(1f),
-                onClick  = { /* open secteur picker */ }
-            )
-            DropdownChip(
-                label    = selectedWilaya,
-                modifier = Modifier.weight(1f),
-                onClick  = { /* open wilaya picker */ }
-            )
-        }
+        Spacer(Modifier.height(12.dp))
 
         Spacer(Modifier.height(12.dp))
 
+// ── Sector + Wilaya side by side ──────────────────────────────────────────
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            // Sector dropdown
+            Box(modifier = Modifier.weight(1f)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(GreyBg)
+                        .border(1.dp, BorderGrey, RoundedCornerShape(12.dp))
+                        .clickable { showSectorDropdown = !showSectorDropdown }
+                        .padding(horizontal = 14.dp, vertical = 12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = if (selectedSector.isNotEmpty()) selectedSector else "Sector…",
+                            color = if (selectedSector.isNotEmpty()) NavyDark else SlateGrey,
+                            fontSize = 14.sp,
+                            fontWeight = if (selectedSector.isNotEmpty()) FontWeight.Medium else FontWeight.Normal,
+                            modifier = Modifier.weight(1f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Icon(Icons.Default.ArrowDropDown, null, tint = SlateGrey, modifier = Modifier.size(20.dp))
+                    }
+                }
+
+                DropdownMenu(
+                    expanded = showSectorDropdown,
+                    onDismissRequest = { showSectorDropdown = false },
+                    modifier = Modifier.background(NavyWhite)
+                ) {
+                    if (availableSectors.isEmpty()) {
+                        DropdownMenuItem(
+                            text = { Text("No sectors available", color = SlateGrey, fontSize = 13.sp) },
+                            onClick = { showSectorDropdown = false }
+                        )
+                    } else {
+                        availableSectors.forEach { sector ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = sector,
+                                        color = if (sector == selectedSector) Green500 else NavyDark,
+                                        fontWeight = if (sector == selectedSector) FontWeight.SemiBold else FontWeight.Normal,
+                                        fontSize = 13.sp
+                                    )
+                                },
+                                onClick = {
+                                    onSectorChange(sector)
+                                    showSectorDropdown = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Wilaya input
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(GreyBg)
+                    .border(1.dp, BorderGrey, RoundedCornerShape(12.dp))
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Default.Search, null, tint = SlateGrey, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                BasicTextField(
+                    value = selectedWilaya,
+                    onValueChange = onWilayaChange,
+                    singleLine = true,
+                    cursorBrush = SolidColor(Green500),
+                    textStyle = TextStyle(color = NavyDark, fontSize = 14.sp),
+                    modifier = Modifier.fillMaxWidth(),
+                    decorationBox = { inner ->
+                        if (selectedWilaya.isEmpty()) {
+                            Text("Wilaya…", color = SlateGrey, fontSize = 14.sp)
+                        }
+                        inner()
+                    }
+                )
+            }
+        }
+
+        Spacer(Modifier.height(14.dp))
+
+        // ── Search Button ─────────────────────────────────────────────────────
         Button(
             onClick  = onSearch,
             modifier = Modifier.fillMaxWidth(),
             shape    = RoundedCornerShape(12.dp),
             colors   = ButtonDefaults.buttonColors(containerColor = Green500)
         ) {
+            Icon(Icons.Default.Search, null, tint = NavyWhite, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
             Text(
                 stringResource(R.string.home_search_btn),
-                style    = MaterialTheme.typography.labelLarge,
-                color    = NavyWhite,
+                style = MaterialTheme.typography.labelLarge,
+                color = NavyWhite,
                 modifier = Modifier.padding(vertical = 4.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun DropdownChip(
-    label    : String,
-    modifier : Modifier = Modifier,
-    onClick  : () -> Unit
-) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier         = modifier
-            .height(48.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(Grey50)
-            .border(1.dp, Navy100, RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp)
-    ) {
-        Row(
-            modifier          = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                label,
-                style    = MaterialTheme.typography.bodyMedium,
-                color    = Navy700,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                Icons.Outlined.KeyboardArrowDown,
-                contentDescription = null,
-                tint               = Navy500,
-                modifier           = Modifier.size(18.dp)
             )
         }
     }
