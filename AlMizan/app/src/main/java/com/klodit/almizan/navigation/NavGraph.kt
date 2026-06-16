@@ -151,6 +151,8 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
     ) {
         NavHost(navController = navController, startDestination = Routes.LOGIN) {
 
+
+
             // ── Login ─────────────────────────────────────────────────────────
             composable(Routes.LOGIN) {
                 LoginScreen(
@@ -464,3 +466,4 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
         }
     }
 }
+

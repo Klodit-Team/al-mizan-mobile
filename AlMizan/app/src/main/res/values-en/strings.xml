@@ -652,11 +652,40 @@
     <string name="home_pillar2_desc">End-to-end encrypted bids and sovereign data hosting protect sensitive commercial information.</string>
     <string name="home_pillar3_title">AI-Driven Analysis</string>
     <string name="home_pillar3_desc">Advanced analytics and pattern detection to optimise public spending and identify market trends.</string>
-
+    <string name="home_filter_sector_hint">Sector…</string>
+    <string name="home_filter_wilaya_hint">Wilaya…</string>
 
     <!-- ══ NOTIFICATIONS — add to values/strings.xml ══ -->
     <string name="notif_title">Notifications</string>
     <string name="notif_mark_all_read">Mark all read</string>
     <string name="notif_empty">No notifications yet</string>
 
+    <!-- ── STATISTICS SCREEN ── -->
+    <string name="stats_title">Statistics</string>
+    <string name="stats_refresh">Refresh</string>
+    <string name="stats_back">Back</string>
+    <string name="stats_retry">Retry</string>
+    <string name="stats_section_overview">Overview</string>
+    <string name="stats_section_by_status">By Status</string>
+    <string name="stats_section_monthly">Monthly Publications</string>
+    <string name="stats_section_by_sector">By Activity Sector</string>
+    <string name="stats_section_procedure">Procedure Types</string>
+    <string name="stats_section_highlights">Highlights</string>
+    <string name="stats_label_active">Active</string>
+    <string name="stats_label_attributed">Attributed</string>
+    <string name="stats_label_expiring">Expiring &lt; 7d</string>
+    <string name="stats_label_cancelled">Cancelled</string>
+    <string name="stats_top_wilaya">Most Active Wilaya</string>
+    <string name="stats_top_wilaya_count">%1$d tenders</string>
+    <string name="stats_avg_amount">Average Estimated Amount</string>
+    <string name="stats_currency">DZD</string>
+    <string name="stats_empty_sector">No sector data</string>
+    <string name="stats_empty_procedure">No procedure data</string>
+    <string name="stats_status_publie">Published</string>
+    <string name="stats_status_en_cours">In Progress</string>
+    <string name="stats_status_ouverture_plis">Bids Opening</string>
+    <string name="stats_status_evaluation">Evaluation</string>
+    <string name="stats_status_attribue">Attributed</string>
+    <string name="stats_status_annule">Cancelled</string>
+    <string name="stats_status_cloture">Closed</string>
 </resources>

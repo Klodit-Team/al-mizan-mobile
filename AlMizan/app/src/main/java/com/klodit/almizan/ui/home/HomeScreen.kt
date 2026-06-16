@@ -64,6 +64,7 @@ fun HomeScreen(
     onNavigateToDetail     : (String) -> Unit = {},
     onNavigateToTenderList : () -> Unit       = {},
     onSearchTenders        : (HomeSearchParams) -> Unit = {},
+    onNavigateToStatistics : () -> Unit       = {},
     //allTenders             : List<Tender>     = emptyList(),
     allTenders: List<com.klodit.almizan.model.tender.Tender> = emptyList(),
     viewModel              : HomeViewModel    = viewModel()
@@ -120,7 +121,7 @@ fun HomeScreen(
 
         item {
             Spacer(Modifier.height(24.dp))
-            ExplorePlatformSection()
+            ExplorePlatformSection(onNavigateToStatistics = onNavigateToStatistics)
         }
 
         item {
@@ -283,7 +284,8 @@ private fun HeroSection(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = if (selectedSector.isNotEmpty()) selectedSector else "Sector…",
+                            text = if (selectedSector.isNotEmpty()) selectedSector
+                            else stringResource(R.string.home_filter_sector_hint),
                             color = if (selectedSector.isNotEmpty()) NavyDark else SlateGrey,
                             fontSize = 14.sp,
                             fontWeight = if (selectedSector.isNotEmpty()) FontWeight.Medium else FontWeight.Normal,
@@ -347,7 +349,7 @@ private fun HeroSection(
                     modifier = Modifier.fillMaxWidth(),
                     decorationBox = { inner ->
                         if (selectedWilaya.isEmpty()) {
-                            Text("Wilaya…", color = SlateGrey, fontSize = 14.sp)
+                            Text(stringResource(R.string.home_filter_wilaya_hint), color = SlateGrey, fontSize = 14.sp)
                         }
                         inner()
                     }
@@ -438,7 +440,7 @@ private fun StatDivider() {
 private data class PlatformShortcut(val icon: ImageVector, val titleRes: Int, val subtitleRes: Int)
 
 @Composable
-private fun ExplorePlatformSection() {
+private fun ExplorePlatformSection(onNavigateToStatistics: () -> Unit) {
     val shortcuts = listOf(
         PlatformShortcut(Icons.Outlined.BarChart,     R.string.home_shortcut_stats_title,  R.string.home_shortcut_stats_sub),
         PlatformShortcut(Icons.Outlined.Gavel,        R.string.home_shortcut_legal_title,  R.string.home_shortcut_legal_sub),
@@ -456,19 +458,23 @@ private fun ExplorePlatformSection() {
             modifier              = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            shortcuts.forEach { shortcut ->
-                ShortcutCard(shortcut = shortcut, modifier = Modifier.weight(1f))
+            shortcuts.forEachIndexed { index, shortcut ->
+                ShortcutCard(
+                    shortcut = shortcut,
+                    modifier = Modifier.weight(1f),
+                    onClick  = if (index == 0) onNavigateToStatistics else {{}}
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ShortcutCard(shortcut: PlatformShortcut, modifier: Modifier = Modifier) {
+private fun ShortcutCard(shortcut: PlatformShortcut, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     Card(
         modifier  = modifier
             .shadow(2.dp, RoundedCornerShape(14.dp))
-            .clickable { },
+            .clickable {  onClick() },
         shape     = RoundedCornerShape(14.dp),
         colors    = CardDefaults.cardColors(containerColor = NavyWhite)
     ) {

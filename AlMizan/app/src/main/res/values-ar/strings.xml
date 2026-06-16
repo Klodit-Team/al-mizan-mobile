@@ -684,10 +684,40 @@
     <string name="home_pillar2_desc">العروض المشفرة من طرف إلى طرف والاستضافة السيادية تحمي المعلومات التجارية الحساسة.</string>
     <string name="home_pillar3_title">تحليل بالذكاء الاصطناعي</string>
     <string name="home_pillar3_desc">تحليلات متقدمة وكشف عن الاتجاهات لتحسين الإنفاق العام وتحديد الفرص.</string>
+    <string name="home_filter_sector_hint">القطاع…</string>
+    <string name="home_filter_wilaya_hint">الولاية…</string>
 
     <!-- ══ NOTIFICATIONS — add to values-ar/strings.xml ══ -->
     <string name="notif_title">الإشعارات</string>
     <string name="notif_mark_all_read">تحديد الكل كمقروء</string>
     <string name="notif_empty">لا توجد إشعارات</string>
 
+    <!-- ── STATISTICS SCREEN ── -->
+    <string name="stats_title">الإحصائيات</string>
+    <string name="stats_refresh">تحديث</string>
+    <string name="stats_back">رجوع</string>
+    <string name="stats_retry">إعادة المحاولة</string>
+    <string name="stats_section_overview">نظرة عامة</string>
+    <string name="stats_section_by_status">حسب الحالة</string>
+    <string name="stats_section_monthly">المنشورات الشهرية</string>
+    <string name="stats_section_by_sector">حسب قطاع النشاط</string>
+    <string name="stats_section_procedure">أنواع الإجراءات</string>
+    <string name="stats_section_highlights">أبرز المؤشرات</string>
+    <string name="stats_label_active">نشطة</string>
+    <string name="stats_label_attributed">مُرسَاة</string>
+    <string name="stats_label_expiring">تنتهي &lt; 7أيام</string>
+    <string name="stats_label_cancelled">ملغاة</string>
+    <string name="stats_top_wilaya">الولاية الأكثر نشاطاً</string>
+    <string name="stats_top_wilaya_count">%1$d مناقصة</string>
+    <string name="stats_avg_amount">متوسط المبلغ التقديري</string>
+    <string name="stats_currency">دج</string>
+    <string name="stats_empty_sector">لا توجد بيانات للقطاع</string>
+    <string name="stats_empty_procedure">لا توجد بيانات للإجراء</string>
+    <string name="stats_status_publie">منشور</string>
+    <string name="stats_status_en_cours">جارٍ</string>
+    <string name="stats_status_ouverture_plis">فتح الأظرفة</string>
+    <string name="stats_status_evaluation">تقييم</string>
+    <string name="stats_status_attribue">مُرسَى</string>
+    <string name="stats_status_annule">ملغى</string>
+    <string name="stats_status_cloture">مغلق</string>
 </resources>

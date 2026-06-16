@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
+
 import com.klodit.almizan.ui.bidwizard.BidStatusScreen
 import com.klodit.almizan.ui.bidwizard.BidWizardScreen
 import com.klodit.almizan.ui.bidwizard.EvaluationResultsScreen
@@ -29,6 +30,7 @@ import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 import com.klodit.almizan.ui.theme.AppLanguage
 import com.klodit.almizan.viewmodel.notification.NotificationViewModel
 import com.klodit.almizan.ui.home.HomeSearchParams
+import com.klodit.almizan.ui.statistics.StatisticsScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -190,6 +192,14 @@ fun MainScreen(
         return
     }
 
+    val showStatistics by viewModel.showStatistics.collectAsState()
+
+
+    if (showStatistics) {
+        StatisticsScreen(onBack = { viewModel.closeStatistics() })
+        return
+    }
+
     Scaffold(
         containerColor = Color(0xFFF5F7FA),
         topBar = {
@@ -232,6 +242,7 @@ fun MainScreen(
                     viewModel.onTabSelected(BottomNavDestination.Tenders)
                 },
                 allTenders = allTenders,
+                onNavigateToStatistics  = { viewModel.openStatistics() },
 
             )
 

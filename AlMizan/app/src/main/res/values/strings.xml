@@ -682,6 +682,8 @@
     <string name="home_pillar2_desc">Les offres chiffrées de bout en bout et l\'hébergement souverain protègent les informations commerciales sensibles.</string>
     <string name="home_pillar3_title">Analyse par IA</string>
     <string name="home_pillar3_desc">Analyses avancées et détection de tendances pour optimiser les dépenses publiques et identifier les opportunités.</string>
+    <string name="home_filter_sector_hint">Secteur…</string>
+    <string name="home_filter_wilaya_hint">Wilaya…</string>
 
 
     <!-- ══ NOTIFICATIONS — add to values-fr/strings.xml ══ -->
@@ -689,5 +691,34 @@
     <string name="notif_mark_all_read">Tout marquer comme lu</string>
     <string name="notif_empty">Aucune notification</string>
 
+
+    <!-- ── STATISTICS SCREEN ── -->
+    <string name="stats_title">Statistiques</string>
+    <string name="stats_refresh">Actualiser</string>
+    <string name="stats_back">Retour</string>
+    <string name="stats_retry">Réessayer</string>
+    <string name="stats_section_overview">Vue d\'ensemble</string>
+    <string name="stats_section_by_status">Par statut</string>
+    <string name="stats_section_monthly">Publications mensuelles</string>
+    <string name="stats_section_by_sector">Par secteur d\'activité</string>
+    <string name="stats_section_procedure">Types de procédure</string>
+    <string name="stats_section_highlights">Highlights</string>
+    <string name="stats_label_active">Actifs</string>
+    <string name="stats_label_attributed">Attribués</string>
+    <string name="stats_label_expiring">Expirent &lt; 7j</string>
+    <string name="stats_label_cancelled">Annulés</string>
+    <string name="stats_top_wilaya">Wilaya la + active</string>
+    <string name="stats_top_wilaya_count">%1$d appels d\'offres</string>
+    <string name="stats_avg_amount">Montant moyen estimé</string>
+    <string name="stats_currency">DA</string>
+    <string name="stats_empty_sector">Aucune donnée de secteur</string>
+    <string name="stats_empty_procedure">Aucune donnée de procédure</string>
+    <string name="stats_status_publie">Publié</string>
+    <string name="stats_status_en_cours">En cours</string>
+    <string name="stats_status_ouverture_plis">Ouv. plis</string>
+    <string name="stats_status_evaluation">Évaluation</string>
+    <string name="stats_status_attribue">Attribué</string>
+    <string name="stats_status_annule">Annulé</string>
+    <string name="stats_status_cloture">Clôturé</string>
 
 </resources>

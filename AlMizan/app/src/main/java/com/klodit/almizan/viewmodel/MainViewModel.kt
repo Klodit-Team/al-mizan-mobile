@@ -91,6 +91,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _language.value = lang
     }
 
+
+    //stats
+    private val _showStatistics = MutableStateFlow(false)
+    val showStatistics: StateFlow<Boolean> = _showStatistics
+
+    fun openStatistics()  { _showStatistics.value = true }
+    fun closeStatistics() { _showStatistics.value = false }
+
     // ── Auth lifecycle ────────────────────────────────────────────────────────
     fun onLogout() {
         _userId.value        = ""

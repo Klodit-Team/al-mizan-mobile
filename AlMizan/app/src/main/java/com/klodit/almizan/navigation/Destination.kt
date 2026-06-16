@@ -52,4 +52,7 @@ sealed class Destination(val route: String) {
         fun route(profileId: String) = "profile/delete/$profileId"
         val arguments = listOf(navArgument("profileId") { type = NavType.StringType })
     }
+
+    // ── Statistics ───────────────────────────────────────────────────────────
+    object Statistics : Destination("statistics")
 }
