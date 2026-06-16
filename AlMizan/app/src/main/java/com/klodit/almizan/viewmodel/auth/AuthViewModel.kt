@@ -13,6 +13,7 @@ import com.klodit.almizan.ui.theme.AppLanguage
 import kotlinx.coroutines.launch
 import android.content.Context
 import android.net.Uri
+import com.klodit.almizan.data.remote.TokenStorage
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -75,22 +76,24 @@ class AuthViewModel : ViewModel() {
 
     // ── Login ─────────────────────────────────────────────────────────────────
     fun login(
-        email    : String,
-        password : String,
-        onSuccess: (token: String, userId: String) -> Unit,
-        onLocked : () -> Unit = {}
+        email      : String,
+        password   : String,
+        rememberMe : Boolean = false,
+        context    : Context? = null,
+        onSuccess  : (token: String, userId: String) -> Unit,
+        onLocked   : () -> Unit = {}
     ) {
         viewModelScope.launch {
             authState = AuthState.Loading
             try {
-                val (response, token) = repository.login(email, password)
-                android.util.Log.d("AUTH_DEBUG", "cookie token = '$token'")
-
+                val (response, token, refreshToken) = repository.login(email, password)
                 failedLoginAttempts = 0
-                authToken           = token
-                currentUserId       = decodeUserIdFromJwt(token) ?: response.user?.userId
-                authState           = AuthState.Success(token)
-
+                authToken     = token
+                currentUserId = decodeUserIdFromJwt(token) ?: response.user?.userId
+                authState     = AuthState.Success(token)
+                if (rememberMe && context != null) {
+                    TokenStorage.save(context, token, currentUserId ?: "", refreshToken)
+                }
                 onSuccess(token, currentUserId ?: "")
             } catch (e: retrofit2.HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
@@ -386,7 +389,14 @@ class AuthViewModel : ViewModel() {
         step2Data = null
     }
 
-    fun clearSession() {
+    fun restoreSession(token: String, userId: String) {
+        authToken     = token
+        currentUserId = userId
+        authState     = AuthState.Success(token)
+    }
+
+    fun clearSession(context: Context? = null) {
+        context?.let { TokenStorage.clear(it) }
         authToken           = null
         currentUserId       = null
         authState           = AuthState.Idle
@@ -439,7 +449,8 @@ class AuthViewModel : ViewModel() {
                     authState = AuthState.Error("Session expirée, reconnectez-vous")
                     return@launch
                 }
-                val (loginResponse, token) = repository.login(email, password)
+                //val (loginResponse, token) = repository.login(email, password)
+                val (loginResponse, token, _) = repository.login(email, password)
                 authToken     = token
                 currentUserId = decodeUserIdFromJwt(token) ?: loginResponse.user?.userId
                 authState     = AuthState.Success(token)
@@ -456,5 +467,49 @@ class AuthViewModel : ViewModel() {
                 authState = AuthState.Error(e.message ?: "Erreur")
             }
         }
+
+
     }
-}
+
+    fun tryRestoreSession(context: Context, onSuccess: () -> Unit, onFailure: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                val savedUserId       = TokenStorage.getUserId(context) ?: run {
+                    android.util.Log.e("RESTORE", "no userId saved")
+                    onFailure(); return@launch
+                }
+                val savedRefreshToken = TokenStorage.getRefreshToken(context) ?: run {
+                    android.util.Log.e("RESTORE", "no refresh token saved")
+                    onFailure(); return@launch
+                }
+
+                android.util.Log.d("RESTORE", "userId=$savedUserId")
+                android.util.Log.d("RESTORE", "refreshToken=${savedRefreshToken.take(20)}")
+
+                ApiClient.injectRefreshToken(savedRefreshToken)
+
+                val newToken = repository.refreshToken()
+                android.util.Log.d("RESTORE", "newToken=${newToken.take(20)}")
+
+                if (newToken.isNotBlank()) {
+                    ApiClient.injectSavedToken(newToken)
+                    TokenStorage.save(context, newToken, savedUserId, savedRefreshToken)
+                    authToken     = newToken
+                    currentUserId = savedUserId
+                    authState     = AuthState.Success(newToken)
+                    onSuccess()
+                } else {
+                    android.util.Log.e("RESTORE", "newToken is blank")
+                    TokenStorage.clear(context)
+                    onFailure()
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("RESTORE", "exception: ${e::class.simpleName} — ${e.message}")
+                TokenStorage.clear(context)
+                onFailure()
+            }
+        }
+    }
+
+
+    }

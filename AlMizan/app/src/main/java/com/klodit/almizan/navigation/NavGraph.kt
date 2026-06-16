@@ -34,7 +34,14 @@ import com.klodit.almizan.viewmodel.profile.ProfileViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.saveable.rememberSaveable
+import com.klodit.almizan.data.remote.ApiClient
+import com.klodit.almizan.data.remote.TokenStorage
 import com.klodit.almizan.ui.tender.TenderDetailScreen
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 
 // ─── Route constants ──────────────────────────────────────────────────────────
 private object Routes {
@@ -73,6 +80,38 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
     val profileViewModel: ProfileViewModel = viewModel()
     val baseContext = LocalContext.current
 
+    //remmeber me
+    var isCheckingSession by remember { mutableStateOf(true) }
+    var shouldNavigateToMain by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        val savedUserId       = TokenStorage.getUserId(baseContext)
+        val savedRefreshToken = TokenStorage.getRefreshToken(baseContext)
+        if (!savedUserId.isNullOrBlank() && !savedRefreshToken.isNullOrBlank()) {
+            authViewModel.tryRestoreSession(
+                context   = baseContext,
+                onSuccess = {
+                    shouldNavigateToMain = true
+                    isCheckingSession = false
+                },
+                onFailure = {
+                    isCheckingSession = false
+                }
+            )
+        } else {
+            isCheckingSession = false
+        }
+    }
+
+    if (isCheckingSession) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return@NavGraph
+    }
+
+
+
     var selectedLang by remember {
         mutableStateOf(LocaleHelper.currentLanguage(baseContext))
     }
@@ -104,6 +143,8 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
 
 
 
+
+
     CompositionLocalProvider(
         LocalContext provides localizedContext,
         LocalLayoutDirection provides layoutDirection
@@ -117,14 +158,13 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                     onLanguageChange = onLanguageChange,
                     authState        = authViewModel.authState,
                     onClearError     = { authViewModel.clearError() },
-                    onLoginClick = { email, password ->
+                    onLoginClick = { email, password, rememberMe ->
                         authViewModel.login(
-                            email     = email,
-                            password  = password,
-                            onSuccess = { token, userId ->
-                                android.util.Log.d("NAV_DEBUG", "onSuccess called — token=$token userId=$userId")
-                                android.util.Log.d("NAV_DEBUG", "authViewModel instance = ${authViewModel.hashCode()}")
-
+                            email      = email,
+                            password   = password,
+                            rememberMe = rememberMe,
+                            context    = baseContext,
+                            onSuccess  = { _, _ ->
                                 navController.navigate(Routes.MAIN) {
                                     popUpTo(Routes.LOGIN) { inclusive = true }
                                 }
@@ -308,8 +348,8 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                     activeFilter               = activeFilter,
                     userId                     = currentUserId,
                     token                      = currentToken,
-                    onNavigateToLogin          = {
-                        authViewModel.clearSession()
+                    onNavigateToLogin = {
+                        authViewModel.clearSession(baseContext)
                         navController.navigate(Routes.LOGIN) {
                             popUpTo(Routes.MAIN) { inclusive = true }
                         }
@@ -409,6 +449,16 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                     },
                     viewModel = profileViewModel
                 )
+            }
+        }
+
+
+        LaunchedEffect(shouldNavigateToMain) {
+            if (shouldNavigateToMain) {
+                navController.navigate(Routes.MAIN) {
+                    popUpTo(Routes.LOGIN) { inclusive = true }
+                }
+                shouldNavigateToMain = false
             }
         }
     }

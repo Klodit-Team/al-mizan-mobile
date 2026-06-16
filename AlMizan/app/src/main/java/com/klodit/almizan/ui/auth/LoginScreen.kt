@@ -27,7 +27,7 @@ import com.klodit.almizan.viewmodel.auth.AuthState
 
 @Composable
 fun LoginScreen(
-    onLoginClick         : (email: String, password: String) -> Unit = { _, _ -> },
+    onLoginClick: (email: String, password: String, rememberMe: Boolean) -> Unit = { _, _, _ -> },
     onForgotPasswordClick: () -> Unit = {},
     onRegisterClick      : () -> Unit = {},
     onBiometricsClick    : () -> Unit = {},
@@ -257,7 +257,7 @@ fun LoginScreen(
 
                     // Sign-in button
                     Button(
-                        onClick  = { onLoginClick(email, password) },
+                        onClick = { onLoginClick(email, password, rememberMe) },
                         enabled  = canLogin,
                         modifier = Modifier
                             .fillMaxWidth()

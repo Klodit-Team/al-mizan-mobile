@@ -45,5 +45,8 @@ interface AuthApi {
     suspend fun verifyOtp(@Body request: VerifyOtpRequest): OtpResponse
 
 
+    @POST("auth/refresh")
+    suspend fun refresh(): retrofit2.Response<MessageResponse>
+
 
 }
