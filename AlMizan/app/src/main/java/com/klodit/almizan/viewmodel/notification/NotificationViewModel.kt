@@ -35,7 +35,7 @@ class NotificationViewModel : ViewModel() {
     init { refresh() }
 
     fun refresh() {
-        viewModelScope.launch {
+      /*  viewModelScope.launch {
             _uiState.value = NotificationUiState.Loading
             currentPage    = 1
             allItems.clear()
@@ -50,13 +50,55 @@ class NotificationViewModel : ViewModel() {
                 }
             )
             fetchUnreadCount()
-        }
-    }
+        }*/
+
+          val mockNotifications = listOf(
+              NotificationDto(
+                  id = "1",
+                  userId = "demo-user",
+                  titre = "New Tender Published",
+                  contenu = "A new construction tender has been published in Algiers.",
+                  type = "PLATEFORME",
+                  categorie = "PUBLICATION",
+                  statut = "ENVOYE",
+                  isLue = false,
+                  dateEnvoi = "2026-06-16T10:30:00Z",
+                  dateLecture = null,
+                  destinataire = null,
+                  refEntiteId = "AO-2026-001",
+                  refEntiteType = "TENDER",
+                  createdAt = "2026-06-16T10:30:00Z"
+              ),
+              NotificationDto(
+                  id = "2",
+                  userId = "demo-user",
+                  titre = "Tender Awarded",
+                  contenu = "Tender AO-2026-145 has been awarded to SARL TechBuild.",
+                  type = "PLATEFORME",
+                  categorie = "ATTRIBUTION",
+                  statut = "ENVOYE",
+                  isLue = false,
+                  dateEnvoi = "2026-06-16T08:15:00Z",
+                  dateLecture = null,
+                  destinataire = null,
+                  refEntiteId = "AO-2026-145",
+                  refEntiteType = "TENDER",
+                  createdAt = "2026-06-16T08:15:00Z"
+              )
+          )
+
+          allItems.clear()
+          allItems.addAll(mockNotifications)
+
+          _uiState.value = NotificationUiState.Success(mockNotifications)
+          _unreadCount.value = mockNotifications.count { !it.isLue }
+      }
+
 
     fun fetchUnreadCount() {
-        viewModelScope.launch {
+       /* viewModelScope.launch {
             repo.getUnreadCount().onSuccess { _unreadCount.value = it }
-        }
+        }*/
     }
 
     fun markAsRead(id: String) {

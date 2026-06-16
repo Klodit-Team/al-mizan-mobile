@@ -24,6 +24,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,6 +34,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.klodit.almizan.viewmodel.statistics.StatisticsData
 import com.klodit.almizan.viewmodel.statistics.StatisticsUiState
 import com.klodit.almizan.viewmodel.statistics.StatisticsViewModel
+import com.klodit.almizan.R
 
 import java.text.NumberFormat
 import java.util.Locale
@@ -62,7 +64,6 @@ private val SectorColors = listOf(
 )
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatisticsScreen(
@@ -74,29 +75,26 @@ fun StatisticsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Statistiques", fontWeight = FontWeight.SemiBold) },
+                title = { Text(stringResource(R.string.stats_title), fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.stats_back))
                     }
                 },
                 actions = {
                     IconButton(onClick = vm::load) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Actualiser")
+                        Icon(Icons.Default.Refresh,
+                            contentDescription = stringResource(R.string.stats_refresh))
                     }
                 }
             )
         }
     ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
+        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             when (val state = uiState) {
-                is StatisticsUiState.Loading -> {
+                is StatisticsUiState.Loading ->
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
 
                 is StatisticsUiState.Error -> {
                     Column(
@@ -105,7 +103,9 @@ fun StatisticsScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(state.message, color = MaterialTheme.colorScheme.error)
-                        Button(onClick = vm::load) { Text("Réessayer") }
+                        Button(onClick = vm::load) {
+                            Text(stringResource(R.string.stats_retry))
+                        }
                     }
                 }
 
@@ -123,30 +123,18 @@ private fun StatisticsContent(data: StatisticsData) {
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 1 — Overview cards
-        item { SectionLabel("Vue d'ensemble") }
+        item { SectionLabel(stringResource(R.string.stats_section_overview)) }
         item { OverviewCards(data) }
-
-        // 2 — Status breakdown
-        item { SectionLabel("Par statut") }
+        item { SectionLabel(stringResource(R.string.stats_section_by_status)) }
         item { StatusGrid(data.byStatus) }
-
-        // 3 — Monthly chart
-        item { SectionLabel("Publications mensuelles") }
+        item { SectionLabel(stringResource(R.string.stats_section_monthly)) }
         item { MonthlyBarChart(data.monthlyPublications) }
-
-        // 4 — Sector chart
-        item { SectionLabel("Par secteur d'activité") }
+        item { SectionLabel(stringResource(R.string.stats_section_by_sector)) }
         item { HorizontalBarChart(entries = data.bySector, colors = SectorColors) }
-
-        // 5 — Procedure donut
-        item { SectionLabel("Types de procédure") }
+        item { SectionLabel(stringResource(R.string.stats_section_procedure)) }
         item { DonutChart(entries = data.byProcedureType) }
-
-        // 6 — Wilaya highlight
-        item { SectionLabel("Highlights") }
+        item { SectionLabel(stringResource(R.string.stats_section_highlights)) }
         item { HighlightCards(data) }
-
         item { Spacer(Modifier.height(24.dp)) }
     }
 }
@@ -156,10 +144,10 @@ private fun StatisticsContent(data: StatisticsData) {
 @Composable
 private fun OverviewCards(data: StatisticsData) {
     val cards = listOf(
-        Triple("Actifs",       data.totalActive,      ColorActive),
-        Triple("Attribués",    data.totalAttributed,  ColorAttributed),
-        Triple("Expirent < 7j",data.expiringIn7Days,  ColorExpiring),
-        Triple("Annulés",      data.totalCancelled,   ColorCancelled),
+        Triple(stringResource(R.string.stats_label_active),     data.totalActive,     ColorActive),
+        Triple(stringResource(R.string.stats_label_attributed), data.totalAttributed, ColorAttributed),
+        Triple(stringResource(R.string.stats_label_expiring),   data.expiringIn7Days, ColorExpiring),
+        Triple(stringResource(R.string.stats_label_cancelled),  data.totalCancelled,  ColorCancelled),
     )
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -271,14 +259,16 @@ private fun StatusChip(label: String, count: Int, color: Color, modifier: Modifi
     }
 }
 
+// Replace the statusLabel() function — it must be @Composable to use stringResource:
+@Composable
 private fun statusLabel(key: String) = when (key) {
-    "PUBLIE"         -> "Publié"
-    "EN_COURS"       -> "En cours"
-    "OUVERTURE_PLIS" -> "Ouv. plis"
-    "EVALUATION"     -> "Évaluation"
-    "ATTRIBUE"       -> "Attribué"
-    "ANNULE"         -> "Annulé"
-    "CLOTURE"        -> "Clôturé"
+    "PUBLIE"         -> stringResource(R.string.stats_status_publie)
+    "EN_COURS"       -> stringResource(R.string.stats_status_en_cours)
+    "OUVERTURE_PLIS" -> stringResource(R.string.stats_status_ouverture_plis)
+    "EVALUATION"     -> stringResource(R.string.stats_status_evaluation)
+    "ATTRIBUE"       -> stringResource(R.string.stats_status_attribue)
+    "ANNULE"         -> stringResource(R.string.stats_status_annule)
+    "CLOTURE"        -> stringResource(R.string.stats_status_cloture)
     else             -> key.lowercase().replaceFirstChar { it.uppercase() }
 }
 
@@ -359,12 +349,9 @@ private fun MonthlyBarChart(monthly: List<Pair<String, Int>>) {
 // ─── Horizontal bar chart (sectors) ──────────────────────────────────────────
 
 @Composable
-private fun HorizontalBarChart(
-    entries: List<Pair<String, Int>>,
-    colors: List<Color>
-) {
+private fun HorizontalBarChart(entries: List<Pair<String, Int>>, colors: List<Color>) {
     if (entries.isEmpty()) {
-        EmptyState("Aucune donnée de secteur")
+        EmptyState(stringResource(R.string.stats_empty_sector))
         return
     }
 
@@ -437,7 +424,7 @@ private fun HorizontalBarChart(
 @Composable
 private fun DonutChart(entries: List<Pair<String, Int>>) {
     if (entries.isEmpty()) {
-        EmptyState("Aucune donnée de procédure")
+        EmptyState(stringResource(R.string.stats_empty_procedure))
         return
     }
 
@@ -519,63 +506,22 @@ private fun DonutChart(entries: List<Pair<String, Int>>) {
 
 @Composable
 private fun HighlightCards(data: StatisticsData) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        // Top wilaya
-        Card(
-            modifier = Modifier.weight(1f),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1565C0)),
-            elevation = CardDefaults.cardElevation(4.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(14.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text("Wilaya la + active", fontSize = 10.sp, color = Color.White.copy(alpha = 0.75f))
-                Text(
-                    data.topWilaya,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    "${data.topWilayaCount} appels d'offres",
-                    fontSize = 11.sp,
-                    color = Color.White.copy(alpha = 0.85f)
-                )
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Card(modifier = Modifier.weight(1f), /* colors... */ ) {
+            Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(stringResource(R.string.stats_top_wilaya), fontSize = 10.sp, color = Color.White.copy(alpha = 0.75f))
+                Text(data.topWilaya, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(stringResource(R.string.stats_top_wilaya_count, data.topWilayaCount),
+                    fontSize = 11.sp, color = Color.White.copy(alpha = 0.85f))
             }
         }
-
-        // Average montant
-        Card(
-            modifier = Modifier.weight(1f),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF2E7D32)),
-            elevation = CardDefaults.cardElevation(4.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(14.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text("Montant moyen estimé", fontSize = 10.sp, color = Color.White.copy(alpha = 0.75f))
-                Text(
-                    formatMontant(data.averageMontant),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    "DA",
-                    fontSize = 11.sp,
-                    color = Color.White.copy(alpha = 0.85f)
-                )
+        Card(modifier = Modifier.weight(1f), /* colors... */ ) {
+            Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(stringResource(R.string.stats_avg_amount), fontSize = 10.sp, color = Color.White.copy(alpha = 0.75f))
+                Text(formatMontant(data.averageMontant), fontSize = 16.sp, fontWeight = FontWeight.Bold,
+                    color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(stringResource(R.string.stats_currency), fontSize = 11.sp, color = Color.White.copy(alpha = 0.85f))
             }
         }
     }
