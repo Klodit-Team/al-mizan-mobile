@@ -38,10 +38,11 @@ class ProfileRepository {
         android.util.Log.d("PROFILE_REPO", "getOperateurs HTTP code = ${opsRes?.code()}")
         android.util.Log.d("PROFILE_REPO", "getOperateurs error body = ${opsRes?.errorBody()?.string()}")
         android.util.Log.d("PROFILE_REPO", "getOperateurs raw body = ${opsRes?.body()}")
-        val operateurs = opsRes?.body() ?: emptyList()
+        //val operateurs = opsRes?.body() ?: emptyList()
+        val operateurs = opsRes?.body()?.data ?: emptyList()
 
-
-        val operateur = operateurs.find { it.userId == userId || it.user_id == userId }
+       // val operateur = operateurs.find { it.userId == userId || it.user_id == userId }
+        val operateur = operateurs.find { it.userId == userId }
             ?: operateurs.firstOrNull()
 
         val opId = operateur?.id ?: "fallback_operateur_id"
@@ -71,6 +72,7 @@ class ProfileRepository {
                 null
             }
 
+            /*
             val operateurs = try {
                 val res = api.getOperateurs()
                 android.util.Log.d("PROFILE_REPO", "getOperateurs HTTP ${res.code()}")
@@ -80,15 +82,35 @@ class ProfileRepository {
             } catch (e: Exception) {
                 android.util.Log.e("PROFILE_REPO", "getOperateurs exception: $e")
                 emptyList()
+            }*/
+
+            val operateurs = try {
+                val res = api.getOperateurs()
+                android.util.Log.d("PROFILE_REPO", "getOperateurs HTTP ${res.code()}")
+                android.util.Log.d("PROFILE_REPO", "getOperateurs body = ${res.body()}")
+                android.util.Log.d("PROFILE_REPO", "getOperateurs errorBody = ${res.errorBody()?.string()}")
+
+                res.body()?.data ?: emptyList()
+            } catch (e: Exception) {
+                android.util.Log.e("PROFILE_REPO", "getOperateurs exception: $e")
+                emptyList()
             }
 
 
             android.util.Log.d("PROFILE_REPO", "operateurs count = ${operateurs.size}")
             operateurs.forEach {
-                android.util.Log.d("PROFILE_REPO", "  op.userId=${it.userId} op.user_id=${it.user_id} org=${it.organisation?.denomination}")
+                //android.util.Log.d("PROFILE_REPO", "  op.userId=${it.userId} op.user_id=${it.user_id} org=${it.organisation?.denomination}")
+                android.util.Log.d(
+                    "PROFILE_REPO",
+                    "op.userId=${it.userId} org=${it.organisation?.denomination}"
+                )
             }
 
-            val opDto = operateurs.find { it.userId == userId || it.user_id == userId } ?: operateurs.firstOrNull()
+           // val opDto = operateurs.find { it.userId == userId || it.user_id == userId } ?: operateurs.firstOrNull()
+
+            val opDto = operateurs.find { it.userId == userId }
+                ?: operateurs.firstOrNull()
+
             android.util.Log.d("PROFILE_REPO", "matched opDto = $opDto")
             val orgDto = opDto?.organisation
 
@@ -122,12 +144,28 @@ class ProfileRepository {
                 is_verified       = scProfile?.organizationInfo?.verificationStatus?.lowercase() == "verified" || orgDto?.is_verified ?: false
             )
 
+            /*
             val operateur = OperateurEconomique(
                 qualifications = opDto?.qualifications?.split(",")?.filter { it.isNotBlank() } ?: listOf("Standard"),
                 categories = opDto?.categories?.split(",")?.filter { it.isNotBlank() } ?: listOf("Catégorie 1"),
                 is_eligible = opDto?.is_eligible ?: true,
                 is_blacklisted = opDto?.is_blacklisted ?: false,
                 raison_blacklist = opDto?.raison_blacklist
+            )*/
+            val operateur = OperateurEconomique(
+                qualifications = opDto?.qualifications
+                    ?.split(",")
+                    ?.filter { it.isNotBlank() }
+                    ?: listOf("Standard"),
+
+                categories = opDto?.categories
+                    ?.split(",")
+                    ?.filter { it.isNotBlank() }
+                    ?: listOf("Catégorie 1"),
+
+                is_eligible = opDto?.isEligible ?: true,
+                is_blacklisted = opDto?.isBlacklisted ?: false,
+                raison_blacklist = opDto?.raisonBlacklist
             )
 
             Result.success(ProfileScreenData(User(email, true), profile, organisation, operateur))

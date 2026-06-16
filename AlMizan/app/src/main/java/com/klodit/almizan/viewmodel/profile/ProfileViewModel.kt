@@ -79,9 +79,10 @@ class ProfileViewModel : ViewModel() {
 
     fun fetchProfileByUserId(userId: String, token: String) {
         viewModelScope.launch {
-            if (_profileUiState.value !is ProfileUiState.Success) {
+           /* if (_profileUiState.value !is ProfileUiState.Success) {
                 _profileUiState.value = ProfileUiState.Loading
-            }
+            }*/
+            _profileUiState.value = ProfileUiState.Loading
 
             repository.getProfileScreenData()
                 .onSuccess { data ->

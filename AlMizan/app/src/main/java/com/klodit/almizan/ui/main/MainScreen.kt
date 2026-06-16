@@ -98,13 +98,14 @@ fun MainScreen(
     }
 
 
-    /* LaunchedEffect(userId) {
+    LaunchedEffect(userId) {
          if (userId.isNotEmpty()) {
              profileViewModel.fetchProfileByUserId(userId, token)
          }
-     }*/
+     }
 
 
+    /*
     LaunchedEffect(userId, currentRoute) {
         if (userId.isNotEmpty() &&
             (profileViewModel.profileUiState.value !is com.klodit.almizan.data.profile.ProfileUiState.Success
@@ -112,7 +113,7 @@ fun MainScreen(
         ) {
             profileViewModel.fetchProfileByUserId(userId, token)
         }
-    }
+    }*/
 
     val profileState by profileViewModel.profileUiState.collectAsState()
     LaunchedEffect(profileState) {
