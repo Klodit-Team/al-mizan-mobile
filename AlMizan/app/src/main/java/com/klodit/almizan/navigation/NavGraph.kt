@@ -79,6 +79,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
     val tenderViewModel: TenderViewModel   = viewModel()
     val profileViewModel: ProfileViewModel = viewModel()
     val baseContext = LocalContext.current
+    val notificationViewModel: com.klodit.almizan.viewmodel.notification.NotificationViewModel = viewModel()
 
     //remmeber me
     var isCheckingSession by remember { mutableStateOf(true) }
@@ -348,6 +349,7 @@ fun NavGraph(onAuthSuccess: () -> Unit = {}) {
                 MainScreen(
                     allTenders = tenders,
                     profileViewModel           = profileViewModel,
+                    notificationViewModel    = notificationViewModel,
                     activeFilter               = activeFilter,
                     userId                     = currentUserId,
                     token                      = currentToken,

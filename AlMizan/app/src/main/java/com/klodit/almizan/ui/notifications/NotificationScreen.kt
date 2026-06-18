@@ -84,6 +84,7 @@ private fun relativeTime(iso: String?): String {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationScreen(
+    userId    : String = "",
     onBack    : () -> Unit = {},
     viewModel : NotificationViewModel = viewModel()
 ) {

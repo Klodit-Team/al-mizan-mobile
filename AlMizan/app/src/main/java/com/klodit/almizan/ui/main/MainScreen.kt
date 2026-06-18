@@ -132,6 +132,18 @@ fun MainScreen(
         }
     }
 
+    // Après les autres LaunchedEffect
+    val notifUnreadCount by notificationViewModel.unreadCount.collectAsState()
+    LaunchedEffect(notifUnreadCount) {
+        viewModel.setUnreadCount(notifUnreadCount)
+    }
+
+    LaunchedEffect(userId) {
+        if (userId.isNotEmpty()) {
+            notificationViewModel.loadForUser(userId)
+        }
+    }
+
     // Bid wizard and appeals overlays
     if (showBidWizard && currentBidAppelOffreId != null) {
         BidWizardScreen(
@@ -186,6 +198,7 @@ fun MainScreen(
 
     if (showNotifications) {
         NotificationScreen(
+            userId    = userId,
             onBack = { viewModel.closeNotifications() },
             viewModel = notificationViewModel
         )
